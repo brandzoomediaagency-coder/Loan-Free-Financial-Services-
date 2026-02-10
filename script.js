@@ -6,18 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (mobileToggle && navMenu) {
         mobileToggle.addEventListener('click', () => {
-            navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
-
-            // Basic mobile menu styling injection for toggle state
-            if (navMenu.style.display === 'flex') {
-                navMenu.style.position = 'absolute';
-                navMenu.style.top = '100%';
-                navMenu.style.left = '0';
-                navMenu.style.width = '100%';
-                navMenu.style.flexDirection = 'column';
-                navMenu.style.background = 'white';
-                navMenu.style.padding = '1rem';
-                navMenu.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            navMenu.classList.toggle('active');
+            // Toggle icon between bars and times (X)
+            const icon = mobileToggle.querySelector('i');
+            if (icon) {
+                if (navMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
             }
         });
     }

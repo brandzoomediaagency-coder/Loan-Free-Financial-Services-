@@ -795,8 +795,27 @@ ul {
         grid-template-columns: 1fr;
     }
 
-    .nav-menu {
-        display: none;
+    @media (max-width: 768px) {
+        .nav-menu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .nav-menu.active {
+            display: flex;
+        }
+
+        .mobile-toggle {
+            display: block;
+        }
     }
 
     .mobile-toggle {
