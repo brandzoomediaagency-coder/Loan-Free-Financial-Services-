@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frequently Asked Questions | Loan Free Financial Services</title>
+    <meta name="description"
+        content="Answers to common questions about debt settlement, legality in India, and how we protect you from harassment.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .accordion-item {
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: 1.5rem;
+            text-align: left;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-header i {
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s;
+        }
+
+        .accordion-content.active {
+            padding-bottom: 1.5rem;
+            max-height: 500px;
+            /* arbitrary height */
+        }
+
+        .accordion-header.active i {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="brand-text">
+                        <span class="brand-name">Loan Free</span>
+                        <span class="brand-sub">Financial Services</span>
+                    </div>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="process.html" class="nav-link">Process</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="mobile-toggle"><i class="fas fa-bars"></i></div>
+            <a href="contact.html" class="btn btn-primary nav-cta">Free Consultation</a>
+        </div>
+    </nav>
+
+    <header class="hero-page"
+        style="height: 40vh; min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
+        <div class="container">
+            <h1>FAQ</h1>
+            <p>Your questions answered by experts.</p>
+        </div>
+    </header>
+
+    <section class="section-padding">
+        <div class="container" style="max-width: 800px;">
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    Is debt settlement legal in India?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>Yes, absolutely. Debt settlement is a legal contract between a borrower and a lender governed by
+                        the Indian Contract Act. It is a legitimate way to close a loan account if you are unable to pay
+                        effectively.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    What happens to my CIBIL score?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>When you settle a loan, it is reported as "Settled" in CIBIL, which temporarily lowers your
+                        score. However, once you are debt-free, you can start rebuilding your score. We provide guidance
+                        on how to do this effectively.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    Can you stop recovery agent harassment?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>Yes. As your authorized legal representatives, we take over all communication. If agents continue
+                        to harass you, we file complaints under relevant RBI guidelines and consumer protection laws
+                        against the bank.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    Will my family or employer be informed?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>Banks are strictly prohibited from contacting third parties like employers or relatives for
+                        recovery. We ensure strict privacy and take legal action if they violate this rule.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    How do you charge for your services?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>We work on a transparent model. We charge a small enrollment fee for legal protection and
+                        administrative setup, and a separate success fee only when we successfully save you money on
+                        settlement.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col">
+                    <h4>Loan Free Financial Services</h4>
+                    <p style="margin-bottom: 1.5rem; color: #cbd5e1;">Your trusted partner for debt freedom and
+                        financial peace. RBI-compliant legal solutions across India.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div class="footer-col user-select-none">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="services.html">Our Services</a></li>
+                        <li><a href="process.html">How It Works</a></li>
+                        <li><a href="about.html">Why Choose Us</a></li>
+                        <li><a href="blog.html">Blog & Resources</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Our Services -->
+                <div class="footer-col">
+                    <h4>Our Services</h4>
+                    <ul>
+                        <li><a href="services.html">Personal Loan Settlement</a></li>
+                        <li><a href="services.html">Credit Card Debt Relief</a></li>
+                        <li><a href="services.html">Business Loan Resolution</a></li>
+                        <li><a href="services.html">Anti-Harassment Service</a></li>
+                        <li><a href="services.html">Legal Notice Response</a></li>
+                        <li><a href="services.html">Credit Score Repair</a></li>
+                        <li><a href="services.html">EMI Restructuring</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Contact Us -->
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <strong>Email:</strong><br>
+                            <a href="mailto:info@athenalegalsolutionllp.in">info@athenalegalsolutionllp.in</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div>
+                            <strong>Phone:</strong><br>
+                            <a href="tel:+917042538878">+91 70425 38878</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Head Office:</strong><br>
+                            Chamber number 698<br>
+                            Western Wing Tis Hazari Court<br>
+                            Delhi 110054
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Loan Free Financial Services. All rights reserved. | Debt Resolution Experts Since
+                    2020
+                </p>
+                <p class="disclaimer">Disclaimer: Debt resolution results may vary based on individual
+                    circumstances. We
+                    provide legal consultation and negotiation services in compliance with RBI guidelines. Not a
+                    loan
+                    provider or credit repair organization.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="sticky-bar">
+        <a href="tel:+917042538878" class="sticky-btn btn-call"><i class="fas fa-phone-alt"></i> Call Now</a>
+        <a href="https://wa.me/917042538878" class="sticky-btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Inline accordion script if script.js doesnt cover it generically for this page
+        const accHeaders = document.querySelectorAll('.accordion-header');
+        accHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                header.classList.toggle('active');
+                const content = header.nextElementSibling;
+                content.classList.toggle('active');
+            });
+        });
+    </script>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/917042538878" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+</body>
+
+</html>
