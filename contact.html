@@ -183,41 +183,41 @@
 
             <div
                 style="background: #f8fafc; padding: 3rem; border-radius: 30px; border: 1px solid var(--gray-light); box-shadow: var(--shadow-sm);">
-                <form>
+                <form id="contactForm">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                         <div class="form-group">
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Full
                                 Name</label>
-                            <input type="text" placeholder="Your full name"
+                            <input type="text" id="fullName" placeholder="Your full name" required
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit;">
                         </div>
                         <div class="form-group">
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Mobile
                                 Number</label>
-                            <input type="tel" placeholder="10-digit mobile number"
+                            <input type="tel" id="mobileNumber" placeholder="10-digit mobile number" required
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit;">
                         </div>
                         <div class="form-group">
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Email
                                 Address</label>
-                            <input type="email" placeholder="Email address (optional)"
+                            <input type="email" id="emailAddress" placeholder="Email address (optional)"
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit;">
                         </div>
                         <div class="form-group">
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">City
                                 / State</label>
-                            <input type="text" placeholder="Where are you located?"
+                            <input type="text" id="cityState" placeholder="Where are you located?"
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit;">
                         </div>
                         <div class="form-group">
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Type
                                 of Debt</label>
-                            <select
+                            <select id="debtType"
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit; background: white;">
                                 <option value="">Select Debt Type</option>
                                 <option>Personal Loan</option>
@@ -231,7 +231,7 @@
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Total
                                 Outstanding Amount (Approx)</label>
-                            <input type="text" placeholder="e.g. 5 Lakhs"
+                            <input type="text" id="loanAmount" placeholder="e.g. 5 Lakhs"
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit;">
                         </div>
                     </div>
@@ -240,7 +240,7 @@
                         <label
                             style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Current
                             Challenges / Situation</label>
-                        <textarea rows="4"
+                        <textarea rows="4" id="message"
                             placeholder="Briefly describe your situation (e.g. recovery harassment, received legal notice, job loss)..."
                             style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit; resize: vertical;"></textarea>
                     </div>
@@ -253,15 +253,15 @@
                             <div style="display: flex; gap: 1.5rem; padding-top: 0.5rem;">
                                 <label
                                     style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.95rem;">
-                                    <input type="radio" name="contact-pref" checked> Phone Call
+                                    <input type="radio" name="contact-pref" value="Phone Call" checked> Phone Call
                                 </label>
                                 <label
                                     style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.95rem;">
-                                    <input type="radio" name="contact-pref"> WhatsApp
+                                    <input type="radio" name="contact-pref" value="WhatsApp"> WhatsApp
                                 </label>
                                 <label
                                     style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.95rem;">
-                                    <input type="radio" name="contact-pref"> Email
+                                    <input type="radio" name="contact-pref" value="Email"> Email
                                 </label>
                             </div>
                         </div>
@@ -269,7 +269,7 @@
                             <label
                                 style="display:block; margin-bottom: 0.75rem; font-weight:600; color: var(--primary-blue);">Best
                                 Time to Reach You</label>
-                            <input type="text" placeholder="e.g. Morning (11 AM), Anytime"
+                            <input type="text" id="bestTime" placeholder="e.g. Morning (11 AM), Anytime"
                                 style="width:100%; padding: 1rem; border:1px solid #e2e8f0; border-radius:12px; font-family: inherit;">
                         </div>
                     </div>
@@ -280,7 +280,7 @@
                             to be contacted by our team to discuss your case. Your details are kept strictly
                             confidential.
                         </p>
-                        <button type="button" class="btn btn-primary"
+                        <button type="submit" class="btn btn-primary"
                             style="padding: 1.25rem 3rem; font-size: 1.1rem; border-radius: 12px; box-shadow: var(--shadow-sm);">Submit
                             for Confidential Review</button>
                     </div>
