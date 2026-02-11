@@ -1347,7 +1347,9 @@ ul {
 .whatsapp-float:hover {
     transform: scale(1.1);
     color: white;
-}/* --- Mobile Responsive Updates --- */
+}
+
+/* --- Mobile Responsive Updates --- */
 @media (max-width: 768px) {
 
     /* Navigation */
@@ -1467,6 +1469,7 @@ ul {
         /* Slight reduction for smaller screens */
     }
 }
+
 /* --- Consistent Grid Responsiveness --- */
 @media (max-width: 1024px) {
 
@@ -1509,6 +1512,7 @@ ul {
         margin-bottom: 2rem;
     }
 }
+
 /* --- Process Grid New Styles (Added for Consistency) --- */
 .process-grid-new {
     display: grid;
@@ -1578,3 +1582,50 @@ ul {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Sticky Bar Styles --- */
+.sticky-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 1rem;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sticky-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.sticky-btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-call {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-wa {
+    background: #25D366;
+    color: white;
+}
+
+/* Hide WhatsApp Float if Sticky Bar is present on mobile/all screens? 
+   The sticky bar seems to overlap with the float. 
+   Let's keep both but maybe hide sticky bar on desktop if desirable? 
+   No, user wants it unified.
+*/
