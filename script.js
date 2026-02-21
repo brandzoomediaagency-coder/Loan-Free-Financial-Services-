@@ -25,12 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const accHeaders = document.querySelectorAll('.accordion-header');
     accHeaders.forEach(header => {
         header.addEventListener('click', () => {
-            // Close other open items
             const currentContent = header.nextElementSibling;
+            const isActive = header.classList.contains('active');
 
-            // Toggle active state
-            header.classList.toggle('active');
-            currentContent.classList.toggle('active');
+            // Close all items first
+            accHeaders.forEach(h => {
+                h.classList.remove('active');
+                if (h.nextElementSibling) {
+                    h.nextElementSibling.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked one if it wasn't active
+            if (!isActive) {
+                header.classList.add('active');
+                currentContent.classList.add('active');
+            }
         });
     });
 
