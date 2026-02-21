@@ -1095,7 +1095,7 @@ ul {
     line-height: 1.6;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 900px) {
     .card-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1450,7 +1450,6 @@ ul {
 /* --- Consistent Grid Responsiveness --- */
 @media (max-width: 1024px) {
 
-    .card-grid,
     .fresh-grid,
     .service-guide-grid {
         grid-template-columns: repeat(2, 1fr) !important;
