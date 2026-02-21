@@ -1600,6 +1600,73 @@ ul {
     color: white;
 }
 
+/* --- Fresh FAQ Design (Accordion) --- */
+.accordion-item {
+    background: var(--white);
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.accordion-item:hover {
+    box-shadow: 0 10px 30px rgba(30, 58, 138, 0.08);
+    transform: translateY(-2px);
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 1.75rem 2rem;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.3s ease;
+}
+
+.accordion-header.active {
+    background: #f8fafc;
+}
+
+.accordion-header i {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--secondary-teal);
+    font-size: 1rem;
+}
+
+.accordion-header.active i {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    padding: 0 2rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
+}
+
+.accordion-content.active {
+    padding-bottom: 2rem;
+    max-height: 500px;
+    /* Adjusted for content */
+}
+
+.accordion-content p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
 /* Hide WhatsApp Float if Sticky Bar is present on mobile/all screens? 
    The sticky bar seems to overlap with the float. 
    Let's keep both but maybe hide sticky bar on desktop if desirable? 
