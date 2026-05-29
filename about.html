@@ -4,12 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/png" href="Loan Free Financial Services.png">
+    <link rel="apple-touch-icon" href="Loan Free Financial Services.png">
+    <meta name="theme-color" content="#102a43">
     <title>About Loan Free | Top Debt Consultants & Lawyers in Delhi</title>
     <meta name="description"
         content="Loan Free Financial Services is Delhi's trusted debt consultancy. Our team of legal experts and financial advisors helps you stop harassment and become debt-free.">
     <meta name="keywords"
         content="about loan free financial services, debt consultants delhi, debt lawyers india, loan harassment legal help, financial freedom experts">
-    <link rel="canonical" href="https://www.loanfree.in/about.html">
+    <link rel="canonical" href="https://www.loanfree.info/about.html">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Loan Free Financial Services">
+    <meta property="og:url" content="https://www.loanfree.info/about.html">
+    <meta property="og:title" content="About Loan Free | Top Debt Consultants & Lawyers in Delhi">
+    <meta property="og:description" content="Loan Free Financial Services is Delhi's trusted debt consultancy. Our team of legal experts and financial advisors helps you stop harassment and become debt-free.">
+    <meta property="og:image" content="https://www.loanfree.info/logo.png">
+    <meta property="og:locale" content="en_IN">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About Loan Free | Top Debt Consultants & Lawyers in Delhi">
+    <meta name="twitter:description" content="Loan Free Financial Services is Delhi's trusted debt consultancy. Our team of legal experts and financial advisors helps you stop harassment and become debt-free.">
+    <meta name="twitter:image" content="https://www.loanfree.info/logo.png">
 
     <!-- Schema.org Structured Data: LegalService -->
     <script type="application/ld+json">
@@ -17,9 +34,9 @@
       "@context": "https://schema.org",
       "@type": "LegalService",
       "name": "Loan Free Financial Services",
-      "image": "https://www.loanfree.in/assets/logo.png",
-      "@id": "https://www.loanfree.in",
-      "url": "https://www.loanfree.in/about.html",
+      "image": "https://www.loanfree.info/logo.png",
+      "@id": "https://www.loanfree.info",
+      "url": "https://www.loanfree.info/about.html",
       "priceRange": "₹₹",
       "knowsAbout": ["Debt Settlement", "Loan Harassment Law", "Banking Regulation Act", "RBI Guidelines"],
       "foundingDate": "2020",
@@ -30,13 +47,24 @@
     }
     </script>
 
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.loanfree.info/" },
+        { "@type": "ListItem", "position": 2, "name": "About Us", "item": "https://www.loanfree.info/about.html" }
+      ]
+    }
+    </script>
+
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Primary">
         <div class="container nav-container">
             <div class="logo">
                 <a href="index.html" class="logo d-flex align-center gap-1">
@@ -47,7 +75,7 @@
                     </div>
                 </a>
             </div>
-            <ul class="nav-menu">
+            <ul class="nav-menu" id="primary-menu">
                 <li><a href="index.html" class="nav-link">Home</a></li>
                 <li><a href="services.html" class="nav-link">Services</a></li>
                 <li><a href="process.html" class="nav-link">Process</a></li>
@@ -56,7 +84,7 @@
                 <li><a href="faq.html" class="nav-link">FAQ</a></li>
                 <li><a href="contact.html" class="nav-link">Contact Us</a></li>
             </ul>
-            <div class="mobile-toggle"><i class="fas fa-bars"></i></div>
+            <div class="mobile-toggle" role="button" tabindex="0" aria-label="Open menu" aria-controls="primary-menu" aria-expanded="false"><i class="fas fa-bars"></i></div>
             <a href="#" onclick="lfOpenPopup();return false;" class="btn btn-primary nav-cta">Free Consultation</a>
         </div>
     </nav>
@@ -83,7 +111,7 @@
                         shield and a strategic roadmap for clients across every corner of India.</p>
                 </div>
                 <div class="visual-placeholder">
-                    <i class="fas fa-building-columns"></i>
+                    <img class="visual-photo" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=70" alt="Professional financial and legal consultancy office" loading="lazy" width="800" height="600">
                 </div>
             </div>
         </div>
@@ -94,7 +122,7 @@
         <div class="container" style="max-width: 1200px;">
             <div class="fresh-grid">
                 <div class="visual-placeholder order-mobile-last">
-                    <i class="fas fa-scale-balanced"></i>
+                    <img class="visual-photo" src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=70" alt="Scales of justice representing lawful debt resolution" loading="lazy" width="800" height="600">
                 </div>
                 <div class="long-form-content">
                     <div id="our-story" class="mb-5">
@@ -391,7 +419,7 @@
                         legal way to settle and move forward.</p>
                 </div>
                 <div class="visual-placeholder">
-                    <i class="fas fa-landmark-flag"></i>
+                    <img class="visual-photo" src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=70" alt="Law books and legal references on RBI fair-practice norms" loading="lazy" width="800" height="600">
                 </div>
             </div>
 
@@ -461,7 +489,7 @@
         <div class="container" style="max-width: 1200px;">
             <div class="fresh-grid">
                 <div class="visual-placeholder bg-gradient-blue">
-                    <i class="fas fa-handshake-angle text-primary-blue"></i>
+                    <img class="visual-photo" src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=800&q=70" alt="Advisor and client shaking hands after a successful consultation" loading="lazy" width="800" height="600">
                 </div>
                 <div class="long-form-content">
                     <div id="why-choose-us" class="mb-4">
@@ -537,10 +565,8 @@
                     <div class="social-icons">
                         <a href="https://www.facebook.com/profile.php?id=61562416165952" class="social-icon"
                             target="_blank"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
                         <a href="https://www.instagram.com/loanfree.info/" class="social-icon" target="_blank"><i
                                 class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
 
@@ -553,8 +579,10 @@
                         <li><a href="about.html">Why Choose Us</a></li>
                         <li><a href="blog.html">Blog & Resources</a></li>
                         <li><a href="faq.html">FAQ</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms &amp; Conditions</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                        <li><a href="sitemap.xml">Sitemap</a></li>
                     </ul>
                 </div>
 
@@ -562,13 +590,13 @@
                 <div class="footer-col">
                     <h4>Our Services</h4>
                     <ul>
-                        <li><a href="services.html">Personal Loan Settlement</a></li>
-                        <li><a href="services.html">Credit Card Debt Relief</a></li>
-                        <li><a href="services.html">Business Loan Resolution</a></li>
-                        <li><a href="services.html">Anti-Harassment Service</a></li>
-                        <li><a href="services.html">Legal Notice Response</a></li>
-                        <li><a href="services.html">Credit Score Repair</a></li>
-                        <li><a href="services.html">EMI Restructuring</a></li>
+                        <li><a href="personal-loan-settlement.html">Personal Loan Settlement</a></li>
+                        <li><a href="credit-card-debt-settlement.html">Credit Card Debt Relief</a></li>
+                        <li><a href="business-loan-restructuring.html">Business Loan Resolution</a></li>
+                        <li><a href="recovery-agent-harassment-protection.html">Anti-Harassment Service</a></li>
+                        <li><a href="legal-notice-reply.html">Legal Notice Response</a></li>
+                        <li><a href="credit-score-guidance.html">Credit Score Repair</a></li>
+                        <li><a href="business-loan-restructuring.html">EMI Restructuring</a></li>
                     </ul>
                 </div>
 
@@ -619,6 +647,9 @@
 
 
     <script src="script.js"></script>
+    <!-- Floating WhatsApp (desktop) -->
+    <a href="https://wa.me/917042538878?text=Hi%2C%20I%20would%20like%20a%20free%20consultation." class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
     <!-- Sticky Contact Bar -->
     <div class="sticky-bar">
         <a href="tel:+917042538878" class="sticky-btn btn-call"><i class="fas fa-phone-volume"></i> Call Now</a>

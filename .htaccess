@@ -1,0 +1,20 @@
+# Apache config — force HTTPS and the canonical www host (301).
+# Use this only if the site is served by Apache. GitHub Pages uses the CNAME
+# file instead and auto-redirects the apex to the www host.
+
+RewriteEngine On
+
+# 1) Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2) Force www (loanfree.info -> www.loanfree.info)
+RewriteCond %{HTTP_HOST} ^loanfree\.info$ [NC]
+RewriteRule ^ https://www.loanfree.info%{REQUEST_URI} [L,R=301]
+
+# Optional: serve clean URLs (strip .html) — uncomment if desired
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteCond %{REQUEST_FILENAME}\.html -f
+# RewriteRule ^([^.]+)$ $1.html [NC,L]
+
+ErrorDocument 404 /index.html

@@ -1,4 +1,20 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.loanfree.in/sitemap.xml
+# Allow major AI / answer engines explicitly (GEO/AEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.loanfree.info/sitemap.xml
