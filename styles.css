@@ -2919,3 +2919,83 @@ ul {
         max-width: 320px;
     }
 }
+/* ==========================================================================
+   BLOG ARTICLE ELEMENTS (added) — TOC, tables, figure captions, reviewer
+   ========================================================================== */
+
+/* Hero figure caption (below image) */
+.blog-content figcaption,
+article > .media-figure figcaption {
+    margin-top: 0.85rem;
+    font-size: 0.85rem;
+    color: var(--text-muted, #64748b);
+    font-style: italic;
+    text-align: center;
+}
+article > .media-figure { margin: 0 0 2rem; }
+
+/* Table of contents */
+.toc {
+    background: var(--navy-50, #eef3f9);
+    border: 1px solid #d7e2ef;
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    margin: 2rem 0;
+}
+.toc h2 {
+    font-size: 1.05rem;
+    color: var(--navy);
+    margin: 0 0 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.toc li { margin: 0; }
+.toc a {
+    color: var(--navy-light, #1e3a5f);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: color .15s, border-color .15s;
+}
+.toc a:hover, .toc a:focus-visible { color: var(--primary-green); border-bottom-color: var(--primary-green); }
+
+/* Content tables */
+.table-wrap { overflow-x: auto; margin: 1.75rem 0; -webkit-overflow-scrolling: touch; }
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 460px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(16, 42, 67, 0.06);
+}
+.content-table th, .content-table td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e6edf5;
+    vertical-align: top;
+}
+.content-table thead th {
+    background: var(--navy);
+    color: #fff;
+    font-weight: 700;
+}
+.content-table tbody tr:nth-child(even) { background: #f6f9fc; }
+.content-table tbody tr:last-child td { border-bottom: none; }
+
+/* Author / reviewer (E-E-A-T) box */
+.reviewer-box {
+    background: #f6f9fc;
+    border: 1px solid #dbe6f1;
+    border-radius: 14px;
+    padding: 1.3rem 1.6rem;
+    margin: 2.5rem 0 1rem;
+    font-size: 0.92rem;
+    color: #43586e;
+    line-height: 1.7;
+}
+.reviewer-box strong { color: var(--navy); }
+.reviewer-box a { color: var(--primary-green); font-weight: 600; }

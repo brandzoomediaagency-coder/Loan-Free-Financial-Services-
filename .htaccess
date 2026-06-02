@@ -1,20 +1,62 @@
-# Apache config — force HTTPS and the canonical www host (301).
-# Use this only if the site is served by Apache. GitHub Pages uses the CNAME
-# file instead and auto-redirects the apex to the www host.
+# =============================================================================
+# Apache configuration for Loan Free Financial Services
+# Use ONLY if the site is served by Apache (cPanel / shared hosting / VPS).
+# GitHub Pages and Netlify IGNORE this file — see SEO-DEPLOYMENT-NOTES.md.
+# =============================================================================
 
 RewriteEngine On
 
-# 1) Force HTTPS
+# 1) Force HTTPS (http -> https, 301)
 RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# 2) Force www (loanfree.info -> www.loanfree.info)
+# 2) Force the canonical www host (loanfree.info -> www.loanfree.info, 301)
 RewriteCond %{HTTP_HOST} ^loanfree\.info$ [NC]
 RewriteRule ^ https://www.loanfree.info%{REQUEST_URI} [L,R=301]
 
-# Optional: serve clean URLs (strip .html) — uncomment if desired
+# 3) Optional: serve clean URLs (strip .html) — leave commented unless you also
+#    update internal links. Canonical tags currently use .html URLs.
 # RewriteCond %{REQUEST_FILENAME} !-d
 # RewriteCond %{REQUEST_FILENAME}\.html -f
 # RewriteRule ^([^.]+)$ $1.html [NC,L]
 
-ErrorDocument 404 /index.html
+# Custom 404 page (proper soft-404 avoidance — returns 404 status + branded page)
+ErrorDocument 404 /404.html
+
+# -----------------------------------------------------------------------------
+# Performance: GZIP / Deflate compression
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml \
+    application/javascript application/x-javascript application/json \
+    application/xml application/rss+xml image/svg+xml application/ld+json
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Performance: Browser caching (Cache-Control via Expires)
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType application/xml "access plus 1 day"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Long cache for static, fingerprint-free assets; HTML stays fresh
+  <FilesMatch "\.(css|js|jpg|jpeg|png|webp|svg|ico|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html|xml)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+  # Basic security headers
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
