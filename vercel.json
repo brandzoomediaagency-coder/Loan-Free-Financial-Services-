@@ -2,6 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": false,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "^loanfree\\.info$" }],
+      "destination": "https://www.loanfree.info/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.(css|js|jpg|jpeg|png|webp|svg|ico|woff2)",
