@@ -398,7 +398,10 @@ ul {
 .hero {
     padding: 160px 0 100px;
     text-align: center;
-    background: linear-gradient(rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.92)), url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80');
+    /* Perf: second hotlinked Unsplash background removed. This rule is currently
+       unused (class="hero" matches no page) but the URL was a latent 127-288 KB
+       fetch if the class were ever reused. */
+    background: linear-gradient(rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.92));
     background-size: cover;
     background-position: center;
     position: relative;
@@ -1729,7 +1732,7 @@ ul {
 }
 
 .btn-wa {
-    background: #25D366;
+    background: #0E7A6E; /* WhatsApp teal family. White-on-#25D366 was 1.98:1 (WCAG 1.4.3 fail) on the primary CTA; this is 5.21:1. */
     color: white;
 }
 
@@ -1801,9 +1804,11 @@ ul {
 }
 
 /* Global Sub-page Headers */
+/* Perf: the 7360x4912 Unsplash hotlink previously loaded here was 1.06 MB (AVIF)
+   / 3.48 MB (JPEG) on 16 pages, sitting under a 94-96% opaque gradient that made
+   it invisible. Removed — the gradient alone is visually identical. */
 .hero-page {
-    background: linear-gradient(135deg, rgba(16, 42, 67, 0.94), rgba(10, 28, 48, 0.96)),
-        url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80') center/cover;
+    background: linear-gradient(135deg, rgba(16, 42, 67, 0.97), rgba(10, 28, 48, 0.99)) center/cover;
     min-height: 320px;
     padding: 7rem 0 4rem;
     display: flex;
@@ -2072,7 +2077,7 @@ ul {
 
 /* --- Secondary / WhatsApp buttons --- */
 .btn-wa-green {
-    background: #25D366;
+    background: #0E7A6E; /* WhatsApp teal family. White-on-#25D366 was 1.98:1 (WCAG 1.4.3 fail) on the primary CTA; this is 5.21:1. */
     color: #fff;
     box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
@@ -2604,7 +2609,7 @@ ul {
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: #25D366;
+    background: #0E7A6E; /* WhatsApp teal family. White-on-#25D366 was 1.98:1 (WCAG 1.4.3 fail) on the primary CTA; this is 5.21:1. */
     color: #fff;
     display: flex;
     align-items: center;
