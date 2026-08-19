@@ -108,7 +108,15 @@
           "url": "https://www.loanfree.info/",
           "name": "Loan Free Financial Services",
           "publisher": { "@id": "https://www.loanfree.info/#organization" },
-          "inLanguage": "en-IN"
+          "inLanguage": "en-IN",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://www.loanfree.info/faq.html?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
         },
         {
           "@type": "BreadcrumbList",

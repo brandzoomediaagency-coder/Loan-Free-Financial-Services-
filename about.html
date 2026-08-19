@@ -55,22 +55,76 @@
     <meta name="twitter:description" content="Loan Free Financial Services is Delhi's trusted debt consultancy. Our team of legal experts and financial advisors helps you stop harassment and become debt-free.">
     <meta name="twitter:image" content="https://www.loanfree.info/logo.png">
 
-    <!-- Schema.org Structured Data: LegalService -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LegalService",
-      "name": "Loan Free Financial Services",
-      "image": "https://www.loanfree.info/logo.png",
-      "@id": "https://www.loanfree.info",
-      "url": "https://www.loanfree.info/about.html",
-      "priceRange": "₹₹",
-      "knowsAbout": ["Debt Settlement", "Loan Harassment Law", "Banking Regulation Act", "RBI Guidelines"],
-      "foundingDate": "2020",
-      "founder": {
-        "@type": "Person",
-        "name": "Legal Expert Team"
-      }
+      "@graph": [
+        {
+          "@type": ["LegalService", "FinancialService", "ProfessionalService"],
+          "@id": "https://www.loanfree.info/#organization",
+          "name": "Loan Free Financial Services",
+          "alternateName": "Loan Free",
+          "url": "https://www.loanfree.info/",
+          "logo": "https://www.loanfree.info/logo.png",
+          "image": "https://www.loanfree.info/logo.png",
+          "description": "Loan Free Financial Services is a debt-resolution consultancy based at Tis Hazari Court, Delhi, providing personal loan settlement, credit card settlement, recovery-agent harassment guidance, legal notice support and borrower rights advisory across India.",
+          "foundingDate": "2020",
+          "telephone": "+91-70425-38878",
+          "email": "info@athenalegalsolutionllp.in",
+          "priceRange": "$$",
+          "knowsAbout": [
+            "Loan Settlement",
+            "Debt Settlement India",
+            "One-Time Settlement OTS",
+            "Recovery Agent Harassment",
+            "RBI Fair Practices Code",
+            "CIBIL Score After Settlement",
+            "Legal Notice Reply",
+            "Section 138 Cheque Bounce",
+            "Digital Lending App Harassment",
+            "MSME Loan Restructuring",
+            "Banking Ombudsman"
+          ],
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Chamber No. 698, 2nd Floor, Western Wing, Tis Hazari Court, District Courts North",
+            "addressLocality": "Delhi",
+            "addressRegion": "Delhi",
+            "postalCode": "110054",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 28.666,
+            "longitude": 77.216
+          },
+          "areaServed": [
+            {"@type": "Country", "name": "India"},
+            {"@type": "City", "name": "Delhi"},
+            {"@type": "City", "name": "Noida"},
+            {"@type": "City", "name": "Gurgaon"},
+            {"@type": "City", "name": "Ghaziabad"},
+            {"@type": "City", "name": "Faridabad"}
+          ],
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+            "opens": "10:00",
+            "closes": "20:00"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+91-70425-38878",
+            "contactType": "customer service",
+            "areaServed": "IN",
+            "availableLanguage": ["English","Hindi"]
+          },
+          "sameAs": [
+            "https://www.facebook.com/profile.php?id=61562416165952",
+            "https://www.instagram.com/loanfree.info/"
+          ]
+        }
+      ]
     }
     </script>
 
@@ -90,12 +144,18 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <a href="#main" class="skip-link">Skip to main content</a>
+
     <!-- Navigation -->
     <nav class="navbar" aria-label="Primary">
         <div class="container nav-container">
             <div class="logo">
-                <a href="index.html" class="logo d-flex align-center gap-1">
-                    <img width="60" height="60" src="loan-free-logo.png" alt="Loan Free Logo" class="nav-logo-img">
+                <a href="index.html" class="logo d-flex align-center gap-1" aria-label="Loan Free Financial Services — Home">
+                    <img width="60" height="60" src="loan-free-logo.png" alt="Loan Free Financial Services logo" class="nav-logo-img">
                     <div class="brand-text">
                         <span class="brand-name">LOAN FREE</span>
                         <span class="brand-sub">FINANCIAL SERVICES</span>
@@ -107,7 +167,7 @@
                 <li><a href="services.html" class="nav-link">Services</a></li>
                 <li><a href="process.html" class="nav-link">Process</a></li>
                 <li><a href="about.html" class="nav-link active">About Us</a></li>
-                <li><a href="blog.html" class="nav-link">Blog</a></li>
+                <li><a href="blog.html" class="nav-link">Resources</a></li>
                 <li><a href="faq.html" class="nav-link">FAQ</a></li>
                 <li><a href="contact.html" class="nav-link">Contact Us</a></li>
             </ul>
@@ -115,6 +175,8 @@
             <a href="#" onclick="lfOpenPopup();return false;" class="btn btn-primary nav-cta">Free Consultation</a>
         </div>
     </nav>
+
+    <main id="main">
 
     <section class="section-padding bg-off-white border-bottom">
         <div class="container">
