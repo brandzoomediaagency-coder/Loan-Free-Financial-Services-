@@ -232,3 +232,10 @@ article .breadcrumbs .container { padding: 0; }
     .hero-page { padding: 1rem 0; background: none; color: #000; }
     .hero-page h1, .hero-page p { color: #000; }
 }
+
+.draft-banner { background: #fef3c7; border-bottom: 2px solid #f59e0b; color: #78350f; padding: 0.75rem 1rem; text-align: center; font-size: 0.9rem; margin-top: 80px; }
+
+.h2-like { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); margin-bottom: 1rem; }
+.testimonial-card blockquote { margin: 0; }
+.testimonial-card { margin: 0; }
+.marquee-wrapper.is-offscreen .marquee-track { animation-play-state: paused; }

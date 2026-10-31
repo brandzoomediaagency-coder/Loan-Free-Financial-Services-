@@ -36,6 +36,7 @@ const text = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').rep
 // ---------------------------------------------------------------- pages
 function loadPages() {
   const dir = path.join(SRC, 'pages');
+  const withDrafts = process.argv.includes('--drafts');
   return walk(dir).filter((f) => f.endsWith('.html')).map((file) => {
     const raw = fs.readFileSync(file, 'utf8');
     const m = raw.match(/^<!--page\s*([\s\S]*?)\s*-->\s*/);
@@ -51,6 +52,13 @@ function loadPages() {
       slug: rel.replace(/\.html$/, '').replace(/\//g, '-').replace(/-index$/, '') || 'home',
       h1: fm.h1 || (h1 ? text(h1) : fm.title),
     };
+  }).filter((p) => {
+    // Drafts (unreviewed legal or Hindi content) are never in a production build.
+    if (p.status !== 'draft') return true;
+    if (!withDrafts) return false;
+    p.index = false;
+    p.body = `<div class="draft-banner" role="note"><strong>DRAFT — not published.</strong> ${p.draftNote || 'Awaiting expert review before publication.'}</div>\n` + p.body;
+    return true;
   });
 }
 
@@ -251,6 +259,7 @@ function render(page, pagesByPath, assets) {
   body = body
     .replace(/<!-- lf:breadcrumbs -->/g, () => tpl.breadcrumbs(page))
     .replace(/<!-- lf:review-box -->/g, () => tpl.reviewBox(page))
+    .replace(/<!-- lf:testimonials -->/g, () => tpl.testimonials())
     .replace(/<!-- lf:related(?: heading="([^"]*)")? -->/g, (_, h) => tpl.related(page, pagesByPath, h))
     .replace(/<!-- lf:cta(?: title="([^"]*)" text="([^"]*)")? -->/g, (_, title, txt) => tpl.ctaBand(page, { title, text: txt }))
     .replace(/<!-- lf:lead-form(?: id="([^"]*)")? -->/g, (_, id) => tpl.leadForm(page, id || 'lead-form', 'full'));
@@ -365,6 +374,7 @@ function main() {
   fs.rmSync(DIST, { recursive: true, force: true });
   const pages = loadPages();
   const pagesByPath = new Map(pages.map((p) => [p.path, p]));
+  for (const p of pages) p.hasHindi = pagesByPath.has('/hi/');
   const assets = { css: buildCss(), js: buildJs() };
 
   const rendered = pages.map((p) => [p, render(p, pagesByPath, assets)]);

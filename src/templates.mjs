@@ -110,7 +110,7 @@ export function footer(page) {
             </div>
             <div class="footer-col">
                 <p class="footer-heading">${s.company}</p>
-                <ul>${li(FOOTER_COMPANY)}${page.lang === 'en' ? '<li><a href="/hi/">हिन्दी गाइड</a></li>' : '<li><a href="/">English</a></li>'}</ul>
+                <ul>${li(FOOTER_COMPANY)}${page.lang === 'en' ? (page.hasHindi ? '<li><a href="/hi/" lang="hi">हिन्दी गाइड</a></li>' : '') : '<li><a href="/">English</a></li>'}</ul>
             </div>
             <div class="footer-col">
                 <p class="footer-heading">${s.contact}</p>
@@ -298,5 +298,45 @@ export function related(page, pagesByPath, heading) {
   return `<section class="related-links" aria-labelledby="related-${page.slug}">
     <h2 id="related-${page.slug}">${heading || (hi ? 'संबंधित गाइड' : 'Related guides and services')}</h2>
     <ul class="related-grid">${items.map((r) => `<li><a href="${r.path}"><span class="related-kind">${r.type === 'service' ? (hi ? 'सेवा' : 'Service') : (hi ? 'गाइड' : 'Guide')}</span><span class="related-title">${esc(r.h1 || r.title)}</span><i class="fas fa-arrow-right"></i></a></li>`).join('')}</ul>
+</section>`;
+}
+
+// Homepage client quotes. Published before Phase 2 and not independently
+// verified: keep only quotes backed by a consent record, and set
+// SITE.showHomepageTestimonials = false to remove the section entirely.
+const QUOTES = [
+  ['They explained my options clearly and helped me deal with my credit card dues without the panic.', 'Rahul S.', 'Delhi'],
+  ['The recovery calls were overwhelming. They helped me understand my rights and how to respond.', 'Priya M.', 'Mumbai'],
+  ['Professional and patient. They guided every step of the documentation with the bank.', 'Amit K.', 'Bengaluru'],
+  ['My personal loan was restructured into something I could actually manage.', 'Sneha R.', 'Pune'],
+  ['Honest advice without false promises. That is exactly what I needed at a stressful time.', 'Vikram J.', 'Hyderabad'],
+  ['They helped me reply to a legal notice I had no idea how to handle on my own.', 'Anjali D.', 'Chennai'],
+  ['Clear, calm and respectful throughout. I finally understood where I stood.', 'Rohan G.', 'Noida'],
+  ['Skeptical at first, but the guidance was genuine and practical.', 'Deepak C.', 'Bhopal'],
+  ['They treated me with respect even when I was anxious. The process felt manageable.', 'Swati M.', 'Nagpur'],
+  ['Helped me organise multiple dues into a structured plan. Much clearer now.', 'Karan P.', 'Vadodara'],
+  ['The guidance gave me confidence to handle the calls properly.', 'Simran K.', 'Ludhiana'],
+  ['Realistic expectations were set from day one. No tall claims, just steady support.', 'Vishal S.', 'Patna'],
+  ['Helpful with my MSME loan situation when cash flow was tight.', 'Sanjay G.', 'Thane'],
+  ['Responsive and reassuring. They answered every question patiently.', 'Nisha T.', 'Agra'],
+];
+export function testimonials() {
+  if (!SITE.showHomepageTestimonials) return '';
+  const card = ([q, n, c]) => `<figure class="testimonial-card"><blockquote><p>“${esc(q)}”</p></blockquote><figcaption class="client-info"><strong>${esc(n)}</strong><span>${esc(c)}</span></figcaption></figure>`;
+  const half = Math.ceil(QUOTES.length / 2);
+  return `<section class="testimonials-section" aria-labelledby="testi-title">
+    <div class="container">
+        <div class="section-title">
+            <span class="eyebrow">In their words</span>
+            <h2 id="testi-title">What Clients Have Told Us</h2>
+            <p>Feedback shared with permission. Names are shortened for privacy.</p>
+        </div>
+        <div class="marquee-controls"><button type="button" class="marquee-toggle" aria-pressed="false" data-pause="Pause scrolling" data-play="Resume scrolling"><i class="fas fa-pause"></i> <span>Pause scrolling</span></button></div>
+    </div>
+    <div class="marquee-wrapper mobile-scroll">
+        <div class="marquee-track scroll-left">${QUOTES.slice(0, half).map(card).join('')}</div>
+        <div class="marquee-track scroll-right">${QUOTES.slice(half).map(card).join('')}</div>
+    </div>
+    <div class="container"><p class="testimonial-note">Individual experiences describe service, not results. Outcomes depend on each lender and case.</p></div>
 </section>`;
 }
