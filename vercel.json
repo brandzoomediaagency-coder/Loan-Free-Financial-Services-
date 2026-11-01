@@ -93,6 +93,11 @@
       "permanent": true
     },
     {
+      "source": "/blog/how-to-request-emi-restructuring-from-bank",
+      "destination": "/blog/how-to-request-emi-restructuring-from-bank.html",
+      "permanent": true
+    },
+    {
       "source": "/blog/how-to-respond-bank-legal-notice",
       "destination": "/blog/how-to-respond-bank-legal-notice.html",
       "permanent": true
@@ -110,6 +115,21 @@
     {
       "source": "/blog/litigation-vs-settlement-risk-analysis",
       "destination": "/blog/litigation-vs-settlement-risk-analysis.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/loan-settlement-letter-checklist",
+      "destination": "/blog/loan-settlement-letter-checklist.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/loan-settlement-scams-how-to-spot",
+      "destination": "/blog/loan-settlement-scams-how-to-spot.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/lok-adalat-loan-settlement-india",
+      "destination": "/blog/lok-adalat-loan-settlement-india.html",
       "permanent": true
     },
     {
@@ -138,6 +158,11 @@
       "permanent": true
     },
     {
+      "source": "/blog/sarfaesi-notice-13-2-borrower-options",
+      "destination": "/blog/sarfaesi-notice-13-2-borrower-options.html",
+      "permanent": true
+    },
+    {
       "source": "/blog/section-138-ni-act-defenses-remedies",
       "destination": "/blog/section-138-ni-act-defenses-remedies.html",
       "permanent": true
@@ -150,6 +175,11 @@
     {
       "source": "/blog/student-loan-debt-relief-options-india",
       "destination": "/blog/student-loan-debt-relief-options-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-happens-to-loan-after-borrower-death-india",
+      "destination": "/blog/what-happens-to-loan-after-borrower-death-india.html",
       "permanent": true
     },
     {
@@ -255,6 +285,11 @@
     {
       "source": "/services",
       "destination": "/services.html",
+      "permanent": true
+    },
+    {
+      "source": "/settlement-calculator",
+      "destination": "/settlement-calculator.html",
       "permanent": true
     },
     {

@@ -266,13 +266,22 @@
     };
     var lang = document.documentElement.lang === 'hi' ? 'hi' : 'en';
 
-    function waMessage(data, ref) {
-        var lines = lang === 'hi'
-            ? ['नमस्ते Loan Free, मैंने वेबसाइट पर सलाह के लिए अनुरोध भेजा है।']
-            : ['Hello Loan Free, I have just requested a consultation on your website.'];
-        if (ref) lines.push((lang === 'hi' ? 'संदर्भ: ' : 'Reference: ') + ref);
-        if (data.name) lines.push((lang === 'hi' ? 'नाम: ' : 'Name: ') + data.name);
-        if (data.topic) lines.push((lang === 'hi' ? 'विषय: ' : 'Topic: ') + data.topic);
+    // WhatsApp hand-off text. With `full`, every detail the visitor typed is
+    // included so nothing has to be re-typed (used when the lead could not be
+    // saved online and we send the visitor straight to WhatsApp instead).
+    function waMessage(data, ref, full) {
+        var hi = lang === 'hi';
+        var lines = full
+            ? [hi ? 'नमस्ते Loan Free, मुझे मुफ़्त और गोपनीय सलाह चाहिए। मेरी जानकारी:' : 'Hello Loan Free, I would like a free, confidential consultation. My details:']
+            : [hi ? 'नमस्ते Loan Free, मैंने वेबसाइट पर सलाह के लिए अनुरोध भेजा है।' : 'Hello Loan Free, I have just requested a consultation on your website.'];
+        if (ref) lines.push((hi ? 'संदर्भ: ' : 'Reference: ') + ref);
+        if (data.name) lines.push((hi ? 'नाम: ' : 'Name: ') + data.name);
+        if (full && data.phone) lines.push((hi ? 'मोबाइल: ' : 'Mobile: ') + data.phone);
+        if (full && data.city) lines.push((hi ? 'शहर: ' : 'City: ') + data.city);
+        if (data.topic) lines.push((hi ? 'विषय: ' : 'Topic: ') + data.topic);
+        if (full && data.amount) lines.push((hi ? 'कुल बकाया लगभग: ' : 'Approx. total dues: ') + data.amount);
+        if (full && data.contact) lines.push((hi ? 'संपर्क का तरीका: ' : 'Preferred contact: ') + data.contact);
+        if (full && data.message) lines.push((hi ? 'संदेश: ' : 'Message: ') + data.message);
         return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(lines.join('\n'));
     }
 
@@ -293,10 +302,19 @@
             result.classList.toggle('is-fallback', !ok);
             $$('[data-ok]', result).forEach(function (el) { el.textContent = el.getAttribute(ok ? 'data-ok' : 'data-fail'); });
             $('[data-lf-ref]', result).textContent = ref ? (lang === 'hi' ? 'संदर्भ नंबर: ' : 'Reference: ') + ref : '';
-            $('[data-lf-wa]', result).setAttribute('href', waMessage(data, ref));
+            var wa = waMessage(data, ref, !ok);
+            $('[data-lf-wa]', result).setAttribute('href', wa);
             form.hidden = true;
             result.hidden = false;
             result.focus();
+            // Not saved online: send the visitor straight to WhatsApp with
+            // everything they typed already in the message. The panel above
+            // stays as a manual fallback if the browser blocks the redirect.
+            if (!ok) {
+                track('whatsapp_redirect', { link_location: 'form_fallback' });
+                trackMeta('Contact');
+                setTimeout(function () { window.location.href = wa; }, 250);
+            }
         }
 
         form.addEventListener('submit', function (e) {

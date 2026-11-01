@@ -23,9 +23,20 @@ Text in the SVGs uses system fonts. If a rule changes, edit `tools/illustrations
 | Folder | What | Size |
 |---|---|---|
 | `assets/og/<slug>.jpg` | 1200×630 share card for every page (title + brand) | ~80 KB each |
-| `assets/thumbs/<slug>.webp`, `<slug>-1200.webp` | Guide thumbnails and guide header images (category colour + icon + title) | 600×400 / 1200×800 |
 
-Re-run `node tools/media.mjs [slug…]` after changing a page H1.
+Re-run `node tools/media.mjs [slug…]` after changing a page H1. (It no longer writes guide thumbnails; see below.)
+
+## Guide images (`tools/guide-images.mjs`, needs Playwright + Pillow)
+
+Every guide (all English blog posts, the RBI 2027 rules page and the Hindi guides) has its own original, topic-specific illustration in the shared flat editorial style (`tools/svg-kit.mjs`): e.g. a clock at 9 p.m. beside a blocked call for recovery calling hours, a settlement letter checklist with a no-dues stamp, a credit report with Settled/Closed labels, a 30/60/90-day overdue track for NPAs. No people, logos, seals or readable personal data. Alt text starts "Illustration:" and describes the scene.
+
+| Folder | What | Size |
+|---|---|---|
+| `assets/thumbs/<slug>-1200.webp` | Article header image (also `image` in front matter / schema) | 1200×800 |
+| `assets/thumbs/<slug>.webp` | Resource-card thumbnail on `/blog.html` | 600×400 |
+| `assets/og/blog-<slug>.jpg` | Share card, written only when a guide has none yet | 1200×630 |
+
+New guide: add a scene to `S` in `tools/guide-images.mjs`, run `node tools/guide-images.mjs <slug>`, and add the `<figure class="media-figure">` block after `<!-- lf:review-box -->`.
 
 ## Photographs (Phase 3)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Generates brand-template images from page front matter with headless Chrome:
 //   assets/og/<slug>.jpg       1200x630 social share card for every page
-//   assets/thumbs/<slug>.webp  600x400 guide thumbnail for every article (+ <slug>-1200.webp)
+//   (guide thumbnails now come from tools/guide-images.mjs; LF_TEXT_THUMBS=1 restores text cards)
 // Run after changing a page title/H1:  CHROME_PATH=... node tools/media.mjs
 // Requires: Chrome/Chromium (CHROME_PATH), cwebp and macOS `sips` (or edit `toJpeg`).
 import fs from 'node:fs';
@@ -105,7 +105,9 @@ for (const p of pages()) {
   if (only.length && !only.includes(p.slug)) continue;
   const png = shoot(ogHtml(p), 1200, 630);
   execFileSync('sips', ['-s', 'format', 'jpeg', '-s', 'formatOptions', '82', png, '--out', path.join(ROOT, 'assets/og', p.slug + '.jpg')], { stdio: 'ignore' });
-  if (p.type === 'article') {
+  // Guide thumbnails are no longer text cards: tools/guide-images.mjs draws a
+  // topic-specific illustration for each guide. Set LF_TEXT_THUMBS=1 to restore.
+  if (p.type === 'article' && process.env.LF_TEXT_THUMBS === '1') {
     const t = shoot(thumbHtml(p), 1200, 800);
     const name = p.slug.replace(/^blog-/, '');
     execFileSync('cwebp', ['-quiet', '-q', '78', '-resize', '600', '400', t, '-o', path.join(ROOT, 'assets/thumbs', name + '.webp')]);
