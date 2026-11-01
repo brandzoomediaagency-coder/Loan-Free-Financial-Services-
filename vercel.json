@@ -1,33 +1,364 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node tools/build.mjs",
+  "outputDirectory": "dist",
+  "installCommand": "",
   "cleanUrls": false,
   "trailingSlash": false,
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "^loanfree\\.info$" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "^loanfree\\.info$"
+        }
+      ],
       "destination": "https://www.loanfree.info/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/hi/index.html",
+      "destination": "/hi/",
+      "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/arbitration-loan-recovery-process",
+      "destination": "/blog/arbitration-loan-recovery-process.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/bank-loan-npa-what-happens-after-90-days",
+      "destination": "/blog/bank-loan-npa-what-happens-after-90-days.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/business-loan-settlement-strategies-msme",
+      "destination": "/blog/business-loan-settlement-strategies-msme.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/credit-card-debt-cycle-how-to-break-free",
+      "destination": "/blog/credit-card-debt-cycle-how-to-break-free.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/debt-consolidation-vs-debt-settlement-india",
+      "destination": "/blog/debt-consolidation-vs-debt-settlement-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/debt-relief-seniors-pensioners-india",
+      "destination": "/blog/debt-relief-seniors-pensioners-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/debt-settlement-india-beginners-guide",
+      "destination": "/blog/debt-settlement-india-beginners-guide.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/digital-lending-apps-rbi-regulations",
+      "destination": "/blog/digital-lending-apps-rbi-regulations.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/fair-debt-collection-practices-india",
+      "destination": "/blog/fair-debt-collection-practices-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/future-debt-resolution-fintech-india",
+      "destination": "/blog/future-debt-resolution-fintech-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-file-rbi-complaint-recovery-harassment",
+      "destination": "/blog/how-to-file-rbi-complaint-recovery-harassment.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-remove-loan-settlement-status-cibil",
+      "destination": "/blog/how-to-remove-loan-settlement-status-cibil.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-request-emi-restructuring-from-bank",
+      "destination": "/blog/how-to-request-emi-restructuring-from-bank.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-respond-bank-legal-notice",
+      "destination": "/blog/how-to-respond-bank-legal-notice.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/how-to-stop-loan-harassment-india",
+      "destination": "/blog/how-to-stop-loan-harassment-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/improve-cibil-score-after-debt-settlement",
+      "destination": "/blog/improve-cibil-score-after-debt-settlement.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/litigation-vs-settlement-risk-analysis",
+      "destination": "/blog/litigation-vs-settlement-risk-analysis.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/loan-settlement-letter-checklist",
+      "destination": "/blog/loan-settlement-letter-checklist.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/loan-settlement-scams-how-to-spot",
+      "destination": "/blog/loan-settlement-scams-how-to-spot.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/lok-adalat-loan-settlement-india",
+      "destination": "/blog/lok-adalat-loan-settlement-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/personal-loan-default-consequences-india",
+      "destination": "/blog/personal-loan-default-consequences-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/psychological-toll-debt-stress-management",
+      "destination": "/blog/psychological-toll-debt-stress-management.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/rbi-guidelines-2024-borrower-rights",
+      "destination": "/blog/rbi-guidelines-2024-borrower-rights.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/recovery-agent-calling-hours-india-rbi",
+      "destination": "/blog/recovery-agent-calling-hours-india-rbi.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/role-debt-resolution-lawyer-india",
+      "destination": "/blog/role-debt-resolution-lawyer-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/sarfaesi-notice-13-2-borrower-options",
+      "destination": "/blog/sarfaesi-notice-13-2-borrower-options.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/section-138-ni-act-defenses-remedies",
+      "destination": "/blog/section-138-ni-act-defenses-remedies.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/stop-recovery-agent-harassment-legal-guide",
+      "destination": "/blog/stop-recovery-agent-harassment-legal-guide.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/student-loan-debt-relief-options-india",
+      "destination": "/blog/student-loan-debt-relief-options-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-happens-to-loan-after-borrower-death-india",
+      "destination": "/blog/what-happens-to-loan-after-borrower-death-india.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/what-to-do-when-you-cannot-pay-emi",
+      "destination": "/blog/what-to-do-when-you-cannot-pay-emi.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html",
+      "permanent": true
+    },
+    {
+      "source": "/business-loan-restructuring",
+      "destination": "/business-loan-restructuring.html",
+      "permanent": true
+    },
+    {
+      "source": "/cheque-bounce-section-138",
+      "destination": "/cheque-bounce-section-138.html",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html",
+      "permanent": true
+    },
+    {
+      "source": "/credit-card-debt-settlement",
+      "destination": "/credit-card-debt-settlement.html",
+      "permanent": true
+    },
+    {
+      "source": "/credit-score-guidance",
+      "destination": "/credit-score-guidance.html",
+      "permanent": true
+    },
+    {
+      "source": "/digital-lending-app-harassment",
+      "destination": "/digital-lending-app-harassment.html",
+      "permanent": true
+    },
+    {
+      "source": "/disclaimer",
+      "destination": "/disclaimer.html",
+      "permanent": true
+    },
+    {
+      "source": "/editorial-policy",
+      "destination": "/editorial-policy.html",
+      "permanent": true
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html",
+      "permanent": true
+    },
+    {
+      "source": "/legal-notice-reply",
+      "destination": "/legal-notice-reply.html",
+      "permanent": true
+    },
+    {
+      "source": "/loan-ots-one-time-settlement",
+      "destination": "/loan-ots-one-time-settlement.html",
+      "permanent": true
+    },
+    {
+      "source": "/loan-settlement-delhi",
+      "destination": "/loan-settlement-delhi.html",
+      "permanent": true
+    },
+    {
+      "source": "/loan-settlement-vs-restructuring",
+      "destination": "/loan-settlement-vs-restructuring.html",
+      "permanent": true
+    },
+    {
+      "source": "/nbfc-loan-settlement",
+      "destination": "/nbfc-loan-settlement.html",
+      "permanent": true
+    },
+    {
+      "source": "/personal-loan-settlement",
+      "destination": "/personal-loan-settlement.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy.html",
+      "permanent": true
+    },
+    {
+      "source": "/process",
+      "destination": "/process.html",
+      "permanent": true
+    },
+    {
+      "source": "/recovery-agent-harassment-protection",
+      "destination": "/recovery-agent-harassment-protection.html",
+      "permanent": true
+    },
+    {
+      "source": "/services",
+      "destination": "/services.html",
+      "permanent": true
+    },
+    {
+      "source": "/settlement-calculator",
+      "destination": "/settlement-calculator.html",
+      "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html",
+      "permanent": true
+    },
+    {
+      "source": "/testimonials",
+      "destination": "/testimonials.html",
       "permanent": true
     }
   ],
   "headers": [
     {
-      "source": "/(.*)\\.(css|js|jpg|jpeg|png|webp|svg|ico|woff2)",
+      "source": "/assets/build/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
-      "source": "/(.*)\\.(html|xml)",
+      "source": "/assets/fonts/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(img|brand|og|illustrations|thumbs)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(html|xml|txt)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()"
+        }
       ]
     }
   ]
