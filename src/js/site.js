@@ -308,6 +308,20 @@
         });
     });
 
+    /* ------------------------------------------------------------ click-to-load map (contact) */
+    $$('[data-load-map]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var box = btn.closest('.map-facade');
+            var f = document.createElement('iframe');
+            f.src = box.getAttribute('data-map-src');
+            f.title = 'Map showing Tis Hazari Court, Delhi';
+            f.loading = 'lazy';
+            f.referrerPolicy = 'no-referrer-when-downgrade';
+            box.innerHTML = '';
+            box.appendChild(f);
+        });
+    });
+
     /* ------------------------------------------------------------ resource filters (blog index) */
     var filterBar = $('.filter-bar');
     if (filterBar) {

@@ -340,3 +340,61 @@ export function testimonials() {
     <div class="container"><p class="testimonial-note">Individual experiences describe service, not results. Outcomes depend on each lender and case.</p></div>
 </section>`;
 }
+
+// Verified business facts for About/Contact. Unconfirmed items are omitted
+// rather than guessed; they appear automatically once added to SITE.
+export function entityFacts() {
+  const rows = [
+    ['Brand', SITE.name],
+    ['What we are', 'A debt-resolution consultancy. We are not a lender, bank, credit bureau or law firm, and we are not regulated or approved by the Reserve Bank of India.'],
+    ['What we do', 'Consultation, settlement and restructuring negotiation support, documentation guidance, help responding to unfair recovery practices, and coordination with independent counsel where a case needs it.'],
+    ['Who we help', 'Individuals and small businesses in India with personal loans, credit cards, NBFC or app loans and business loans they are struggling to repay.'],
+  ];
+  if (SITE.operatorConfirmed) rows.push(['Operated by', `${SITE.operatorEntity}${SITE.llpin ? ` (LLPIN ${SITE.llpin})` : ''}`]);
+  if (SITE.foundingDate) rows.push(['Founded', SITE.foundingDate]);
+  rows.push(
+    ['Office', SITE.address.lines.join(' ')],
+    ['Service area', 'Delhi NCR in person; the rest of India by phone, WhatsApp and email'],
+    ['Languages', 'English and Hindi'],
+    ['Hours', SITE.hoursDisplay],
+    ['Contact', `<a href="tel:${SITE.phoneE164}">${SITE.phoneDisplay}</a> · <a href="mailto:${SITE.email}">${SITE.email}</a>`],
+  );
+  return `<dl class="fact-list">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+}
+
+// Named advisors. Renders nothing until real people are added to SITE.people
+// ({ id, name, role, credential, photo, bio, sameAs: [] }).
+export function team() {
+  if (!SITE.people.length) return '';
+  return `<div class="team-grid">${SITE.people.map((p) => `<article class="team-card" id="${p.id}">
+    ${p.photo ? `<img src="${p.photo}" width="400" height="500" alt="${esc(p.name)}, ${esc(p.role)} at ${SITE.name}" loading="lazy">` : ''}
+    <h3>${esc(p.name)}</h3><p class="team-role">${esc(p.role)}${p.credential ? ` · ${esc(p.credential)}` : ''}</p>
+    ${p.bio ? `<p>${esc(p.bio)}</p>` : ''}</article>`).join('')}</div>`;
+}
+
+export const CATEGORIES = {
+  rights: 'Borrower rights', settlement: 'Settlement', credit: 'Credit report',
+  legal: 'Legal notices', apps: 'Loan apps', default: 'Missed EMIs',
+};
+const fmtDate = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+// Guide cards for the resources hub, generated from every published article.
+export function articleCards(pages) {
+  const list = pages.filter((p) => p.type === 'article' && p.lang === 'en' && p.index !== false)
+    .sort((a, b) => (b.dateModified || '').localeCompare(a.dateModified || '') || a.h1.localeCompare(b.h1));
+  const used = [...new Set(list.map((p) => p.category))].filter(Boolean);
+  const filters = `<div class="filter-bar" role="group" aria-label="Filter guides by topic"><button type="button" data-filter="all" aria-pressed="true">All guides</button>${used.map((c) => `<button type="button" data-filter="${c}" aria-pressed="false">${CATEGORIES[c] || c}</button>`).join('')}</div>`;
+  const cards = list.map((p) => {
+    const slug = p.rel.replace(/^blog\//, '').replace(/\.html$/, '');
+    return `<article class="resource-card" data-category="${p.category || ''}">
+        <div class="resource-thumb"><img src="/assets/thumbs/${slug}.webp" width="600" height="400" loading="lazy" alt=""></div>
+        <div class="resource-body">
+            <span class="tag">${CATEGORIES[p.category] || 'Guide'}</span>
+            <h3><a href="${p.path}" class="card-link">${esc(p.h1)}</a></h3>
+            <p>${esc(p.description)}</p>
+            <p class="resource-meta">Updated <time datetime="${p.dateModified}">${fmtDate(p.dateModified)}</time></p>
+        </div>
+    </article>`;
+  }).join('\n');
+  return `${filters}<div class="card-grid">${cards}</div>`;
+}

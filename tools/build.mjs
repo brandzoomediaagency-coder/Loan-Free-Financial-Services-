@@ -260,6 +260,9 @@ function render(page, pagesByPath, assets) {
     .replace(/<!-- lf:breadcrumbs -->/g, () => tpl.breadcrumbs(page))
     .replace(/<!-- lf:review-box -->/g, () => tpl.reviewBox(page))
     .replace(/<!-- lf:testimonials -->/g, () => tpl.testimonials())
+    .replace(/<!-- lf:entity-facts -->/g, () => tpl.entityFacts())
+    .replace(/<!-- lf:team -->/g, () => tpl.team())
+    .replace(/<!-- lf:article-cards -->/g, () => tpl.articleCards([...pagesByPath.values()]))
     .replace(/<!-- lf:related(?: heading="([^"]*)")? -->/g, (_, h) => tpl.related(page, pagesByPath, h))
     .replace(/<!-- lf:cta(?: title="([^"]*)" text="([^"]*)")? -->/g, (_, title, txt) => tpl.ctaBand(page, { title, text: txt }))
     .replace(/<!-- lf:lead-form(?: id="([^"]*)")? -->/g, (_, id) => tpl.leadForm(page, id || 'lead-form', 'full'));
