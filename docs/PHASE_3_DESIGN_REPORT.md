@@ -34,7 +34,7 @@ Studied at 1440 px and 390 px. Nothing was copied (no code, text, images, claims
 | `--green-600` / `--green-700` | #167B68 / #10604F | Primary buttons / links and small text (AA on white and tints) |
 | `--gold-500` / `--gold-700` | #D6AE58 / #8A6516 | Accents, eyebrows, caution markers |
 | `--bg-soft`, `--bg-muted`, `--line` | #F7F9FC, #EEF2F6, #E2E8F0 | Section backgrounds, borders |
-| `--ink`, `--muted` | #1F2937, #556070 | Body text, secondary text (≥ 5.9:1 on white) |
+| `--ink`, `--muted` | #1F2937, #556070 | Body text, secondary text (≥ 5.7:1 on every background used) |
 
 **Typography:** kept the self-hosted Inter (body) and Poppins (headings) from Phase 2 — no new font downloads. Fluid type scale with `clamp()`, tighter heading tracking, 1.65–1.75 line height for reading.
 
@@ -65,7 +65,54 @@ Section order as briefed: header → hero → situations → services → how it
 - **FAQs:** the 11 existing answers were moved verbatim (not rewritten); FAQPage schema is still generated from them.
 - **Knowledge centre:** six topic links; "Hindi guides" shown as "after review" without a link, because the Hindi pages remain unpublished drafts.
 
-PERF_AND_QA
+## 6. Shared templates and all 50 pages (Stage D)
+
+Every page is rebuilt from the same templates and stylesheet, so all 50 pages received the new header, footer, buttons, typography, cards, tables, accordions and CTA band. Page content was not edited, apart from:
+
+| Page | Change |
+|---|---|
+| `index.html` | Redesigned (section 5) |
+| `services.html` | Old 9-card grid replaced by the shared 10-service index; heading and intro copy unchanged |
+| 3 guides (`improve-cibil-score…`, `how-to-remove-loan-settlement-status-cibil`, `rbi-guidelines-2024-borrower-rights`) | Header image switched from a stock photo to the generated topic image (image only) |
+
+The "On this page" rail is added at build time to the 14 long pages with five or more sections (About, Process, the 10 service pages, Settlement vs Restructuring, Delhi); it only adds `id`s to existing H2s. Legal and regulatory wording is unchanged everywhere, and the Hindi and RBI 2027 drafts are still excluded from the live build and sitemap.
+
+## 7. Images (Stage E)
+
+- **Removed:** all 14 legacy stock photos and their 36 WebP variants (1.6 MB). None were used after the redesign.
+- **Reused:** the 9 original diagrams (homepage now shows `how-we-work.svg`), the generated guide images for resource cards, and the per-page share images.
+- **Added:** no new raster images. Interface icons are Lucide SVGs. A "consultation scene" image was not produced: it would need people, and the rules for this site exclude stock or AI-generated people presented in a business context; real, consented office/team photos remain the recommendation (P3-4).
+- Every content image keeps explicit width/height, lazy loading below the fold and meaningful alt text (homepage resource-card thumbnails use empty alt because the card title is the link text).
+
+## 8. Quality assurance (Stage F)
+
+| Test | Result |
+|---|---|
+| `node tools/check.mjs` (canonical, titles, descriptions, one H1, heading order, JSON-LD, links/assets, srcset, alt, banned claims, orphans) | 50 pages, 0 errors, 0 warnings |
+| `node tools/test-lead.cjs` (secure endpoint) | All cases behave as in Phase 2: valid lead delivered with verified signature and sanitised fields; honeypot and too-fast submissions dropped; missing consent, bad mobile, wrong origin and wrong secret rejected |
+| Responsive sweep: all 50 pages × 375, 390, 430, 768, 1024, 1440 px (300 loads, headless Chrome) | 0 pages with horizontal overflow, console errors or failed requests |
+| Tap targets ≤ 430 px | All stand-alone controls ≥ 44 px after fixes; remaining smaller items are inline text links, the hidden honeypot field, the consent checkbox (its whole label is the target) and card titles (the whole card is the target) |
+| Interaction tests (23) | 23/23 pass: consent banner; no Meta request before consent; Meta on homepage after "Accept all" but not on service pages; Services dropdown opens/closes by keyboard with focus return; mobile drawer opens full-height, hides the sticky bar, expands services, closes on Escape with focus return; no floating WhatsApp button on mobile; consultation dialog opens by keyboard and closes on Escape; "On this page" open on desktop, collapsed on mobile; empty hero form shows field errors; filled form with no receiver configured shows the honest fallback, never a fake success |
+| SEO diff against the Phase 2 build | Same 50 URLs; titles, descriptions, canonicals, robots, JSON-LD types and FAQ counts identical on every page; sitemap URL set, `robots.txt` and `vercel.json` identical; only the homepage H1 changed (intentional) |
+| Drafts | `/hi/*` and `/rbi-recovery-agent-rules-2027.html` absent from `dist/` and the sitemap |
+| Bug found and fixed during QA | The header's `backdrop-filter` made the mobile drawer render as a thin strip; blur is now desktop-only and a geometry assertion was added to the test |
+
+Screenshots (in `docs/phase3/screenshots/`): `before-home-1440.jpg`, `before-home-390.jpg`, `after-home-1440.jpg`, `after-home-390.jpg`, `before-service-1440.jpg`, `before-service-390.jpg`, `after-service-1440.jpg`, `after-service-390.jpg`, `after-menu-desktop.png`, `after-menu-mobile.png`. The mobile homepage is 39% shorter (24,559 → 14,971 px of scrolling) with the same information plus the enquiry card; the testimonial carousel accounts for part of the difference.
+
+## 9. Performance
+
+PERF_RESULTS
+
+## 10. Accessibility
+
+- Keyboard: skip link; Services dropdown is a real `<button>` with `aria-expanded`/`aria-controls`, closes on Escape (focus returns) and outside click; mobile drawer toggle announces open/close, closes on Escape; dialog traps focus via native `<dialog>`; accordions are buttons with `aria-expanded`.
+- Visible focus ring on every interactive element (`:focus-visible`, 3 px green outline or ring).
+- Colour: text colours chosen for WCAG AA on white and on the light tints (`--green-700` 7.5:1 on white and 7.1:1 on the soft background; `--muted` 6.4:1 on white and 5.7:1 on the grey tint); white text only on navy or on `--green-600` buttons (5.2:1).
+- Touch targets: stand-alone controls are at least 44 px high on phones (inline text links excepted, as WCAG 2.5.8 allows).
+- Motion: reveal animations and smooth scrolling are disabled under `prefers-reduced-motion`; no autoplaying content on the homepage.
+- Forms: visible labels, hints linked with `aria-describedby`, `aria-invalid` on errors, an `aria-live` status line, and an honest result panel.
+
+
 
 ## Outstanding decisions and manual actions
 

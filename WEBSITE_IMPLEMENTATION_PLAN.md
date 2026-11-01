@@ -9,7 +9,7 @@ Baseline: production snapshot of 19 Aug 2026 (commit `793d47f` on `main`). Work 
 | Page sources (HTML with a JSON front-matter block) | `src/pages/**.html` |
 | Shared header, footer, forms, CTA, review box, related links, consent banner | `src/templates.mjs` |
 | Business facts (NAP, hours, analytics IDs, people) — one place to change them | `src/site.config.mjs` |
-| CSS / JS / icons | `src/css`, `src/js/site.js`, `src/icons` |
+| CSS / JS / icons | `src/css/site.css` (design system, tokens on `:root`) + `src/css/fonts.css`, `src/js/site.js`, `src/icons/lucide` (interface) and `src/icons` (brand marks) |
 | Build (zero dependencies, Node 18+) | `node tools/build.mjs` → `dist/` (add `--drafts` to preview drafts) |
 | QA gate | `node tools/check.mjs` (canonical, titles, descriptions, H1, heading order, JSON-LD, links/assets, alt, banned claims, orphans) |
 | Local preview incl. redirects, headers and `/api` | `node tools/serve.mjs --root dist --port 8090` |
@@ -32,6 +32,9 @@ Lead capture API with validation, spam protection, signed webhook and WhatsApp h
 
 ### Phase D — Authority and local · **Prepared**
 GBP/NAP pack, outreach plan, LinkedIn/YouTube plans, linkable-asset specs. Needs account access and approvals.
+
+### Phase 3 — Design upgrade · **Done on branch `phase-3-design-upgrade`**
+One design-system stylesheet (`src/css/site.css`), Lucide icons, new header (Services dropdown, mobile drawer) and footer, redesigned homepage, "On this page" rail on long pages, shared services index, unused photos removed. Report: `docs/PHASE_3_DESIGN_REPORT.md`. Design changes only — content, URLs, metadata and legal text unchanged except the homepage H1.
 
 ## Testing done on this branch
 

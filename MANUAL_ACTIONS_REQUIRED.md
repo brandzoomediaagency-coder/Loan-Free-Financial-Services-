@@ -12,10 +12,11 @@ Things that need your decision, your accounts, or a qualified professional. Noth
 | D4 | **Email on the site's own domain** (e.g. `info@loanfree.info`). The site uses `info@athenalegalsolutionllp.in`. | Brand/entity consistency. Optional but recommended. | `src/site.config.mjs` + Contact, Delhi, policies | No |
 | D5 | **Fee model.** Describe how you charge (fixed, stage-based, success-linked, ranges). | The site now says "ask for our fees in writing". A real fee page builds trust. | Services `#fees`, FAQ, About | No |
 | D6 | **People.** Names, roles, real photos and (for advocates) enrolment details of the founder, advisers and any reviewer, with their written consent. | E-E-A-T. Nothing about people has been invented; the team block is empty until `SITE.people` is filled. | About, review boxes, Person schema | No |
-| D7 | **Homepage testimonials.** 14 short quotes from the old site are shown without stars or results. Keep only those backed by a consent record, or set `showHomepageTestimonials: false`. | Unverifiable testimonials are a trust and consumer-law risk. | `src/templates.mjs` (`QUOTES`) | **Yes** |
+| D7 | **Homepage testimonials.** Removed from the homepage in Phase 3 (`showHomepageTestimonials: false`). Re-enable only for quotes backed by a written consent record. | Unverifiable testimonials are a trust and consumer-law risk. | `src/templates.mjs` (`QUOTES`) | Resolved for launch |
 | D8 | **Meta Pixel scope.** It now runs only on neutral URLs after consent (see `docs/TRACKING_VERIFICATION.md`). Confirm, or decide to drop Meta entirely. | Debt-distress URLs would otherwise go to Meta. | `SITE.analytics.metaPixelPages` | No |
 | D9 | **Court-complex address.** Confirm you may use Chamber No. 698, Tis Hazari as a business address for a consultancy, and that it is eligible for a Google Business Profile (staffed during stated hours, signage, etc.). | GBP suspension risk; Bar Council rules (see L2). | Contact, Delhi, GBP | **Yes** |
 | D10 | **Old root files** `CNAME`, `_redirects`, `serve.ps1`, root `robots.txt`/`sitemap.xml` are no longer used (the build generates `dist/`). Confirm they can be deleted. | Housekeeping only. | Repo root | No |
+| D11 | **Phase 3 homepage H1** "A clearer path to resolving your debt challenges" (briefed) replaced the keyword-led H1. Approve, or ask for the keyword version back. | SEO/brand preference. | `src/pages/index.html` | No |
 
 ## 2. Professional review
 

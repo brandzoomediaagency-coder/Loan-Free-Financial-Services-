@@ -793,3 +793,6 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 .link-arrow, .learn-more { min-height: 44px; }
 .consent-check input { width: 22px; height: 22px; }
 @media (pointer: coarse), (max-width: 768px) { .btn-sm { min-height: 44px; } }
+/* Related-link lists inside legacy articles: clean arrow links */
+.blog-content .no-list a.text-teal, .long-form-section .no-list a.text-teal { display: inline-flex; align-items: center; gap: .4rem; min-height: 40px; text-decoration: none; font-weight: 600; }
+.blog-content .no-list a.text-teal:hover, .long-form-section .no-list a.text-teal:hover { text-decoration: underline; }

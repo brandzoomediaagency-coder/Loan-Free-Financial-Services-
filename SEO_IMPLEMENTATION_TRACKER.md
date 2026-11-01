@@ -84,3 +84,21 @@ Status values: **Fixed** · **Partially fixed** · **Requires your input** · **
 | Outreach targets, pitch template, LinkedIn/YouTube plans | `docs/BACKLINKS_OUTREACH.md` — **Requires your approval** |
 | Linkable assets | 2 done (Settled vs Closed, 2027 infographic); 5 specified in `CONTENT_GAP_TRACKER.md` |
 | Fake city pages | None created |
+
+## Phase 3 — design upgrade (branch `phase-3-design-upgrade`)
+
+Full details: `docs/PHASE_3_DESIGN_REPORT.md`.
+
+| Item | Solution | Status | Verification |
+|---|---|---|---|
+| Inconsistent legacy CSS (two layers, 62 KB) | One design-system stylesheet `src/css/site.css` with tokens; legacy files removed | Fixed | Build uses `fonts.css` + `site.css` only |
+| Mixed icon styles | Lucide outline icons in one sprite; Font Awesome only for brand marks and numerals | Fixed | Sprite comment lists both licences |
+| No services menu; plain footer | Header with grouped Services dropdown and mobile drawer; 4-column footer | Fixed | `interact3` tests (dropdown, drawer, Escape, focus) |
+| Long service pages hard to scan | Automatic "On this page" rail from H2s (sticky desktop, collapsible mobile) | Fixed | 14 pages |
+| Services page listed 9 of 10 services | Shared services index from one catalogue | Fixed | |
+| Homepage redesign | Briefed section order; hero enquiry card on the secure endpoint | Fixed | |
+| Unverified homepage testimonials | Removed (`showHomepageTestimonials: false`) | Fixed | |
+| Unused legacy photos (14 + WebP variants, 1.6 MB) | Deleted; last three guides switched to generated topic images | Fixed | No page references `/assets/*.jpg` |
+| Touch targets under 44 px | Chips, filters, arrow links, small buttons raised to 44 px | Fixed | Tap-target scan at ≤430 px |
+| SEO preservation | Same 50 URLs, titles, descriptions, canonicals, robots, JSON-LD types, FAQ counts, sitemap set, robots.txt, vercel.json as Phase 2 | Verified | Diff of both builds; only the homepage H1 changed (intentional) |
+| Homepage H1 | Changed to the briefed headline; keyword line moved above it | Requires your approval (P3-1) | |
