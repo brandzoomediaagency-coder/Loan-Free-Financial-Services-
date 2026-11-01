@@ -1,0 +1,33 @@
+Lighthouse (npx lighthouse, headless Chrome for Testing 150, default mobile throttling / --preset=desktop), local server tools/serve.mjs, commit b6e4083, 2026-11-01. One run per page unless noted.
+== Phase 3 v2 (gzip)
+home_mobile perf 99 a11y 100 bp 100 seo 100 | FCP 1.5 s LCP 2.0 s TBT 60 ms CLS 0 | weight 304 KB reqs 13
+home_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.4 s TBT 0 ms CLS 0 | weight 339 KB reqs 18
+personal-loan-settlement_html_mobile perf 100 a11y 100 bp 100 seo 100 | FCP 1.4 s LCP 1.7 s TBT 50 ms CLS 0 | weight 291 KB reqs 15
+personal-loan-settlement_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.3 s LCP 0.4 s TBT 0 ms CLS 0 | weight 291 KB reqs 15
+about_html_mobile perf 100 a11y 100 bp 100 seo 100 | FCP 1.4 s LCP 1.7 s TBT 40 ms CLS 0 | weight 291 KB reqs 14
+about_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.3 s LCP 0.4 s TBT 0 ms CLS 0 | weight 291 KB reqs 14
+blog_rbi-guidelines-2024-borrower-rights_html_mobile perf 99 a11y 100 bp 100 seo 100 | FCP 1.5 s LCP 1.8 s TBT 20 ms CLS 0.023 | weight 311 KB reqs 13
+blog_rbi-guidelines-2024-borrower-rights_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.3 s LCP 0.4 s TBT 0 ms CLS 0 | weight 311 KB reqs 13
+contact_html_mobile perf 99 a11y 100 bp 100 seo 100 | FCP 1.5 s LCP 1.8 s TBT 30 ms CLS 0 | weight 285 KB reqs 13
+contact_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.3 s LCP 0.4 s TBT 0 ms CLS 0 | weight 285 KB reqs 13
+settlement-calculator_html_mobile perf 99 a11y 100 bp 100 seo 100 | FCP 1.5 s LCP 1.8 s TBT 50 ms CLS 0 | weight 295 KB reqs 15
+settlement-calculator_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.3 s LCP 0.4 s TBT 0 ms CLS 0 | weight 295 KB reqs 15
+== Phase 3 v2 (uncompressed, Phase 2 baseline conditions)
+home_mobile perf 94 a11y 100 bp 100 seo 100 | FCP 2.1 s LCP 2.9 s TBT 30 ms CLS 0 | weight 455 KB reqs 13
+home_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.5 s LCP 0.6 s TBT 0 ms CLS 0 | weight 492 KB reqs 18
+personal-loan-settlement_html_mobile perf 96 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.5 s TBT 30 ms CLS 0 | weight 419 KB reqs 15
+personal-loan-settlement_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.6 s TBT 0 ms CLS 0 | weight 419 KB reqs 15
+about_html_mobile perf 96 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.6 s TBT 30 ms CLS 0 | weight 416 KB reqs 14
+about_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.5 s TBT 0 ms CLS 0 | weight 416 KB reqs 14
+blog_rbi-guidelines-2024-borrower-rights_html_mobile perf 94 a11y 100 bp 100 seo 100 | FCP 2.0 s LCP 2.8 s TBT 30 ms CLS 0.023 | weight 432 KB reqs 13
+blog_rbi-guidelines-2024-borrower-rights_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.6 s TBT 0 ms CLS 0 | weight 432 KB reqs 13
+contact_html_mobile perf 96 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.5 s TBT 20 ms CLS 0 | weight 397 KB reqs 13
+contact_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.5 s TBT 0 ms CLS 0 | weight 397 KB reqs 13
+settlement-calculator_html_mobile perf 94 a11y 100 bp 100 seo 100 | FCP 2.0 s LCP 2.9 s TBT 50 ms CLS 0 | weight 432 KB reqs 15
+settlement-calculator_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.6 s TBT 0 ms CLS 0 | weight 432 KB reqs 15
+
+
+== RBI guide mobile, uncompressed, 3 reruns (performance, LCP, FCP)
+run 1: 94, 2.8 s, 2.0 s
+run 2: 96, 2.6 s, 1.8 s
+run 3: 94, 2.9 s, 2.0 s
