@@ -54,6 +54,10 @@ export const SITE = {
   analytics: {
     ga4: 'G-QF7NBLW9G0', // existing property on the live site (31 Oct 2026)
     metaPixel: '1010576377287782', // existing pixel; loads only after marketing consent
+    // Meta receives the page URL with every pixel event, and most URLs on this site describe
+    // a debt problem. The pixel therefore runs only on these neutral pages (and only after
+    // "Accept all"). Add a path here only after reviewing what its URL reveals.
+    metaPixelPages: ['/', '/about.html', '/contact.html', '/services.html', '/process.html', '/faq.html'],
     gscVerification: 'X9-vIJlOxxbVxak1dS4yJQJ-LScnnE5bkooTzsWeMiA',
   },
 

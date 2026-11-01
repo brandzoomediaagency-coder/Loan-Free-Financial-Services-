@@ -268,7 +268,7 @@ function render(page, pagesByPath, assets) {
     .replace(/<!-- lf:lead-form(?: id="([^"]*)")? -->/g, (_, id) => tpl.leadForm(page, id || 'lead-form', 'full'));
 
   let html = `<!DOCTYPE html>
-<html lang="${page.lang === 'hi' ? 'hi' : 'en'}" data-wa="${SITE.whatsapp}" data-meta-pixel="${SITE.analytics.metaPixel}">
+<html lang="${page.lang === 'hi' ? 'hi' : 'en'}" data-wa="${SITE.whatsapp}" ${SITE.analytics.metaPixelPages.includes(page.path) ? ` data-meta-pixel="${SITE.analytics.metaPixel}"` : ''}>
 <head>
 ${head(page, assets)}
 </head>
