@@ -64,10 +64,10 @@ function loadPages() {
 
 // ---------------------------------------------------------------- assets
 function buildCss() {
-  const files = ['fonts.css', 'base.css', 'components.css'].map((f) => path.join(SRC, 'css', f)).filter(fs.existsSync);
+  const files = ['fonts.css', 'site.css'].map((f) => path.join(SRC, 'css', f)).filter(fs.existsSync);
   let css = files.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
   css = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s*\n\s*/g, '\n').replace(/\n+/g, '\n')
-    .replace(/\s*([{};,])\s*/g, '$1').replace(/;}/g, '}').trim();
+    .replace(/\s*([{};,])\s*/g, '$1').replace(/:\s+/g, ':').replace(/\s+!important/g, '!important').replace(/;}/g, '}').trim();
   const name = `site.${hash(css)}.css`;
   write(`${BUILD_DIR}/${name}`, css);
   return `${BUILD_DIR}/${name}`;
@@ -80,7 +80,9 @@ function buildJs() {
   return `${BUILD_DIR}/${name}`;
 }
 
-// Font Awesome Free icons (CC BY 4.0) subset into one sprite.
+// Icons: Lucide (ISC) outline icons for the interface; Font Awesome Free (CC BY 4.0)
+// only for brand marks and digits, which Lucide does not provide. Pages keep writing
+// <i class="fas fa-NAME">; LUCIDE maps those names to Lucide files in src/icons/lucide.
 const ICON_ALIASES = {
   'money-check-dollar': 'money-check', 'file-invoice-dollar': 'file-invoice', 'comments-dollar': 'comments',
   'hand-holding-dollar': 'indian-rupee-sign', 'search-dollar': 'magnifying-glass-chart', 'rupee-sign': 'indian-rupee-sign',
@@ -89,21 +91,45 @@ const ICON_ALIASES = {
   'search': 'magnifying-glass', 'mobile-alt': 'mobile-screen-button', 'file-alt': 'file-lines', 'history': 'clock-rotate-left',
   'bank': 'building-columns', 'calendar-alt': 'calendar-check',
 };
-const usedIcons = new Set();
+const LUCIDE = {
+  'arrow-right': 'arrow-right', 'arrow-trend-up': 'trending-up', 'arrows-rotate': 'refresh-cw', award: 'award', ban: 'ban',
+  bars: 'menu', briefcase: 'briefcase', 'building-columns': 'landmark', camera: 'camera', 'chart-line': 'chart-line',
+  check: 'check', 'chevron-down': 'chevron-down', 'chevron-right': 'chevron-right', 'circle-check': 'circle-check',
+  'circle-exclamation': 'circle-alert', 'clipboard-check': 'clipboard-check', 'clipboard-list': 'clipboard-list',
+  clock: 'clock', comments: 'messages-square', 'credit-card': 'credit-card', envelope: 'mail', 'envelope-open-text': 'mail-open',
+  'file-circle-check': 'file-check', 'file-contract': 'file-text', 'file-invoice': 'receipt', 'file-signature': 'file-pen-line',
+  'folder-open': 'folder-open', gavel: 'gavel', 'hand-holding-heart': 'hand-heart', handshake: 'handshake',
+  'handshake-angle': 'handshake', house: 'house', 'indian-rupee-sign': 'indian-rupee', 'layer-group': 'layers',
+  lightbulb: 'lightbulb', 'list-check': 'list-checks', 'location-dot': 'map-pin', lock: 'lock', map: 'map',
+  'map-location-dot': 'map-pinned', 'mobile-screen-button': 'smartphone', 'money-check': 'banknote', 'paper-plane': 'send',
+  pause: 'pause', play: 'play', percent: 'percent', 'phone-volume': 'phone', route: 'route', 'scale-balanced': 'scale',
+  'scale-unbalanced': 'scale', 'shield-halved': 'shield', 'shield-heart': 'shield-check', 'user-lock': 'lock-keyhole',
+  'user-shield': 'user-check', 'user-tie': 'user-round', xmark: 'x', 'triangle-exclamation': 'triangle-alert',
+  'circle-info': 'info', 'magnifying-glass': 'search', 'magnifying-glass-chart': 'file-search', 'phone-slash': 'phone-off',
+  'book-open': 'book-open', 'calendar-check': 'calendar-check', 'clock-rotate-left': 'history', 'file-lines': 'file-text',
+  users: 'users', plus: 'plus', minus: 'minus', 'scroll': 'scroll-text', 'badge-check': 'badge-check', 'message': 'message-circle',
+  'arrow-up-right': 'arrow-up-right', 'circle-xmark': 'circle-x', 'square-check': 'square-check-big', language: 'languages',
+  building: 'building-2', wallet: 'wallet', 'file-warning': 'file-warning', siren: 'siren', 'eye-slash': 'eye-off',
+};
+const usedIcons = new Map(); // sprite id -> { file, lucide }
 function iconSvg(name) {
   name = ICON_ALIASES[name] || name;
-  if (!fs.existsSync(path.join(SRC, 'icons', name + '.svg'))) throw new Error(`Unknown icon: ${name}`);
-  usedIcons.add(name);
-  return `<svg class="i i-${name}" aria-hidden="true" focusable="false"><use href="__ICONS__#${name}"></use></svg>`;
+  const lucide = LUCIDE[name];
+  const file = lucide ? path.join(SRC, 'icons/lucide', lucide + '.svg') : path.join(SRC, 'icons', name + '.svg');
+  if (!fs.existsSync(file)) throw new Error(`Unknown icon: ${name}`);
+  const id = lucide || name;
+  usedIcons.set(id, { file, lucide: Boolean(lucide) });
+  return `<svg class="i i-${id}" aria-hidden="true" focusable="false"><use href="__ICONS__#${id}"></use></svg>`;
 }
 function buildSprite() {
-  const symbols = [...usedIcons].sort().map((name) => {
-    const svg = fs.readFileSync(path.join(SRC, 'icons', name + '.svg'), 'utf8');
+  const symbols = [...usedIcons].sort(([a], [b]) => a.localeCompare(b)).map(([id, { file, lucide }]) => {
+    const svg = fs.readFileSync(file, 'utf8');
     const viewBox = svg.match(/viewBox="([^"]+)"/)[1];
-    const inner = svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '').replace(/<!--[\s\S]*?-->/g, '');
-    return `<symbol id="${name}" viewBox="${viewBox}">${inner}</symbol>`;
+    const inner = svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '').replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim();
+    const attrs = lucide ? ' class="lc" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"' : '';
+    return `<symbol id="${id}" viewBox="${viewBox}"${attrs}>${inner}</symbol>`;
   }).join('');
-  const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><!-- Icons: Font Awesome Free 6.4.0, CC BY 4.0, https://fontawesome.com/license/free -->${symbols}</svg>`;
+  const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><!-- Icons: Lucide (ISC, https://lucide.dev/license); brand marks: Font Awesome Free 6.4.0 (CC BY 4.0, https://fontawesome.com/license/free) -->${symbols}</svg>`;
   const name = `icons.${hash(sprite)}.svg`;
   write(`${BUILD_DIR}/${name}`, sprite);
   return `${BUILD_DIR}/${name}`;
@@ -254,6 +280,44 @@ ${page.type === 'home' ? `<meta name="google-site-verification" content="${SITE.
 }
 
 // ---------------------------------------------------------------- render
+// Long-form pages: wrap the content column in a two-column layout with an "On this page"
+// rail built from its H2 headings (sticky on desktop, collapsible at the top on mobile).
+// Content is not changed apart from adding ids to H2s that lack one.
+const slugify = (t) => t.toLowerCase().replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60);
+function docLayout(body, page) {
+  const open = '<div class="container content-wrap long-form-section">';
+  const start = body.indexOf(open);
+  if (start < 0) return body;
+  let depth = 0, i = start, end = -1;
+  const re = /<\/?div\b[^>]*>/g;
+  re.lastIndex = start;
+  for (let m; (m = re.exec(body));) {
+    depth += m[0][1] === '/' ? -1 : 1;
+    if (depth === 0) { end = m.index; i = re.lastIndex; break; }
+  }
+  if (end < 0) return body;
+  let inner = body.slice(start + open.length, end);
+  const used = new Set();
+  const items = [];
+  inner = inner.replace(/<h2\b([^>]*)>([\s\S]*?)<\/h2>/g, (m, attrs, text) => {
+    let id = (attrs.match(/\sid="([^"]+)"/) || [])[1];
+    if (!id) { id = slugify(text) || 'section'; while (used.has(id)) id += '-2'; attrs += ` id="${id}"`; }
+    used.add(id);
+    items.push([id, text.replace(/<[^>]+>/g, '').trim()]);
+    return `<h2${attrs}>${text}</h2>`;
+  });
+  if (items.length < 5) return body;
+  const hi = page.lang === 'hi';
+  const toc = `<aside class="doc-toc" aria-label="${hi ? 'इस पेज पर' : 'On this page'}">
+        <details data-doc-toc><summary>${hi ? 'इस पेज पर' : 'On this page'} <i class="fas fa-chevron-down"></i></summary>
+            <ol>${items.map(([id, t]) => `<li><a href="#${id}">${t}</a></li>`).join('')}</ol>
+        </details>
+        <div class="doc-toc-cta"><p><strong>${hi ? 'अपनी स्थिति पर बात करें' : 'Need help with your situation?'}</strong>${hi ? 'पहली सलाह मुफ़्त और गोपनीय है।' : 'The first consultation is free and confidential.'}</p>
+            <a href="#consult" data-lf-consult class="btn btn-light btn-sm" data-lf-loc="toc">${hi ? 'मुफ़्त सलाह' : 'Get a Free Consultation'}</a></div>
+    </aside>`;
+  return body.slice(0, start) + `<div class="container doc-layout"><div class="doc-main long-form-section">${inner}</div>\n    ${toc}\n</div>` + body.slice(i);
+}
+
 function render(page, pagesByPath, assets) {
   let body = page.body;
   body = body
@@ -263,9 +327,11 @@ function render(page, pagesByPath, assets) {
     .replace(/<!-- lf:entity-facts -->/g, () => tpl.entityFacts())
     .replace(/<!-- lf:team -->/g, () => tpl.team())
     .replace(/<!-- lf:article-cards -->/g, () => tpl.articleCards([...pagesByPath.values()]))
+    .replace(/<!-- lf:services-index(?: level="(h[23])")? -->/g, (_, lvl) => tpl.servicesIndex(page, lvl || 'h3'))
     .replace(/<!-- lf:related(?: heading="([^"]*)")? -->/g, (_, h) => tpl.related(page, pagesByPath, h))
     .replace(/<!-- lf:cta(?: title="([^"]*)" text="([^"]*)")? -->/g, (_, title, txt) => tpl.ctaBand(page, { title, text: txt }))
-    .replace(/<!-- lf:lead-form(?: id="([^"]*)")? -->/g, (_, id) => tpl.leadForm(page, id || 'lead-form', 'full'));
+    .replace(/<!-- lf:lead-form(?: id="([^"]*)")?(?: variant="(full|compact)")? -->/g, (_, id, v) => tpl.leadForm(page, id || 'lead-form', v || 'full'));
+  body = docLayout(body, page);
 
   let html = `<!DOCTYPE html>
 <html lang="${page.lang === 'hi' ? 'hi' : 'en'}" data-wa="${SITE.whatsapp}" ${SITE.analytics.metaPixelPages.includes(page.path) ? ` data-meta-pixel="${SITE.analytics.metaPixel}"` : ''}>

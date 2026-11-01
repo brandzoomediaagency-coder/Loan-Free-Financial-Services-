@@ -2,7 +2,7 @@
 // tools/build.mjs, so the header, footer, forms and CTAs stay identical
 // site-wide. Icons are written as <i class="fas fa-NAME"> and converted to
 // the SVG sprite by the build.
-import { SITE, NAV, FOOTER_SERVICES, FOOTER_COMPANY } from './site.config.mjs';
+import { SITE, NAV, SERVICE_GROUPS, FOOTER_SERVICES, FOOTER_COMPANY } from './site.config.mjs';
 
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -12,6 +12,14 @@ const T = {
     menuOpen: 'Open menu',
     consult: 'Free Consultation',
     home: 'Home',
+    menuClose: 'Close menu',
+    servicesMenu: 'Show services',
+    allServices: 'All services',
+    compare: 'Settlement vs restructuring',
+    topNote: 'Confidential guidance · We are not a lender',
+    resources: 'Resources',
+    legal: 'Legal',
+    notLender: 'We are not a lender and are not approved by the RBI. Only your lender can agree a settlement.',
     callNow: 'Call Now',
     whatsapp: 'WhatsApp',
     waDefault: 'Hi, I would like a free consultation about my loan situation.',
@@ -36,6 +44,14 @@ const T = {
     menuOpen: 'मेनू खोलें',
     consult: 'मुफ़्त सलाह',
     home: 'होम',
+    menuClose: 'मेनू बंद करें',
+    servicesMenu: 'सेवाएँ दिखाएँ',
+    allServices: 'सभी सेवाएँ',
+    compare: 'सेटलमेंट या रीस्ट्रक्चरिंग',
+    topNote: 'गोपनीय मार्गदर्शन · हम लोन नहीं देते',
+    resources: 'गाइड',
+    legal: 'नीतियाँ',
+    notLender: 'हम लोन नहीं देते और RBI से स्वीकृत नहीं हैं। सेटलमेंट पर फ़ैसला सिर्फ़ आपका लोन देने वाला करता है।',
     callNow: 'कॉल करें',
     whatsapp: 'WhatsApp',
     waDefault: 'नमस्ते, मुझे अपने लोन के बारे में मुफ़्त सलाह चाहिए।',
@@ -62,33 +78,61 @@ export const waLink = (text) => `https://wa.me/${SITE.whatsapp}?text=${encodeURI
 
 export function header(page) {
   const s = t(page.lang);
-  const hiNav = page.lang === 'hi';
+  const hi = page.lang === 'hi';
+  const isActive = (href) => page.path === href || (href === '/blog.html' && page.type === 'article')
+    || (href === '/services.html' && page.type === 'service');
+  const subMenu = `<div class="sub-menu" id="sub-services">
+                    <div class="sub-grid">${SERVICE_GROUPS.map((g) => `
+                        <div class="sub-group"><p class="sub-title">${esc(g.title)}</p><ul>${g.items.map(([href, label, icon]) =>
+                          `<li><a href="${href}"${page.path === href ? ' aria-current="page"' : ''}><i class="fas fa-${icon}"></i><span>${esc(label)}</span></a></li>`).join('')}</ul></div>`).join('')}
+                    </div>
+                    <div class="sub-foot"><a href="/services.html">${s.allServices} <i class="fas fa-arrow-right"></i></a><a href="/loan-settlement-vs-restructuring.html">${s.compare} <i class="fas fa-arrow-right"></i></a></div>
+                </div>`;
   const links = NAV.map((n) => {
-    const active = page.path === n.href || (n.href === '/blog.html' && page.type === 'article') ? ' active" aria-current="page' : '';
-    return `<li><a href="${n.href}" class="nav-link${active}">${hiNav ? n.hi : n.label}</a></li>`;
+    const cur = isActive(n.href) ? ' aria-current="page"' : '';
+    const label = hi ? n.hi : n.label;
+    if (!n.menu) return `<li><a href="${n.href}" class="nav-link"${cur}>${label}</a></li>`;
+    return `<li class="has-sub"><div class="nav-item-row"><a href="${n.href}" class="nav-link"${cur}>${label}</a><button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-services" aria-label="${s.servicesMenu}"><i class="fas fa-chevron-down"></i></button></div>
+                ${subMenu}</li>`;
   }).join('\n            ');
   const langSwitch = page.alternates
     ? Object.entries(page.alternates).filter(([l]) => l !== page.lang)
-        .map(([l, href]) => `<li><a href="${href}" class="nav-link nav-lang" hreflang="${l}" lang="${l}">${l === 'hi' ? 'हिन्दी' : 'English'}</a></li>`).join('')
+        .map(([l, href]) => `<a href="${href}" class="top-link" hreflang="${l}" lang="${l}"><i class="fas fa-language"></i> ${l === 'hi' ? 'हिन्दी' : 'English'}</a>`).join('')
     : '';
   return `<a href="#main" class="skip-link">${s.skip}</a>
-<nav class="navbar" aria-label="Primary">
-    <div class="container nav-container">
-        <a href="/" class="logo" aria-label="${SITE.name} — ${s.home}">
-            <img src="/assets/brand/logo-120.webp" alt="" class="nav-logo-img" width="52" height="52">
-            <span class="brand-text"><span class="brand-name">LOAN FREE</span><span class="brand-sub">FINANCIAL SERVICES</span></span>
-        </a>
-        <ul class="nav-menu" id="primary-menu">
-            ${links}${langSwitch}
-        </ul>
-        <button type="button" class="mobile-toggle" aria-label="${s.menuOpen}" aria-controls="primary-menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-        <a href="#consult" data-lf-consult class="btn btn-primary nav-cta" data-lf-loc="header">${s.consult}</a>
+<header class="site-header">
+    <div class="topbar">
+        <div class="container topbar-inner">
+            <p class="top-note"><i class="fas fa-lock"></i> ${s.topNote}</p>
+            <div class="top-links">${langSwitch}<a href="tel:${SITE.phoneE164}" class="top-link" data-lf-loc="topbar"><i class="fas fa-phone-volume"></i> ${SITE.phoneDisplay}</a><a href="mailto:${SITE.email}" class="top-link"><i class="fas fa-envelope"></i> ${SITE.email}</a></div>
+        </div>
     </div>
-</nav>`;
+    <nav class="navbar" aria-label="Primary">
+        <div class="container nav-container">
+            <a href="${hi ? '/hi/' : '/'}" class="logo" aria-label="${SITE.name} — ${s.home}">
+                <img src="/assets/brand/logo-120.webp" alt="" class="nav-logo-img" width="44" height="44">
+                <span class="brand-text"><span class="brand-name">Loan Free</span><span class="brand-sub">Financial Services</span></span>
+            </a>
+            <div class="nav-panel" id="primary-menu">
+                <ul class="nav-menu">
+            ${links}
+                </ul>
+                <div class="nav-panel-cta">
+                    <a href="#consult" data-lf-consult class="btn btn-primary" data-lf-loc="mobile_menu">${s.consult}</a>
+                    <div class="nav-panel-contact"><a href="tel:${SITE.phoneE164}" class="btn btn-outline" data-lf-loc="mobile_menu"><i class="fas fa-phone-volume"></i> ${s.callNow}</a><a href="${waLink(s.waDefault)}" class="btn btn-outline" target="_blank" rel="noopener" data-lf-loc="mobile_menu"><i class="fab fa-whatsapp"></i> ${s.whatsapp}</a></div>
+                    ${langSwitch ? `<p class="nav-panel-lang">${langSwitch}</p>` : ''}
+                </div>
+            </div>
+            <a href="#consult" data-lf-consult class="btn btn-primary nav-cta" data-lf-loc="header">${s.consult}</a>
+            <button type="button" class="mobile-toggle" aria-label="${s.menuOpen}" data-label-open="${s.menuOpen}" data-label-close="${s.menuClose}" aria-controls="primary-menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+</header>`;
 }
 
 export function footer(page) {
   const s = t(page.lang);
+  const hi = page.lang === 'hi';
   const year = new Date().getFullYear();
   const li = (arr) => arr.map(([href, label]) => `<li><a href="${href}">${esc(label)}</a></li>`).join('');
   const socials = [
@@ -96,32 +140,48 @@ export function footer(page) {
     ['linkedin', 'linkedin-in', 'LinkedIn'], ['youtube', 'youtube', 'YouTube'],
   ].filter(([k]) => SITE.social[k])
     .map(([k, icon, label]) => `<a href="${SITE.social[k]}" class="social-icon" target="_blank" rel="noopener" aria-label="${label}"><i class="fab fa-${icon}"></i></a>`).join('');
+  const services = SERVICE_GROUPS.flatMap((g) => g.items.map(([href, label]) => [href, label]));
+  const resources = [['/blog.html', hi ? 'सभी गाइड' : 'Guides & articles'], ['/loan-settlement-vs-restructuring.html', s.compare], ['/process.html', hi ? 'प्रक्रिया' : 'How it works'], ['/faq.html', hi ? 'सवाल-जवाब' : 'FAQs'], ['/editorial-policy.html', hi ? 'संपादकीय नीति' : 'Editorial policy']];
+  const company = [['/about.html', hi ? 'हमारे बारे में' : 'About us'], ['/contact.html', hi ? 'संपर्क' : 'Contact'], ['/loan-settlement-delhi.html', hi ? 'दिल्ली ऑफ़िस' : 'Delhi office']];
+  const legal = [['/privacy-policy.html', hi ? 'प्राइवेसी पॉलिसी' : 'Privacy policy'], ['/terms.html', hi ? 'नियम व शर्तें' : 'Terms & conditions'], ['/disclaimer.html', hi ? 'अस्वीकरण' : 'Disclaimer']];
+  const lang = page.lang === 'en' ? (page.hasHindi ? '<li><a href="/hi/" lang="hi">हिन्दी गाइड</a></li>' : '') : '<li><a href="/">English</a></li>';
   return `<footer class="footer" data-lf-loc="footer">
     <div class="container">
         <div class="footer-grid">
-            <div class="footer-col">
-                <p class="footer-heading">${SITE.name}</p>
+            <div class="footer-col footer-brand">
+                <a href="${hi ? '/hi/' : '/'}" class="logo logo-light" aria-label="${SITE.name} — ${s.home}">
+                    <img src="/assets/brand/logo-120.webp" alt="" class="nav-logo-img" width="44" height="44" loading="lazy">
+                    <span class="brand-text"><span class="brand-name">Loan Free</span><span class="brand-sub">Financial Services</span></span>
+                </a>
                 <p class="footer-about">${s.footerAbout}</p>
-                <div class="social-icons">${socials}</div>
+                <p class="footer-note"><i class="fas fa-circle-info"></i> ${s.notLender}</p>
+                ${socials ? `<div class="social-icons">${socials}</div>` : ''}
             </div>
             <div class="footer-col">
                 <p class="footer-heading">${s.services}</p>
-                <ul>${li(FOOTER_SERVICES)}</ul>
+                <ul>${li(services)}</ul>
             </div>
             <div class="footer-col">
-                <p class="footer-heading">${s.company}</p>
-                <ul>${li(FOOTER_COMPANY)}${page.lang === 'en' ? (page.hasHindi ? '<li><a href="/hi/" lang="hi">हिन्दी गाइड</a></li>' : '') : '<li><a href="/">English</a></li>'}</ul>
+                <p class="footer-heading">${s.resources}</p>
+                <ul>${li(resources)}${lang}</ul>
+                <p class="footer-heading footer-heading-gap">${s.company}</p>
+                <ul>${li(company)}</ul>
             </div>
             <div class="footer-col">
                 <p class="footer-heading">${s.contact}</p>
-                <div class="contact-item"><i class="fas fa-phone-volume"></i><div><strong>${s.phone}:</strong><br><a href="tel:${SITE.phoneE164}">${SITE.phoneDisplay}</a></div></div>
-                <div class="contact-item"><i class="fas fa-envelope"></i><div><strong>${s.email}:</strong><br><a href="mailto:${SITE.email}">${SITE.email}</a></div></div>
-                <div class="contact-item"><i class="fas fa-location-dot"></i><div><strong>${s.office}:</strong><br>${SITE.address.lines.join('<br>')}</div></div>
-                <div class="contact-item"><i class="fas fa-clock"></i><div><strong>${s.hours}:</strong><br>${page.lang === 'hi' ? SITE.hoursDisplayHi : SITE.hoursDisplay}</div></div>
+                <ul class="contact-list">
+                    <li><i class="fas fa-phone-volume"></i><span><span class="contact-label">${s.phone} / WhatsApp</span><a href="tel:${SITE.phoneE164}">${SITE.phoneDisplay}</a></span></li>
+                    <li><i class="fas fa-envelope"></i><span><span class="contact-label">${s.email}</span><a href="mailto:${SITE.email}">${SITE.email}</a></span></li>
+                    <li><i class="fas fa-clock"></i><span><span class="contact-label">${s.hours}</span>${hi ? SITE.hoursDisplayHi : SITE.hoursDisplay}</span></li>
+                    <li><i class="fas fa-location-dot"></i><span><span class="contact-label">${s.office}</span>${SITE.address.lines.join('<br>')}</span></li>
+                </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; ${year} ${SITE.name}. ${s.rights} · <a href="/sitemap.xml">Sitemap</a> · <button type="button" class="link-button" data-lf-consent-open>${s.cookieSettings}</button></p>
+            <div class="footer-bottom-row">
+                <p>&copy; ${year} ${SITE.name}. ${s.rights}</p>
+                <ul class="footer-legal">${li(legal)}<li><a href="/sitemap.xml">Sitemap</a></li><li><button type="button" class="link-button" data-lf-consent-open>${s.cookieSettings}</button></li></ul>
+            </div>
             <p class="disclaimer">${s.disclaimer}</p>
         </div>
     </div>
@@ -233,11 +293,13 @@ export function ctaBand(page, opts = {}) {
   return `<section class="cta-band" data-lf-loc="cta_band" aria-label="${esc(opts.title || s.ctaTitle)}">
     <div class="container">
         <div class="cta-banner">
-            <p class="cta-title">${esc(opts.title || s.ctaTitle)}</p>
-            <p>${esc(opts.text || s.ctaText)}</p>
-            <div class="d-flex justify-center flex-wrap gap-1">
+            <div class="cta-copy">
+                <p class="cta-title">${esc(opts.title || s.ctaTitle)}</p>
+                <p>${esc(opts.text || s.ctaText)}</p>
+            </div>
+            <div class="cta-actions">
                 <a href="#consult" data-lf-consult class="btn btn-light"><i class="fas fa-comments"></i> ${s.ctaPrimary}</a>
-                <a href="${waLink(opts.wa || s.waDefault)}" target="_blank" rel="noopener" class="btn btn-wa-green"><i class="fab fa-whatsapp"></i> ${s.ctaWa}</a>
+                <a href="${waLink(opts.wa || s.waDefault)}" target="_blank" rel="noopener" class="btn btn-ghost-light"><i class="fab fa-whatsapp"></i> ${s.ctaWa}</a>
             </div>
         </div>
     </div>
@@ -398,4 +460,16 @@ export function articleCards(pages) {
     </article>`;
   }).join('\n');
   return `${filters}<div class="card-grid">${cards}</div>`;
+}
+
+// Grouped service rows from SERVICE_GROUPS (homepage and Services page).
+export function servicesIndex(page, headingLevel = 'h3') {
+  return `<div class="svc-groups">${SERVICE_GROUPS.map((g) => `
+    <div class="svc-group">
+        <p class="svc-group-title">${esc(g.title)}</p>
+        <ul class="svc-list">${g.items.map(([href, label, icon, desc]) => `
+            <li><a class="svc-row" href="${href}"><span class="icon-tile"><i class="fas fa-${icon}"></i></span><span><${headingLevel}>${esc(label)}</${headingLevel}><p>${esc(desc)}</p></span><i class="fas fa-arrow-right"></i></a></li>`).join('')}
+        </ul>
+    </div>`).join('')}
+</div>`;
 }

@@ -7,6 +7,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { pathToFileURL } from 'node:url';
 
 const args = process.argv.slice(2);
@@ -103,6 +104,13 @@ const server = http.createServer(async (req, res) => {
     urlPath = '/404.html';
   }
   const headers = { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', ...headersFor(urlPath) };
+  // Compress text responses like Vercel does, so local Lighthouse runs see realistic transfer sizes.
+  if (/\b(gzip)\b/.test(req.headers['accept-encoding'] || '') && /^(text\/|application\/(json|javascript|xml)|image\/svg)/.test(headers['Content-Type'])) {
+    headers['Content-Encoding'] = 'gzip';
+    headers['Vary'] = 'Accept-Encoding';
+    res.writeHead(status, headers);
+    return fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res);
+  }
   res.writeHead(status, headers);
   fs.createReadStream(file).pipe(res);
 });

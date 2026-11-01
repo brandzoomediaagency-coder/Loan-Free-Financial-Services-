@@ -65,7 +65,7 @@ export const SITE = {
 
   // Homepage client quotes were published before Phase 2 and could not be
   // verified. Set to false to remove them until consent records are on file.
-  showHomepageTestimonials: true,
+  showHomepageTestimonials: false,
 
   // Named authors / reviewers. Leave empty until real people with verifiable
   // credentials are supplied; the templates then show the editorial team.
@@ -74,12 +74,35 @@ export const SITE = {
 
 export const NAV = [
   { href: '/', label: 'Home', hi: 'होम' },
-  { href: '/services.html', label: 'Services', hi: 'सेवाएँ' },
-  { href: '/process.html', label: 'Process', hi: 'प्रक्रिया' },
-  { href: '/about.html', label: 'About', hi: 'हमारे बारे में' },
+  { href: '/services.html', label: 'Services', hi: 'सेवाएँ', menu: true },
+  { href: '/process.html', label: 'How It Works', hi: 'प्रक्रिया' },
+  { href: '/about.html', label: 'About Us', hi: 'हमारे बारे में' },
   { href: '/blog.html', label: 'Resources', hi: 'गाइड' },
-  { href: '/faq.html', label: 'FAQ', hi: 'सवाल-जवाब' },
+  { href: '/faq.html', label: 'FAQs', hi: 'सवाल-जवाब' },
   { href: '/contact.html', label: 'Contact', hi: 'संपर्क' },
+];
+
+// One catalogue of services, used by the header menu, the homepage and the footer.
+// Only services with a page on this site are listed. [href, label, icon, short description]
+export const SERVICE_GROUPS = [
+  { title: 'Loan & card settlement', items: [
+    ['/personal-loan-settlement.html', 'Personal Loan Settlement', 'wallet', 'Prepare a hardship case and a written settlement request to your lender.'],
+    ['/credit-card-debt-settlement.html', 'Credit Card Settlement', 'credit-card', 'Options beyond the minimum-due cycle, including settlement.'],
+    ['/nbfc-loan-settlement.html', 'NBFC & App Loan Settlement', 'building-columns', 'Find the real lender behind an app loan and your options.'],
+    ['/loan-ots-one-time-settlement.html', 'One-Time Settlement (OTS)', 'handshake', 'How OTS works and what to check before you pay.'],
+  ] },
+  { title: 'Recovery & borrower rights', items: [
+    ['/recovery-agent-harassment-protection.html', 'Recovery Agent Harassment', 'shield-halved', 'The rules agents must follow, and how to record and escalate breaches.'],
+    ['/digital-lending-app-harassment.html', 'Loan App Harassment', 'mobile-screen-button', 'Threats or contact-list misuse by an app, and where to complain.'],
+  ] },
+  { title: 'Notices & legal matters', items: [
+    ['/legal-notice-reply.html', 'Legal Notice Reply Support', 'file-signature', 'Understand the notice, the deadline and how to respond.'],
+    ['/cheque-bounce-section-138.html', 'Cheque Bounce / Section 138', 'money-check', 'Time limits, options to pay or settle, and when you need an advocate.'],
+  ] },
+  { title: 'Business & credit report', items: [
+    ['/business-loan-restructuring.html', 'MSME Loan Restructuring', 'briefcase', 'Restructuring or settlement requests for small businesses.'],
+    ['/credit-score-guidance.html', 'Credit Report After Settlement', 'chart-line', 'Settled vs Closed, correcting errors and rebuilding.'],
+  ] },
 ];
 
 export const FOOTER_SERVICES = [

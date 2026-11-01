@@ -85,18 +85,60 @@
 
     /* ------------------------------------------------------------ navigation */
     var toggle = $('.mobile-toggle');
-    var menu = $('.nav-menu');
-    if (toggle && menu) {
-        var use = $('use', toggle);
-        var setMenu = function (open) {
-            menu.classList.toggle('active', open);
-            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-            if (use) use.setAttribute('href', use.getAttribute('href').replace(/#.*$/, open ? '#xmark' : '#bars'));
-        };
-        toggle.addEventListener('click', function () { setMenu(!menu.classList.contains('active')); });
-        $$('a', menu).forEach(function (l) { l.addEventListener('click', function () { setMenu(false); }); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu.classList.contains('active')) { setMenu(false); toggle.focus(); } });
+    var panel = $('#primary-menu');
+    var mobileNav = window.matchMedia('(max-width: 1023px)');
+    var setIcon = function (btn, id) { var u = $('use', btn); if (u) u.setAttribute('href', u.getAttribute('href').replace(/#.*$/, '#' + id)); };
+    var setMenu = function (open) {
+        if (!toggle || !panel) return;
+        panel.classList.toggle('is-open', open);
+        document.body.classList.toggle('nav-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.setAttribute('aria-label', toggle.getAttribute(open ? 'data-label-close' : 'data-label-open'));
+        setIcon(toggle, open ? 'x' : 'menu');
+    };
+    if (toggle && panel) {
+        toggle.addEventListener('click', function () { setMenu(!panel.classList.contains('is-open')); });
+        $$('a', panel).forEach(function (l) { l.addEventListener('click', function () { setMenu(false); }); });
+        mobileNav.addEventListener('change', function () { setMenu(false); });
+    }
+    // Services sub-menu: a disclosure button next to the "Services" link.
+    var subToggle = $('.sub-toggle');
+    var sub = $('#sub-services');
+    var setSub = function (open) {
+        if (!subToggle) return;
+        subToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        subToggle.parentNode.parentNode.classList.toggle('is-open', open);
+    };
+    if (subToggle && sub) {
+        subToggle.addEventListener('click', function (e) { e.stopPropagation(); setSub(subToggle.getAttribute('aria-expanded') !== 'true'); });
+        document.addEventListener('click', function (e) { if (!mobileNav.matches && !e.target.closest('.has-sub')) setSub(false); });
+        sub.addEventListener('focusout', function (e) { if (!mobileNav.matches && !sub.parentNode.contains(e.relatedTarget)) setSub(false); });
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        if (subToggle && subToggle.getAttribute('aria-expanded') === 'true') { setSub(false); subToggle.focus(); return; }
+        if (panel && panel.classList.contains('is-open')) { setMenu(false); toggle.focus(); }
+    });
+
+    /* ------------------------------------------------------------ "On this page" rail */
+    var tocBox = $('[data-doc-toc]');
+    if (tocBox) {
+        var wide = window.matchMedia('(min-width: 1024px)');
+        var syncToc = function () { tocBox.open = wide.matches; };
+        syncToc();
+        wide.addEventListener('change', syncToc);
+        $$('a', tocBox).forEach(function (a) { a.addEventListener('click', function () { if (!wide.matches) tocBox.open = false; }); });
+        if ('IntersectionObserver' in window) {
+            var tocLinks = {};
+            $$('a', tocBox).forEach(function (a) { tocLinks[a.getAttribute('href').slice(1)] = a; });
+            var spy = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (!en.isIntersecting) return;
+                    Object.keys(tocLinks).forEach(function (k) { tocLinks[k].classList.toggle('is-current', k === en.target.id); });
+                });
+            }, { rootMargin: '-20% 0px -70% 0px' });
+            Object.keys(tocLinks).forEach(function (id) { var h = document.getElementById(id); if (h) spy.observe(h); });
+        }
     }
 
     /* ------------------------------------------------------------ accordions */
@@ -333,5 +375,9 @@
             $$('button', filterBar).forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
             cards.forEach(function (c) { c.hidden = f !== 'all' && c.getAttribute('data-category').split(' ').indexOf(f) < 0; });
         });
+        // Deep links such as /blog.html#topic-rights open the guides already filtered.
+        var m = location.hash.match(/^#topic-([a-z]+)$/);
+        var preset = m && $('button[data-filter="' + m[1] + '"]', filterBar);
+        if (preset) preset.click();
     }
 })();
