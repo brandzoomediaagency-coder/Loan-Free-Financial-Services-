@@ -281,3 +281,15 @@ a.contact-card:hover { border-color: var(--primary-green); }
 .content-table tbody th { text-align: left; color: var(--navy); font-weight: 600; }
 .content-section .long-form-section { padding-top: 0; padding-bottom: 1rem; }
 .long-form-section .related-grid li a { text-decoration: none; color: inherit; }
+/* The decorative frame behind figures must not push past the viewport on narrower screens. */
+@media (max-width: 1100px) { .media-figure::before { inset: -10px 0 auto auto; } }
+
+/* Accessible text colours (WCAG AA 4.5:1 on white and the light tints used on the site).
+   Brand green stays for buttons and accents; small text uses a deeper shade. */
+:root { --green-text: #006b47; --teal-text: #0f766e; --wa-text: #0b2e1c; }
+.eyebrow, .sources a, .text-teal { color: var(--green-text); }
+.compliance-section .eyebrow { color: #fff; }
+.text-teal { color: var(--teal-text); }
+:is(.long-form-section, .content-wrap, .answer-box, .risk-box, .note-disclaimer, .accordion-content, .info-card) :is(p, li, td, dd) a:not(.btn) { color: var(--green-text); }
+/* WhatsApp green is too light for white text: use a dark label instead. */
+.btn-wa, .btn-wa-green, .btn-wa-green:hover, .sticky-btn.btn-wa { color: var(--wa-text); }

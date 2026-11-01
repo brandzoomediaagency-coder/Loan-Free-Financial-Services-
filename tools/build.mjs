@@ -302,42 +302,12 @@ function sitemap(pages) {
 }
 
 function robots() {
+  // A crawler obeys only the most specific group that names it, so every group
+  // repeats the /api/ rule. The named groups document that AI crawlers are welcome.
+  const bots = ['*', 'Googlebot', 'Bingbot', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'ClaudeBot', 'Claude-SearchBot', 'Google-Extended', 'Applebot-Extended'];
   return `# robots.txt for ${SITE.origin}
 # All search engines and AI answer engines may crawl the public site.
-User-agent: *
-Allow: /
-Disallow: /api/
-
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: GPTBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: Claude-SearchBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
+${bots.map((b) => `User-agent: ${b}\nAllow: /\nDisallow: /api/\n`).join('\n')}
 Sitemap: ${SITE.origin}/sitemap.xml
 `;
 }
