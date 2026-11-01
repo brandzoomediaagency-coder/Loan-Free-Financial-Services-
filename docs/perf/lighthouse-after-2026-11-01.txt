@@ -1,0 +1,10 @@
+home_mobile perf 94 a11y 96 bp 100 seo 100 | FCP 2.0 s LCP 2.8 s TBT 30 ms CLS 0 SI 2.0 s | weight 472 KB reqs 14
+home_desktop perf 100 a11y 96 bp 100 seo 100 | FCP 0.4 s LCP 0.6 s TBT 0 ms CLS 0 SI 0.4 s | weight 472 KB reqs 14
+personal-loan-settlement_html_mobile perf 97 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.3 s TBT 10 ms CLS 0 SI 1.8 s | weight 404 KB reqs 13
+personal-loan-settlement_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.5 s TBT 0 ms CLS 0.001 SI 0.4 s | weight 404 KB reqs 13
+about_html_mobile perf 96 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.5 s TBT 40 ms CLS 0 SI 1.8 s | weight 398 KB reqs 13
+about_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.5 s TBT 0 ms CLS 0.001 SI 0.4 s | weight 398 KB reqs 13
+blog_rbi-guidelines-2024-borrower-rights_html_mobile perf 97 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.4 s TBT 50 ms CLS 0.025 SI 1.8 s | weight 414 KB reqs 13
+blog_rbi-guidelines-2024-borrower-rights_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.5 s TBT 0 ms CLS 0 SI 0.4 s | weight 414 KB reqs 13
+contact_html_mobile perf 96 a11y 100 bp 100 seo 100 | FCP 1.8 s LCP 2.6 s TBT 70 ms CLS 0 SI 1.8 s | weight 390 KB reqs 12
+contact_html_desktop perf 100 a11y 100 bp 100 seo 100 | FCP 0.4 s LCP 0.5 s TBT 0 ms CLS 0.001 SI 0.4 s | weight 390 KB reqs 12

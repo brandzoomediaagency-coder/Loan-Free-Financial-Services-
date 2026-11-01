@@ -41,7 +41,7 @@ GBP/NAP pack, outreach plan, LinkedIn/YouTube plans, linkable-asset specs. Needs
 | `tools/check.mjs` | 0 errors, 0 warnings |
 | Console errors / horizontal overflow (puppeteer, 375/390/768/1024/1440 on key pages) | None found on pages tested |
 | Lead API (`node tools/test-lead.cjs`) | Valid lead delivered and signature verified; honeypot and too-fast submissions dropped; missing consent, bad phone, wrong origin and wrong secret rejected |
-| Lighthouse (local, before vs after) | See `IMPLEMENTATION_REPORT.md` |
+| Lighthouse (local, before vs after) | See `IMPLEMENTATION_REPORT.md` and `docs/perf/` |
 
 ## Launch checks (run on a Vercel preview before approving production)
 
