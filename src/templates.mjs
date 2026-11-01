@@ -2,7 +2,8 @@
 // tools/build.mjs, so the header, footer, forms and CTAs stay identical
 // site-wide. Icons are written as <i class="fas fa-NAME"> and converted to
 // the SVG sprite by the build.
-import { SITE, NAV, SERVICE_GROUPS, FOOTER_SERVICES, FOOTER_COMPANY } from './site.config.mjs';
+import fs from 'node:fs';
+import { SITE, NAV, SERVICE_GROUPS, RESOURCE_GROUPS } from './site.config.mjs';
 
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -10,13 +11,17 @@ const T = {
   en: {
     skip: 'Skip to main content',
     menuOpen: 'Open menu',
-    consult: 'Free Consultation',
+    consult: 'Get a Free Consultation',
     home: 'Home',
     menuClose: 'Close menu',
     servicesMenu: 'Show services',
     allServices: 'All services',
     compare: 'Settlement vs restructuring',
-    topNote: 'Confidential guidance · We are not a lender',
+    topNote: 'Confidential consultation',
+    topHours: 'Mon–Sat, 10 a.m.–8 p.m.',
+    topCoverage: 'Phone & WhatsApp support across India',
+    resourcesMenu: 'Show resources',
+    allGuides: 'All guides',
     resources: 'Resources',
     legal: 'Legal',
     notLender: 'We are not a lender and are not approved by the RBI. Only your lender can agree a settlement.',
@@ -48,7 +53,11 @@ const T = {
     servicesMenu: 'सेवाएँ दिखाएँ',
     allServices: 'सभी सेवाएँ',
     compare: 'सेटलमेंट या रीस्ट्रक्चरिंग',
-    topNote: 'गोपनीय मार्गदर्शन · हम लोन नहीं देते',
+    topNote: 'गोपनीय सलाह',
+    topHours: 'सोम–शनि, सुबह 10 – रात 8',
+    topCoverage: 'पूरे भारत में फ़ोन और WhatsApp पर सहायता',
+    resourcesMenu: 'गाइड दिखाएँ',
+    allGuides: 'सभी गाइड',
     resources: 'गाइड',
     legal: 'नीतियाँ',
     notLender: 'हम लोन नहीं देते और RBI से स्वीकृत नहीं हैं। सेटलमेंट पर फ़ैसला सिर्फ़ आपका लोन देने वाला करता है।',
@@ -81,19 +90,21 @@ export function header(page) {
   const hi = page.lang === 'hi';
   const isActive = (href) => page.path === href || (href === '/blog.html' && page.type === 'article')
     || (href === '/services.html' && page.type === 'service');
-  const subMenu = `<div class="sub-menu" id="sub-services">
-                    <div class="sub-grid">${SERVICE_GROUPS.map((g) => `
+  const groupList = (groups) => groups.map((g) => `
                         <div class="sub-group"><p class="sub-title">${esc(g.title)}</p><ul>${g.items.map(([href, label, icon]) =>
-                          `<li><a href="${href}"${page.path === href ? ' aria-current="page"' : ''}><i class="fas fa-${icon}"></i><span>${esc(label)}</span></a></li>`).join('')}</ul></div>`).join('')}
-                    </div>
-                    <div class="sub-foot"><a href="/services.html">${s.allServices} <i class="fas fa-arrow-right"></i></a><a href="/loan-settlement-vs-restructuring.html">${s.compare} <i class="fas fa-arrow-right"></i></a></div>
-                </div>`;
+                          `<li><a href="${href}"${page.path === href ? ' aria-current="page"' : ''}><i class="fas fa-${icon}"></i><span>${esc(label)}</span></a></li>`).join('')}</ul></div>`).join('');
+  const menus = {
+    services: { label: s.servicesMenu, body: groupList(SERVICE_GROUPS), foot: `<a href="/services.html">${s.allServices} <i class="fas fa-arrow-right"></i></a><a href="/settlement-calculator.html">${hi ? 'सेटलमेंट कैलकुलेटर' : 'Settlement scenario calculator'} <i class="fas fa-arrow-right"></i></a>` },
+    resources: { label: s.resourcesMenu, body: groupList(RESOURCE_GROUPS), foot: `<a href="/blog.html">${s.allGuides} <i class="fas fa-arrow-right"></i></a>` },
+  };
   const links = NAV.map((n) => {
     const cur = isActive(n.href) ? ' aria-current="page"' : '';
-    const label = hi ? n.hi : n.label;
+    const label = hi ? n.hi : (n.short ? `<span class="nav-long">${esc(n.label.replace(n.short, '').trim())} </span>${esc(n.short)}` : esc(n.label));
     if (!n.menu) return `<li><a href="${n.href}" class="nav-link"${cur}>${label}</a></li>`;
-    return `<li class="has-sub"><div class="nav-item-row"><a href="${n.href}" class="nav-link"${cur}>${label}</a><button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-services" aria-label="${s.servicesMenu}"><i class="fas fa-chevron-down"></i></button></div>
-                ${subMenu}</li>`;
+    const m = menus[n.menu];
+    return `<li class="has-sub"><div class="nav-item-row"><a href="${n.href}" class="nav-link"${cur}>${label}</a><button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-${n.menu}" aria-label="${m.label}"><i class="fas fa-chevron-down"></i></button></div>
+                <div class="sub-menu sub-${n.menu}" id="sub-${n.menu}"><div class="sub-grid">${m.body}
+                    </div><div class="sub-foot">${m.foot}</div></div></li>`;
   }).join('\n            ');
   const langSwitch = page.alternates
     ? Object.entries(page.alternates).filter(([l]) => l !== page.lang)
@@ -103,7 +114,7 @@ export function header(page) {
 <header class="site-header">
     <div class="topbar">
         <div class="container topbar-inner">
-            <p class="top-note"><i class="fas fa-lock"></i> ${s.topNote}</p>
+            <ul class="top-notes"><li><i class="fas fa-lock"></i> ${s.topNote}</li><li><i class="fas fa-clock"></i> ${s.topHours}</li><li><i class="fas fa-location-dot"></i> ${s.topCoverage}</li></ul>
             <div class="top-links">${langSwitch}<a href="tel:${SITE.phoneE164}" class="top-link" data-lf-loc="topbar"><i class="fas fa-phone-volume"></i> ${SITE.phoneDisplay}</a><a href="mailto:${SITE.email}" class="top-link"><i class="fas fa-envelope"></i> ${SITE.email}</a></div>
         </div>
     </div>
@@ -120,6 +131,7 @@ export function header(page) {
                 <div class="nav-panel-cta">
                     <a href="#consult" data-lf-consult class="btn btn-primary" data-lf-loc="mobile_menu">${s.consult}</a>
                     <div class="nav-panel-contact"><a href="tel:${SITE.phoneE164}" class="btn btn-outline" data-lf-loc="mobile_menu"><i class="fas fa-phone-volume"></i> ${s.callNow}</a><a href="${waLink(s.waDefault)}" class="btn btn-outline" target="_blank" rel="noopener" data-lf-loc="mobile_menu"><i class="fab fa-whatsapp"></i> ${s.whatsapp}</a></div>
+                    <p class="nav-panel-hours"><i class="fas fa-clock"></i> ${s.topHours}</p>
                     ${langSwitch ? `<p class="nav-panel-lang">${langSwitch}</p>` : ''}
                 </div>
             </div>
@@ -141,7 +153,7 @@ export function footer(page) {
   ].filter(([k]) => SITE.social[k])
     .map(([k, icon, label]) => `<a href="${SITE.social[k]}" class="social-icon" target="_blank" rel="noopener" aria-label="${label}"><i class="fab fa-${icon}"></i></a>`).join('');
   const services = SERVICE_GROUPS.flatMap((g) => g.items.map(([href, label]) => [href, label]));
-  const resources = [['/blog.html', hi ? 'सभी गाइड' : 'Guides & articles'], ['/loan-settlement-vs-restructuring.html', s.compare], ['/process.html', hi ? 'प्रक्रिया' : 'How it works'], ['/faq.html', hi ? 'सवाल-जवाब' : 'FAQs'], ['/editorial-policy.html', hi ? 'संपादकीय नीति' : 'Editorial policy']];
+  const resources = [['/blog.html', hi ? 'सभी गाइड' : 'Guides & articles'], ['/settlement-calculator.html', hi ? 'सेटलमेंट कैलकुलेटर' : 'Settlement calculator'], ['/loan-settlement-vs-restructuring.html', s.compare], ['/process.html', hi ? 'प्रक्रिया' : 'How it works'], ['/faq.html', hi ? 'सवाल-जवाब' : 'FAQs'], ['/editorial-policy.html', hi ? 'संपादकीय नीति' : 'Editorial policy']];
   const company = [['/about.html', hi ? 'हमारे बारे में' : 'About us'], ['/contact.html', hi ? 'संपर्क' : 'Contact'], ['/loan-settlement-delhi.html', hi ? 'दिल्ली ऑफ़िस' : 'Delhi office']];
   const legal = [['/privacy-policy.html', hi ? 'प्राइवेसी पॉलिसी' : 'Privacy policy'], ['/terms.html', hi ? 'नियम व शर्तें' : 'Terms & conditions'], ['/disclaimer.html', hi ? 'अस्वीकरण' : 'Disclaimer']];
   const lang = page.lang === 'en' ? (page.hasHindi ? '<li><a href="/hi/" lang="hi">हिन्दी गाइड</a></li>' : '') : '<li><a href="/">English</a></li>';
@@ -437,7 +449,7 @@ export function team() {
 
 export const CATEGORIES = {
   rights: 'Borrower rights', settlement: 'Settlement', credit: 'Credit report',
-  legal: 'Legal notices', apps: 'Loan apps', default: 'Missed EMIs',
+  legal: 'Legal notices', apps: 'Loan apps', default: 'Missed EMIs & budgeting',
 };
 const fmtDate = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
@@ -472,4 +484,55 @@ export function servicesIndex(page, headingLevel = 'h3') {
         </ul>
     </div>`).join('')}
 </div>`;
+}
+
+// Responsive photo from assets/photos (made by tools/photos.py): AVIF + WebP at 480/800/1200.
+// Only the above-the-fold LCP photo should be marked eager (it also gets fetchpriority=high).
+let photoManifest = null;
+export function photo(name, { alt = '', sizes = '100vw', eager = false, cls = '' } = {}) {
+  if (!photoManifest) photoManifest = JSON.parse(fs.readFileSync(new URL('../assets/photos/manifest.json', import.meta.url), 'utf8'));
+  const m = photoManifest[name];
+  if (!m) throw new Error(`Unknown photo: ${name}`);
+  const w = Math.max(...m.widths), h = Math.round(m.h * w / m.w);
+  const set = (ext) => m.widths.map((x) => `/assets/photos/${name}-${x}.${ext} ${x}w`).join(', ');
+  const mid = m.widths.includes(800) ? 800 : w;
+  return `<picture${cls ? ` class="${cls}"` : ''}><source type="image/avif" srcset="${set('avif')}" sizes="${esc(sizes)}"><source type="image/webp" srcset="${set('webp')}" sizes="${esc(sizes)}"><img src="/assets/photos/${name}-${mid}.webp" width="${w}" height="${h}" alt="${esc(alt)}" ${eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
+}
+export function photoPreload(name, sizes) {
+  if (!photoManifest) photoManifest = JSON.parse(fs.readFileSync(new URL('../assets/photos/manifest.json', import.meta.url), 'utf8'));
+  const m = photoManifest[name];
+  return `<link rel="preload" as="image" type="image/avif" imagesrcset="${m.widths.map((x) => `/assets/photos/${name}-${x}.avif ${x}w`).join(', ')}" imagesizes="${esc(sizes)}" fetchpriority="high">`;
+}
+
+// Calculator teaser and in-page promo (no figures are passed anywhere).
+export function calculatorPromo() {
+  return `<aside class="calc-promo" aria-label="Settlement scenario calculator">
+    <img src="/assets/illustrations/calculator-planning.svg" width="560" height="420" loading="lazy" alt="">
+    <div><p class="calc-promo-title">Try the settlement scenario calculator</p>
+    <p>See how a hypothetical amount fits your monthly budget and how long saving for it could take. Private, educational, and it never predicts what a lender will accept.</p>
+    <a class="btn btn-outline btn-sm" href="/settlement-calculator.html"><i class="fas fa-chart-line"></i> Open the calculator</a></div>
+</aside>`;
+}
+
+// Homepage service grid: every real service, two featured with an illustration.
+// 12 grid cells (2 featured x 2 + 8) so rows stay full at 2, 3 and 4 columns.
+const SERVICE_ART = {
+  '/personal-loan-settlement.html': 'svc-personal-loan',
+  '/recovery-agent-harassment-protection.html': 'svc-recovery-rules',
+};
+export function servicesGrid() {
+  const items = SERVICE_GROUPS.flatMap((g) => g.items.map((it) => [...it, g.title]));
+  return `<ul class="svc-grid">${items.map(([href, label, icon, desc, group]) => {
+    const art = SERVICE_ART[href];
+    return `<li class="svc-card${art ? ' svc-card-featured' : ''}">
+        ${art ? `<img class="svc-art" src="/assets/illustrations/${art}.svg" width="480" height="360" loading="lazy" alt="">` : ''}
+        <div class="svc-body">
+            <span class="icon-tile"><i class="fas fa-${icon}"></i></span>
+            <p class="svc-group">${esc(group)}</p>
+            <h3>${esc(label)}</h3>
+            <p>${esc(desc)}</p>
+            <div class="svc-links"><a class="link-arrow" href="${href}">Learn more<span class="visually-hidden"> about ${esc(label)}</span> <i class="fas fa-arrow-right"></i></a><a class="svc-ask" href="#consult" data-lf-consult data-lf-loc="service_card">Free consultation</a></div>
+        </div>
+    </li>`;
+  }).join('')}</ul>`;
 }

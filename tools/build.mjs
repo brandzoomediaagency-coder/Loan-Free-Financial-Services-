@@ -73,9 +73,9 @@ function buildCss() {
   return `${BUILD_DIR}/${name}`;
 }
 
-function buildJs() {
-  const js = fs.readFileSync(path.join(SRC, 'js', 'site.js'), 'utf8');
-  const name = `site.${hash(js)}.js`;
+function buildJs(file = 'site') {
+  const js = fs.readFileSync(path.join(SRC, 'js', file + '.js'), 'utf8');
+  const name = `${file}.${hash(js)}.js`;
   write(`${BUILD_DIR}/${name}`, js);
   return `${BUILD_DIR}/${name}`;
 }
@@ -272,10 +272,10 @@ ${page.type === 'home' ? `<meta name="google-site-verification" content="${SITE.
 <meta property="og:image:alt" content="${esc(page.h1)}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="/assets/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="${assets.css}">
+${page.preloadPhoto ? tpl.photoPreload(page.preloadPhoto.name, page.preloadPhoto.sizes) + '\n' : ''}<link rel="stylesheet" href="${assets.css}">
 <script>document.documentElement.classList.add('js');window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}(function(){var c=null;try{c=localStorage.getItem('lf_consent');}catch(e){}var g=c==='all'?'granted':'denied';gtag('consent','default',{analytics_storage:g,ad_storage:g,ad_user_data:g,ad_personalization:g,wait_for_update:500});})();gtag('js',new Date());gtag('config','${ga4}');</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=${ga4}"></script>
-<script src="${assets.js}" defer></script>
+<script src="${assets.js}" defer></script>${(page.scripts || []).map((n) => `\n<script src="${assets.pageJs[n]}" defer></script>`).join('')}
 <script type="application/ld+json">${jsonLd(page, ogImage)}</script>`;
 }
 
@@ -331,10 +331,18 @@ function render(page, pagesByPath, assets) {
     .replace(/<!-- lf:team -->/g, () => tpl.team())
     .replace(/<!-- lf:article-cards -->/g, () => tpl.articleCards([...pagesByPath.values()]))
     .replace(/<!-- lf:services-index(?: level="(h[23])")? -->/g, (_, lvl) => tpl.servicesIndex(page, lvl || 'h3'))
+    .replace(/<!-- lf:calculator-promo -->/g, () => tpl.calculatorPromo())
+    .replace(/<!-- lf:services-grid -->/g, () => tpl.servicesGrid())
+    .replace(/<!-- lf:photo name="([^"]+)" alt="([^"]*)"(?: sizes="([^"]*)")?(?: class="([^"]*)")?( eager)? -->/g, (_, name, alt, sizes, cls, eager) => tpl.photo(name, { alt, sizes: sizes || '100vw', cls: cls || '', eager: Boolean(eager) }))
     .replace(/<!-- lf:related(?: heading="([^"]*)")? -->/g, (_, h) => tpl.related(page, pagesByPath, h))
     .replace(/<!-- lf:cta(?: title="([^"]*)" text="([^"]*)")? -->/g, (_, title, txt) => tpl.ctaBand(page, { title, text: txt }))
     .replace(/<!-- lf:lead-form(?: id="([^"]*)")?(?: variant="(full|compact)")? -->/g, (_, id, v) => tpl.leadForm(page, id || 'lead-form', v || 'full'));
   body = docLayout(body, page);
+  if (page.heroArt) {
+    const a = page.heroArt;
+    body = body.replace(/<header class="hero-page">\s*<div class="container">([\s\S]*?)<\/div>\s*<\/header>/, (_, inner) =>
+      `<header class="hero-page has-art"><div class="container hero-page-grid"><div class="hero-page-copy">${inner}</div><div class="hero-art${a.dark ? ' is-dark' : ''}"><img src="${a.src}" width="${a.w}" height="${a.h}" alt="${tpl.esc(a.alt || '')}" decoding="async"></div></div></header>`);
+  }
 
   let html = `<!DOCTYPE html>
 <html lang="${page.lang === 'hi' ? 'hi' : 'en'}" data-wa="${SITE.whatsapp}" ${SITE.analytics.metaPixelPages.includes(page.path) ? ` data-meta-pixel="${SITE.analytics.metaPixel}"` : ''}>
@@ -417,7 +425,8 @@ function main() {
   const pages = loadPages();
   const pagesByPath = new Map(pages.map((p) => [p.path, p]));
   for (const p of pages) p.hasHindi = pagesByPath.has('/hi/');
-  const assets = { css: buildCss(), js: buildJs() };
+  // Page-specific scripts (front matter "scripts": ["calculator"]) load only where needed.
+  const assets = { css: buildCss(), js: buildJs(), pageJs: { calculator: buildJs('calculator') } };
 
   const rendered = pages.map((p) => [p, render(p, pagesByPath, assets)]);
   const sprite = buildSprite();

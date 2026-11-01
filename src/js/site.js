@@ -86,8 +86,14 @@
     /* ------------------------------------------------------------ navigation */
     var toggle = $('.mobile-toggle');
     var panel = $('#primary-menu');
-    var mobileNav = window.matchMedia('(max-width: 1023px)');
+    var mobileNav = window.matchMedia('(max-width: 1199px)');
     var setIcon = function (btn, id) { var u = $('use', btn); if (u) u.setAttribute('href', u.getAttribute('href').replace(/#.*$/, '#' + id)); };
+    var subToggles = $$('.sub-toggle');
+    var setSub = function (btn, open) {
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.closest('.has-sub').classList.toggle('is-open', open);
+    };
+    var closeSubs = function (except) { subToggles.forEach(function (b) { if (b !== except) setSub(b, false); }); };
     var setMenu = function (open) {
         if (!toggle || !panel) return;
         panel.classList.toggle('is-open', open);
@@ -95,30 +101,33 @@
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         toggle.setAttribute('aria-label', toggle.getAttribute(open ? 'data-label-close' : 'data-label-open'));
         setIcon(toggle, open ? 'x' : 'menu');
+        if (!open) closeSubs();
     };
     if (toggle && panel) {
         toggle.addEventListener('click', function () { setMenu(!panel.classList.contains('is-open')); });
         $$('a', panel).forEach(function (l) { l.addEventListener('click', function () { setMenu(false); }); });
         mobileNav.addEventListener('change', function () { setMenu(false); });
     }
-    // Services sub-menu: a disclosure button next to the "Services" link.
-    var subToggle = $('.sub-toggle');
-    var sub = $('#sub-services');
-    var setSub = function (open) {
-        if (!subToggle) return;
-        subToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        subToggle.parentNode.parentNode.classList.toggle('is-open', open);
-    };
-    if (subToggle && sub) {
-        subToggle.addEventListener('click', function (e) { e.stopPropagation(); setSub(subToggle.getAttribute('aria-expanded') !== 'true'); });
-        document.addEventListener('click', function (e) { if (!mobileNav.matches && !e.target.closest('.has-sub')) setSub(false); });
-        sub.addEventListener('focusout', function (e) { if (!mobileNav.matches && !sub.parentNode.contains(e.relatedTarget)) setSub(false); });
-    }
+    // Sub-menus (Services, Resources): a disclosure button next to each top-level link.
+    subToggles.forEach(function (btn) {
+        var menu = document.getElementById(btn.getAttribute('aria-controls'));
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = btn.getAttribute('aria-expanded') !== 'true';
+            if (open && !mobileNav.matches) closeSubs(btn);
+            setSub(btn, open);
+        });
+        if (menu) menu.addEventListener('focusout', function (e) {
+            if (!mobileNav.matches && !btn.closest('.has-sub').contains(e.relatedTarget)) setSub(btn, false);
+        });
+    });
+    document.addEventListener('click', function (e) { if (!mobileNav.matches && !e.target.closest('.has-sub')) closeSubs(); });
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
         // Mobile: one Escape closes the whole drawer. Desktop: it closes the open dropdown.
-        if (panel && panel.classList.contains('is-open')) { setSub(false); setMenu(false); toggle.focus(); return; }
-        if (subToggle && subToggle.getAttribute('aria-expanded') === 'true') { setSub(false); subToggle.focus(); }
+        if (panel && panel.classList.contains('is-open')) { setMenu(false); toggle.focus(); return; }
+        var openBtn = subToggles.filter(function (b) { return b.getAttribute('aria-expanded') === 'true'; })[0];
+        if (openBtn) { setSub(openBtn, false); openBtn.focus(); }
     });
 
     /* ------------------------------------------------------------ "On this page" rail */

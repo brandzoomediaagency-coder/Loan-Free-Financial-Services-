@@ -74,12 +74,32 @@ export const SITE = {
 
 export const NAV = [
   { href: '/', label: 'Home', hi: 'होम' },
-  { href: '/services.html', label: 'Services', hi: 'सेवाएँ', menu: true },
-  { href: '/process.html', label: 'How It Works', hi: 'प्रक्रिया' },
   { href: '/about.html', label: 'About Us', hi: 'हमारे बारे में' },
-  { href: '/blog.html', label: 'Resources', hi: 'गाइड' },
+  { href: '/services.html', label: 'Services', hi: 'सेवाएँ', menu: 'services' },
+  { href: '/process.html', label: 'How It Works', hi: 'प्रक्रिया' },
+  { href: '/settlement-calculator.html', label: 'Settlement Calculator', short: 'Calculator', hi: 'कैलकुलेटर' },
+  { href: '/blog.html', label: 'Resources', hi: 'गाइड', menu: 'resources' },
   { href: '/faq.html', label: 'FAQs', hi: 'सवाल-जवाब' },
   { href: '/contact.html', label: 'Contact', hi: 'संपर्क' },
+];
+
+// Resources menu: guide topics (deep links into the filtered guide list) and tools.
+export const RESOURCE_GROUPS = [
+  { title: 'Guides by topic', items: [
+    ['/blog.html#topic-rights', 'Borrower rights', 'scale-balanced'],
+    ['/blog.html#topic-settlement', 'Loan settlement', 'handshake'],
+    ['/blog.html#topic-credit', 'Credit score & CIBIL', 'chart-line'],
+    ['/blog.html#topic-legal', 'Legal notices', 'file-signature'],
+    ['/blog.html#topic-apps', 'Loan apps', 'mobile-screen-button'],
+    ['/blog.html#topic-default', 'Missed EMIs', 'calendar-check'],
+  ] },
+  { title: 'Tools & help', items: [
+    ['/settlement-calculator.html', 'Settlement scenario calculator', 'indian-rupee-sign'],
+    ['/loan-settlement-vs-restructuring.html', 'Settlement vs restructuring', 'route'],
+    ['/process.html', 'How our process works', 'list-check'],
+    ['/faq.html', 'Frequently asked questions', 'circle-info'],
+    ['/editorial-policy.html', 'How we check our guides', 'book-open'],
+  ] },
 ];
 
 // One catalogue of services, used by the header menu, the homepage and the footer.
@@ -105,28 +125,3 @@ export const SERVICE_GROUPS = [
   ] },
 ];
 
-export const FOOTER_SERVICES = [
-  ['/personal-loan-settlement.html', 'Personal Loan Settlement'],
-  ['/credit-card-debt-settlement.html', 'Credit Card Settlement'],
-  ['/nbfc-loan-settlement.html', 'NBFC Loan Settlement'],
-  ['/loan-ots-one-time-settlement.html', 'One-Time Settlement (OTS)'],
-  ['/business-loan-restructuring.html', 'Business / MSME Restructuring'],
-  ['/recovery-agent-harassment-protection.html', 'Recovery Harassment Support'],
-  ['/digital-lending-app-harassment.html', 'Loan App Harassment Support'],
-  ['/legal-notice-reply.html', 'Legal Notice Reply'],
-  ['/cheque-bounce-section-138.html', 'Cheque Bounce / Sec 138'],
-  ['/credit-score-guidance.html', 'Credit Score Guidance'],
-  ['/loan-settlement-delhi.html', 'Loan Settlement in Delhi'],
-];
-
-export const FOOTER_COMPANY = [
-  ['/about.html', 'About Us'],
-  ['/process.html', 'Our Process'],
-  ['/blog.html', 'Resources & Guides'],
-  ['/faq.html', 'FAQ'],
-  ['/contact.html', 'Contact'],
-  ['/editorial-policy.html', 'Editorial Policy'],
-  ['/privacy-policy.html', 'Privacy Policy'],
-  ['/terms.html', 'Terms & Conditions'],
-  ['/disclaimer.html', 'Disclaimer'],
-];
