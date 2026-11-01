@@ -1,0 +1,66 @@
+// Interaction QA for Phase 3: header dropdown, mobile drawer, dialog, consent/Meta scope, form validation + fallback, TOC.
+import puppeteer from 'puppeteer-core';
+import fs from 'node:fs';
+const exe = fs.readdirSync(process.env.HOME + '/.cache/puppeteer/chrome').filter(d => d.startsWith('mac_arm-150'))[0];
+const b = await puppeteer.launch({ executablePath: `${process.env.HOME}/.cache/puppeteer/chrome/${exe}/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`, headless: 'new' });
+const base = 'http://localhost:8090';
+const results = []; const out = (k, v, pass) => { results.push(pass); console.log((pass ? 'PASS ' : 'FAIL ') + k.padEnd(56), v); };
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+let p = await b.newPage(); await p.setViewport({ width: 1440, height: 900 });
+const reqs = []; p.on('request', r => reqs.push(r.url()));
+await p.goto(base + '/', { waitUntil: 'networkidle2' });
+out('consent banner on first visit', '', await p.$eval('#lf-consent', e => !e.hidden));
+out('no Meta request before consent', '', !reqs.some(u => u.includes('fbevents')));
+// desktop dropdown via keyboard
+await p.focus('.sub-toggle'); await p.keyboard.press('Enter'); await wait(250);
+out('services dropdown opens (aria-expanded)', '', await p.$eval('.sub-toggle', e => e.getAttribute('aria-expanded') === 'true'));
+out('dropdown visible', '', await p.$eval('#sub-services', e => getComputedStyle(e).visibility === 'visible'));
+out('dropdown lists 10 services', '', (await p.$$eval('#sub-services .sub-group a', a => a.length)) === 10);
+await p.keyboard.press('Escape'); await wait(250);
+out('Escape closes dropdown, focus back on toggle', '', await p.evaluate(() => document.querySelector('.sub-toggle').getAttribute('aria-expanded') === 'false' && document.activeElement.classList.contains('sub-toggle')));
+await p.click('[data-consent="all"]'); await wait(1200);
+out('Meta loads on homepage after Accept all', '', reqs.some(u => u.includes('fbevents')));
+reqs.length = 0;
+await p.goto(base + '/personal-loan-settlement.html', { waitUntil: 'networkidle2' });
+out('Meta absent on service page after consent', '', !reqs.some(u => u.includes('fbevents')));
+out('TOC list visible on desktop', '', await p.$eval('#doc-toc-list', e => getComputedStyle(e).display !== 'none'));
+await p.focus('.nav-cta'); await p.keyboard.press('Enter'); await wait(300);
+out('consult dialog opens from header CTA (keyboard)', '', await p.$eval('#consult', d => d.open));
+out('focus moved into dialog', '', await p.evaluate(() => !!document.activeElement.closest('#consult')));
+await p.keyboard.press('Escape'); await wait(250);
+out('Escape closes dialog', '', await p.$eval('#consult', d => !d.open));
+await p.close();
+
+// mobile
+p = await b.newPage(); await p.setViewport({ width: 390, height: 844 });
+await p.evaluateOnNewDocument(() => { try { localStorage.setItem('lf_consent', 'essential'); } catch (e) {} });
+await p.goto(base + '/', { waitUntil: 'networkidle2' });
+out('mobile: drawer hidden initially', '', await p.$eval('#primary-menu', e => getComputedStyle(e).visibility === 'hidden'));
+await p.click('.mobile-toggle'); await wait(300);
+out('mobile: drawer opens, aria-expanded true', '', await p.evaluate(() => document.querySelector('#primary-menu').classList.contains('is-open') && document.querySelector('.mobile-toggle').getAttribute('aria-expanded') === 'true'));
+out('mobile: drawer fills the screen below the header', '', await p.$eval('#primary-menu', e => e.getBoundingClientRect().height > 600));
+out('mobile: sticky bar hidden while menu open', '', await p.$eval('.sticky-bar', e => getComputedStyle(e).display === 'none'));
+await p.click('.sub-toggle'); await wait(200);
+out('mobile: services expand inside drawer', '', await p.$eval('#sub-services', e => getComputedStyle(e).display !== 'none'));
+await p.keyboard.press('Escape'); await wait(300);
+out('mobile: one Escape closes drawer, focus on toggle', '', await p.evaluate(() => !document.querySelector('#primary-menu').classList.contains('is-open') && document.activeElement.classList.contains('mobile-toggle')));
+out('mobile: no floating WhatsApp button (sticky bar only)', '', await p.$eval('.wa-float', e => getComputedStyle(e).display === 'none'));
+out('mobile: sticky bar visible', '', await p.$eval('.sticky-bar', e => getComputedStyle(e).display !== 'none'));
+await p.goto(base + '/personal-loan-settlement.html', { waitUntil: 'networkidle2' });
+out('mobile: TOC collapsed by default', '', await p.$eval('#doc-toc-list', e => getComputedStyle(e).display === 'none'));
+await p.click('.doc-toc-toggle'); await wait(200);
+out('mobile: TOC button expands list (aria-expanded)', '', await p.evaluate(() => getComputedStyle(document.querySelector('#doc-toc-list')).display !== 'none' && document.querySelector('.doc-toc-toggle').getAttribute('aria-expanded') === 'true'));
+// hero form: empty submit blocked, filled submit shows honest fallback (no receiver configured locally)
+await p.goto(base + '/', { waitUntil: 'networkidle2' });
+await p.$eval('#hero-form [type=submit]', e => e.click()); await wait(400);
+out('hero form: empty submit shows field errors', '', await p.$$eval('#hero-form [aria-invalid="true"]', l => l.length) >= 2);
+await p.$eval('#hero-form [name=name]', e => { e.value = 'QA Test'; e.dispatchEvent(new Event('input', { bubbles: true })); });
+await p.$eval('#hero-form [name=phone]', e => { e.value = '9876543210'; e.dispatchEvent(new Event('input', { bubbles: true })); });
+await p.$eval('#hero-form [name=topic]', e => { e.selectedIndex = 1; });
+await p.$eval('#hero-form [name=consent]', e => { e.checked = true; });
+await wait(2700);
+await p.$eval('#hero-form [type=submit]', e => e.click()); await wait(1500);
+const txt = await p.evaluate(() => { const r = document.querySelector('#hero-form').closest('[data-lf-form-wrap]').querySelector('[data-lf-result]'); return r && !r.hidden ? r.textContent.replace(/\s+/g, ' ').trim().slice(0, 90) : 'none'; });
+out('hero form: unconfigured store -> honest fallback, no fake success', txt, /could not save/i.test(txt));
+await b.close();
+console.log(`${results.filter(Boolean).length}/${results.length} passed`);

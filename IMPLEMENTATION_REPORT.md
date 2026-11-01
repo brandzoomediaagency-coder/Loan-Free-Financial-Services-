@@ -2,6 +2,8 @@
 
 Date: 1 November 2026 · Branch: `phase-2-implementation` (original site untouched on `main`) · **Not deployed.** Production deployment waits for your explicit approval.
 
+> **Update (Phase 3):** the design upgrade on branch `phase-3-design-upgrade` is documented in `docs/PHASE_3_DESIGN_REPORT.md`. The performance figures below were measured with an uncompressed local server; the Phase 3 report re-measures Phase 2 and Phase 3 with compression (as Vercel serves them), and under those conditions the Contact page LCP is 1.7 s in both.
+
 ## Summary
 
 The audit's critical and high-impact fixes are implemented in the existing project: one shared template for all 50 pages, a text-only homepage hero, the 3.48 MB background and render-blocking Font Awesome / Google Fonts removed, WebP images, fingerprinted caching, redirects, rewritten metadata, accurate structured data, a consent banner, privacy-safe conversion tracking, and a secure enquiry endpoint. All 12 service pages were rebuilt with rules checked against the official RBI texts, comparison tables, 6–8 FAQs and sources. Unsupported claims, outdated law references, a copyrighted book-cover image, US tax-form images and staff-implying stock photos were removed. The RBI 2027 pillar and the Hindi section are written as drafts awaiting review. What remains needs your decisions, account access or a qualified reviewer — listed in `MANUAL_ACTIONS_REQUIRED.md`.

@@ -92,16 +92,61 @@ The "On this page" rail is added at build time to the 14 long pages with five or
 | `node tools/test-lead.cjs` (secure endpoint) | All cases behave as in Phase 2: valid lead delivered with verified signature and sanitised fields; honeypot and too-fast submissions dropped; missing consent, bad mobile, wrong origin and wrong secret rejected |
 | Responsive sweep: all 50 pages × 375, 390, 430, 768, 1024, 1440 px (300 loads, headless Chrome) | 0 pages with horizontal overflow, console errors or failed requests |
 | Tap targets ≤ 430 px | All stand-alone controls ≥ 44 px after fixes; remaining smaller items are inline text links, the hidden honeypot field, the consent checkbox (its whole label is the target) and card titles (the whole card is the target) |
-| Interaction tests (23) | 23/23 pass: consent banner; no Meta request before consent; Meta on homepage after "Accept all" but not on service pages; Services dropdown opens/closes by keyboard with focus return; mobile drawer opens full-height, hides the sticky bar, expands services, closes on Escape with focus return; no floating WhatsApp button on mobile; consultation dialog opens by keyboard and closes on Escape; "On this page" open on desktop, collapsed on mobile; empty hero form shows field errors; filled form with no receiver configured shows the honest fallback, never a fake success |
+| Interaction tests (24) | 24/24 pass: consent banner; no Meta request before consent; Meta on homepage after "Accept all" but not on service pages; Services dropdown opens/closes by keyboard with focus return; mobile drawer opens full-height, hides the sticky bar, expands services, closes with one Escape and returns focus; no floating WhatsApp button on mobile; consultation dialog opens by keyboard and closes on Escape; "On this page" list visible on desktop, collapsed on mobile and expandable with its button; empty hero form shows field errors; filled form with no receiver configured shows the honest fallback, never a fake success |
 | SEO diff against the Phase 2 build | Same 50 URLs; titles, descriptions, canonicals, robots, JSON-LD types and FAQ counts identical on every page; sitemap URL set, `robots.txt` and `vercel.json` identical; only the homepage H1 changed (intentional) |
-| Drafts | `/hi/*` and `/rbi-recovery-agent-rules-2027.html` absent from `dist/` and the sitemap |
-| Bug found and fixed during QA | The header's `backdrop-filter` made the mobile drawer render as a thin strip; blur is now desktop-only and a geometry assertion was added to the test |
+| Drafts | `/hi/*` and `/rbi-recovery-agent-rules-2027.html` absent from the production `dist/` and sitemap. Previewed with `--drafts` (56 pages, 0 errors): both render in the new design, including the Hindi header/footer and the "On this page" rail, with their DRAFT banners. In the Hindi header, service names stay in English because they link to English pages — for the Hindi reviewer to decide. |
+| Layout refinements from screenshot review at 430/768/1024 px | Compact situation cards and full-width hero buttons on phones; services sidebar layout moved to ≥ 1200 px so cards are not squeezed at 1024 px |
+| Bugs found and fixed during QA | (1) The header's `backdrop-filter` made the mobile drawer render as a thin strip — blur is now desktop-only and a geometry assertion was added to the test. (2) The "On this page" rail was opened by script on desktop, causing CLS 0.019 — rebuilt so no script changes layout. |
 
-Screenshots (in `docs/phase3/screenshots/`): `before-home-1440.jpg`, `before-home-390.jpg`, `after-home-1440.jpg`, `after-home-390.jpg`, `before-service-1440.jpg`, `before-service-390.jpg`, `after-service-1440.jpg`, `after-service-390.jpg`, `after-menu-desktop.png`, `after-menu-mobile.png`. The mobile homepage is 39% shorter (24,559 → 14,971 px of scrolling) with the same information plus the enquiry card; the testimonial carousel accounts for part of the difference.
+Screenshots (in `docs/phase3/screenshots/`): `before-home-1440.jpg`, `before-home-390.jpg`, `after-home-1440.jpg`, `after-home-768.jpg`, `after-home-390.jpg`, `before-service-1440.jpg`, `before-service-390.jpg`, `after-service-1440.jpg`, `after-service-390.jpg`, `after-menu-desktop.png`, `after-menu-mobile.png`. The mobile homepage is 39% shorter (24,559 → 14,971 px of scrolling) with the same information plus the enquiry card; the testimonial carousel accounts for part of the difference.
 
 ## 9. Performance
 
-PERF_RESULTS
+Lab measurements with Lighthouse (headless Chrome, default mobile and desktop presets with simulated throttling), same machine, same five pages, both builds served by the same local server. These are lab numbers, not real-user data.
+
+**Method change, stated plainly:** Phase 2's report measured pages served *without* compression. Vercel compresses HTML, CSS and JS, so for Phase 3 the local server (`tools/serve.mjs`) now gzips text responses, and **both** the Phase 2 build (`7e99185`, rebuilt in a separate worktree) and the Phase 3 build were re-measured under identical conditions. The Phase 2 figures below therefore differ from those in `IMPLEMENTATION_REPORT.md`. In particular, the Phase 2 "Contact LCP regression" (2.6 s) does not appear with compression (1.7 s): it came mostly from the uncompressed test setup, not from the page.
+
+**Mobile** (Phase 2 → Phase 3)
+
+| Page | Performance | LCP | FCP | TBT | CLS | Accessibility | Best practices | SEO |
+|---|---|---|---|---|---|---|---|---|
+| Home | 99 → 99 | 2.0 s → 1.7 s | 1.5 s → 1.5 s | 28 → 63 ms | 0.000 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+| Personal loan settlement | 100 → 99 | 1.7 s → 1.7 s | 1.4 s → 1.4 s | 38 → 83 ms | 0.000 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+| About | 100 → 100 | 1.7 s → 1.6 s | 1.2 s → 1.4 s | 55 → 34 ms | 0.000 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+| RBI guide | 99 → 99 | 1.7 s → 1.8 s | 1.4 s → 1.4 s | 73 → 25 ms | 0.025 → 0.023 | 100 → 100 | 100 → 100 | 100 → 100 |
+| Contact | 100 → 100 | 1.7 s → 1.7 s | 1.2 s → 1.4 s | 42 → 62 ms | 0.000 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+
+**Desktop** (Phase 2 → Phase 3)
+
+| Page | Performance | LCP | FCP | TBT | CLS | Accessibility | Best practices | SEO |
+|---|---|---|---|---|---|---|---|---|
+| Home | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.4 s | 0 → 0 ms | 0.000 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+| Personal loan settlement | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 → 0 ms | 0.001 → 0.002 | 100 → 100 | 100 → 100 | 100 → 100 |
+| About | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 → 0 ms | 0.001 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+| RBI guide | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 → 0 ms | 0.000 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+| Contact | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 → 0 ms | 0.001 → 0.000 | 100 → 100 | 100 → 100 | 100 → 100 |
+
+**Transfer size on first load, mobile (KB, gzip)** (Phase 2 → Phase 3)
+
+| Page | Total | HTML | CSS | JS (own + gtag) | Fonts | Images | Requests |
+|---|---|---|---|---|---|---|---|
+| Home | 333 → 289 | 16 → 15 | 13 → 12 | 183 → 184 | 64 → 64 | 44 → 7 | 14 → 12 |
+| Personal loan settlement | 292 → 286 | 10 → 11 | 13 → 12 | 183 → 184 | 64 → 64 | 9 → 9 | 13 → 14 |
+| About | 291 → 285 | 8 → 9 | 13 → 12 | 183 → 184 | 64 → 64 | 9 → 9 | 13 → 13 |
+| RBI guide | 303 → 308 | 11 → 12 | 13 → 12 | 183 → 184 | 64 → 64 | 19 → 30 | 13 → 13 |
+| Contact | 288 → 282 | 7 → 8 | 13 → 12 | 183 → 184 | 64 → 64 | 7 → 7 | 12 → 13 |
+
+Reading the results:
+
+- **Scores and LCP held or improved.** Mobile Performance is 99–100 on all five pages (Phase 2: 99–100). Mobile LCP: homepage 2.0 → 1.7 s, About 1.7 → 1.6 s, Personal loan and Contact unchanged at 1.7 s, RBI guide 1.7 → 1.8 s. Desktop is 100 everywhere.
+- **The homepage is lighter:** 333 → 289 KB and 14 → 12 requests, because it no longer loads photos (images 44 → 7 KB). CSS is slightly smaller on every page (13 → 12 KB gzip) despite the richer design.
+- **Small regressions, recorded as measured:** mobile Total Blocking Time rose on the homepage (28 → 63 ms) and the Personal loan page (38 → 83 ms) — both well under the 200 ms "good" threshold; mobile FCP on About and Contact went from 1.2 to 1.4 s; the RBI guide's images went from 19 to 30 KB because its stock header photo was replaced by the larger generated topic image used on the other guides. These are single runs and close to run-to-run noise (the Personal loan page measured 40 ms TBT in the first Phase 3 run, before an unrelated fix), but they are not improvements.
+- **Contact LCP:** fixed in the sense that matters — with compression it measures 1.7 s in both Phase 2 and Phase 3. The 2.6 s figure in the Phase 2 report was an artefact of uncompressed local serving.
+- **CLS fixed during QA:** the first Phase 3 measurement showed desktop CLS 0.019 on service pages, caused by script opening the "On this page" rail after load. The rail was rebuilt so no script changes layout; final desktop CLS is 0.000–0.002.
+- The hero has no photo; its LCP element is text, so LCP depends mainly on HTML and CSS delivery.
+- Real-user Core Web Vitals (LCP, INP, CLS) can only be confirmed in Search Console / PageSpeed Insights about 28 days after launch.
+
+Raw results: `docs/perf/lighthouse-phase2-gzip-2026-11-01.txt` and `docs/perf/lighthouse-phase3-gzip-2026-11-01.txt`.
 
 ## 10. Accessibility
 
