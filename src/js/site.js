@@ -24,7 +24,12 @@
     }
     function trackMeta(name) {
         // Standard events only, with no parameters (see privacy rule above).
-        if (typeof window.fbq === 'function') window.fbq('track', name);
+        // window.fbq exists only after "Accept all" on a neutral page, so the
+        // matching GTM dataLayer events (meta_lead / meta_contact, used by GTM
+        // triggers since 58af001) follow exactly the same consent and page rule.
+        if (typeof window.fbq !== 'function') return;
+        window.fbq('track', name);
+        (window.dataLayer = window.dataLayer || []).push({ event: 'meta_' + name.toLowerCase() });
     }
     function locationOf(el) {
         var host = el.closest('[data-lf-loc]');

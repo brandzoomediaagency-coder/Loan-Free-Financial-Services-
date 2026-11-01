@@ -58,6 +58,11 @@ export const SITE = {
     // a debt problem. The pixel therefore runs only on these neutral pages (and only after
     // "Accept all"). Add a path here only after reviewing what its URL reveals.
     metaPixelPages: ['/', '/about.html', '/contact.html', '/services.html', '/process.html', '/faq.html'],
+    // Google Tag Manager containers added to main on 1 Nov 2026 (58af001, 3f3a231). They load
+    // after the Consent Mode default above, so Google tags inside them respect the visitor's
+    // choice. Non-Google tags added in GTM must use GTM consent checks (see TRACKING_VERIFICATION).
+    // The noscript iframe is intentionally omitted: without JavaScript consent cannot be read.
+    gtm: ['GTM-MZT2JKM8', 'GTM-54VQF7S6'],
     gscVerification: 'X9-vIJlOxxbVxak1dS4yJQJ-LScnnE5bkooTzsWeMiA',
   },
 

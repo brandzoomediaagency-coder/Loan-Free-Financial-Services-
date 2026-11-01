@@ -6,12 +6,18 @@
 |---|---|
 | GA4 | Measurement ID `G-QF7NBLW9G0` (kept from the existing site — confirm it is the right property in GA4 > Admin > Data streams). Loaded with Google Consent Mode v2; all storage `denied` until the visitor clicks "Accept all". |
 | Meta Pixel | ID `1010576377287782` (existing). Loads only after "Accept all", and only on `/`, `/about.html`, `/contact.html`, `/services.html`, `/process.html`, `/faq.html` (see `SITE.analytics.metaPixelPages`). `autoConfig` is off. |
-| Google Tag Manager | Not used. The previous site did not have a GTM container, and gtag.js covers the events below. If you want GTM later, provide the container ID; the events below are already pushed to `dataLayer` by gtag. |
+| Google Tag Manager | Containers `GTM-MZT2JKM8` and `GTM-54VQF7S6` (added to `main` on 1 Nov 2026 in 58af001 / 3f3a231; re-applied in the recovery, see `docs/WEBSITE_RECOVERY_REPORT.md`). Loaded on every page **after** the Consent Mode default, so Google tags inside the containers respect the visitor's choice. The `<noscript>` iframe is not used because consent cannot be read without JavaScript. `meta_lead` / `meta_contact` are pushed to `dataLayer` only when the Meta `Lead` / `Contact` event itself fires (neutral page + "Accept all"). |
 | Consent | Banner with "Essential only" / "Accept all"; choice stored in `localStorage` (`lf_consent`); "Cookie settings" link in every footer reopens it. |
 
 ### Why the Meta Pixel is limited
 
 Meta receives the full page URL with every event. Most URLs on this site describe a debt problem (for example `/recovery-agent-harassment-protection.html`). Your brief asked us not to send debt-distress information to Meta through parameters, event names or URL paths, so the pixel runs only on neutral pages. This means Meta will not see conversions that happen on service pages. If you want broader Meta measurement, the privacy-safer option is Meta's Conversions API sending only an event name and a hashed, consented identifier — discuss with your adviser first.
+
+### Rules for tags added inside GTM
+
+- Google tags (GA4, Google Ads): leave consent checks on the defaults; Consent Mode already applies.
+- Non-Google tags (for example a Meta Pixel or any other ad pixel): set **Consent Settings > Require additional consent** to `ad_storage`, and trigger them only on the `meta_lead` / `meta_contact` custom events or on the six neutral pages. A GTM tag that fires on "All Pages" would bypass the neutral-page rule above.
+- Never add tags that read form fields; the forms carry names, phone numbers and debt details.
 
 ## Events
 

@@ -249,6 +249,7 @@ function head(page, assets) {
       `\n<link rel="alternate" hreflang="x-default" href="${SITE.origin + (page.alternates.en || page.path)}">`
     : '';
   const { ga4 } = SITE.analytics;
+  const gtm = SITE.analytics.gtm || [];
   return `<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(page.title)}</title>
@@ -275,7 +276,7 @@ ${page.type === 'home' ? `<meta name="google-site-verification" content="${SITE.
 ${page.preloadPhoto ? tpl.photoPreload(page.preloadPhoto.name, page.preloadPhoto.sizes) + '\n' : ''}<link rel="stylesheet" href="${assets.css}">
 <script>document.documentElement.classList.add('js');window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}(function(){var c=null;try{c=localStorage.getItem('lf_consent');}catch(e){}var g=c==='all'?'granted':'denied';gtag('consent','default',{analytics_storage:g,ad_storage:g,ad_user_data:g,ad_personalization:g,wait_for_update:500});})();gtag('js',new Date());gtag('config','${ga4}');</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=${ga4}"></script>
-<script src="${assets.js}" defer></script>${(page.scripts || []).map((n) => `\n<script src="${assets.pageJs[n]}" defer></script>`).join('')}
+${gtm.length ? `<script>(function(w,d,ids){ids.forEach(function(i){w.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});var j=d.createElement('script');j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;d.head.appendChild(j);});})(window,document,${JSON.stringify(gtm)});</script>\n` : ''}<script src="${assets.js}" defer></script>${(page.scripts || []).map((n) => `\n<script src="${assets.pageJs[n]}" defer></script>`).join('')}
 <script type="application/ld+json">${jsonLd(page, ogImage)}</script>`;
 }
 
