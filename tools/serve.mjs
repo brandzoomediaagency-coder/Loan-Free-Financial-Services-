@@ -105,7 +105,7 @@ const server = http.createServer(async (req, res) => {
   }
   const headers = { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', ...headersFor(urlPath) };
   // Compress text responses like Vercel does, so local Lighthouse runs see realistic transfer sizes.
-  if (/\b(gzip)\b/.test(req.headers['accept-encoding'] || '') && /^(text\/|application\/(json|javascript|xml)|image\/svg)/.test(headers['Content-Type'])) {
+  if (!process.argv.includes('--no-gzip') && /\b(gzip)\b/.test(req.headers['accept-encoding'] || '') && /^(text\/|application\/(json|javascript|xml)|image\/svg)/.test(headers['Content-Type'])) {
     headers['Content-Encoding'] = 'gzip';
     headers['Vary'] = 'Accept-Encoding';
     res.writeHead(status, headers);

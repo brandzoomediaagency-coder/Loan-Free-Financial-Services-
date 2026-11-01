@@ -19,6 +19,14 @@ out('dropdown lists 10 services', '', (await p.$$eval('#sub-services .sub-group 
 await p.keyboard.press('Escape'); await wait(250);
 out('Escape closes dropdown, focus back on toggle', '', await p.evaluate(() => document.querySelector('.sub-toggle').getAttribute('aria-expanded') === 'false' && document.activeElement.classList.contains('sub-toggle')));
 await p.click('[data-consent="all"]'); await wait(1200);
+await p.click('[aria-controls="sub-resources"]'); await wait(250);
+out('resources dropdown opens', '', await p.$eval('[aria-controls="sub-resources"]', e => e.getAttribute('aria-expanded') === 'true'));
+await p.click('[aria-controls="sub-services"]'); await wait(250);
+out('opening services closes resources (one menu at a time)', '', await p.evaluate(() => document.querySelector('[aria-controls="sub-resources"]').getAttribute('aria-expanded') === 'false' && document.querySelector('[aria-controls="sub-services"]').getAttribute('aria-expanded') === 'true'));
+await p.mouse.click(5, 600); await wait(200);
+out('outside click closes menus', '', await p.evaluate(() => [...document.querySelectorAll('.sub-toggle')].every(b => b.getAttribute('aria-expanded') === 'false')));
+out('desktop nav items on one line', '', await p.evaluate(() => [...document.querySelectorAll('.nav-menu > li')].every(li => li.getBoundingClientRect().height <= 46)));
+
 out('Meta loads on homepage after Accept all', '', reqs.some(u => u.includes('fbevents')));
 reqs.length = 0;
 await p.goto(base + '/personal-loan-settlement.html', { waitUntil: 'networkidle2' });
@@ -51,16 +59,16 @@ out('mobile: TOC collapsed by default', '', await p.$eval('#doc-toc-list', e => 
 await p.click('.doc-toc-toggle'); await wait(200);
 out('mobile: TOC button expands list (aria-expanded)', '', await p.evaluate(() => getComputedStyle(document.querySelector('#doc-toc-list')).display !== 'none' && document.querySelector('.doc-toc-toggle').getAttribute('aria-expanded') === 'true'));
 // hero form: empty submit blocked, filled submit shows honest fallback (no receiver configured locally)
-await p.goto(base + '/', { waitUntil: 'networkidle2' });
-await p.$eval('#hero-form [type=submit]', e => e.click()); await wait(400);
-out('hero form: empty submit shows field errors', '', await p.$$eval('#hero-form [aria-invalid="true"]', l => l.length) >= 2);
-await p.$eval('#hero-form [name=name]', e => { e.value = 'QA Test'; e.dispatchEvent(new Event('input', { bubbles: true })); });
-await p.$eval('#hero-form [name=phone]', e => { e.value = '9876543210'; e.dispatchEvent(new Event('input', { bubbles: true })); });
-await p.$eval('#hero-form [name=topic]', e => { e.selectedIndex = 1; });
-await p.$eval('#hero-form [name=consent]', e => { e.checked = true; });
+await p.goto(base + '/contact.html', { waitUntil: 'networkidle2' });
+await p.$eval('#contact-form [type=submit]', e => e.click()); await wait(400);
+out('contact form: empty submit shows field errors', '', await p.$$eval('#contact-form [aria-invalid="true"]', l => l.length) >= 2);
+await p.$eval('#contact-form [name=name]', e => { e.value = 'QA Test'; e.dispatchEvent(new Event('input', { bubbles: true })); });
+await p.$eval('#contact-form [name=phone]', e => { e.value = '9876543210'; e.dispatchEvent(new Event('input', { bubbles: true })); });
+await p.$eval('#contact-form [name=topic]', e => { e.selectedIndex = 1; });
+await p.$eval('#contact-form [name=consent]', e => { e.checked = true; });
 await wait(2700);
-await p.$eval('#hero-form [type=submit]', e => e.click()); await wait(1500);
-const txt = await p.evaluate(() => { const r = document.querySelector('#hero-form').closest('[data-lf-form-wrap]').querySelector('[data-lf-result]'); return r && !r.hidden ? r.textContent.replace(/\s+/g, ' ').trim().slice(0, 90) : 'none'; });
-out('hero form: unconfigured store -> honest fallback, no fake success', txt, /could not save/i.test(txt));
+await p.$eval('#contact-form [type=submit]', e => e.click()); await wait(1500);
+const txt = await p.evaluate(() => { const r = document.querySelector('#contact-form').closest('[data-lf-form-wrap]').querySelector('[data-lf-result]'); return r && !r.hidden ? r.textContent.replace(/\s+/g, ' ').trim().slice(0, 90) : 'none'; });
+out('contact form: unconfigured store -> honest fallback, no fake success', txt, /could not save/i.test(txt));
 await b.close();
 console.log(`${results.filter(Boolean).length}/${results.length} passed`);

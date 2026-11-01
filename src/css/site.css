@@ -823,8 +823,8 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 .hero-float-a { left: -22px; bottom: 34px; }
 .hero-float-b { right: -14px; top: 26px; }
 .hero-credit { position: absolute; right: 12px; bottom: 10px; font-size: .7rem; color: rgba(255, 255, 255, .85); background: rgba(7, 23, 38, .45); padding: .15rem .5rem; border-radius: 999px; }
-@media (max-width: 1023px) { .hero-visual { max-width: 620px; margin: .5rem auto 0; } .hero-float-a { left: 10px; bottom: -22px; } .hero-float-b { right: 10px; top: -16px; } }
-@media (max-width: 479px) { .hero-float-b { display: none; } .hero-float-a { left: 50%; transform: translateX(-50%); bottom: -26px; white-space: nowrap; } }
+@media (max-width: 1023px) { .hero-visual { max-width: 620px; margin: .5rem auto 0; } .hero-float-a { left: 12px; bottom: 12px; } .hero-float-b { right: 12px; top: 12px; } .hero-credit { right: auto; bottom: auto; left: 12px; top: 12px; } }
+@media (max-width: 479px) { .hero-float-b { display: none; } .hero-float-a { left: 10px; bottom: 10px; padding: .55rem .75rem; } }
 
 /* Trust strip overlapping the hero */
 .trust-strip { position: relative; z-index: 2; margin-top: calc(-1 * clamp(40px, 5vw, 56px)); }
@@ -978,5 +978,6 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 .calc-cta .btn-outline { --btn-bg: transparent; --btn-fg: #fff; --btn-bd: rgba(255, 255, 255, .45); box-shadow: none; }
 .calc-cta .btn-outline:hover { --btn-bg: rgba(255, 255, 255, .1); --btn-fg: #fff; --btn-bd: #fff; }
 .calc-cta-note { margin: .75rem 0 0 !important; font-size: .78rem; color: #9FB1C3; }
-@media (max-width: 479px) { .calc-cards { grid-template-columns: 1fr; } .calc-value { font-size: 1.1rem; } }
+@media (max-width: 479px) { .calc-value { font-size: 1.05rem; } .calc-card { padding: .75rem .8rem; } }
+@media (max-width: 359px) { .calc-cards { grid-template-columns: 1fr; } }
 @media (min-width: 900px) { .hero-art.is-dark { background: none; padding: 0; box-shadow: none; } }

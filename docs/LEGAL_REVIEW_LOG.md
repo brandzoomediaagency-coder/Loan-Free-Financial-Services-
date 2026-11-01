@@ -60,6 +60,7 @@ Status key: **Verified** = checked against the official text saved in `docs/rese
 | Page group | Reviewer | Date | Notes |
 |---|---|---|---|
 | Service pages (12) | | | |
+| Settlement scenario calculator page (new in Phase 3) | | | Uses only the RBI framework facts listed above (board-approved policy, >3 months = restructuring, 12-month cooling period) and "Settled" reporting |
 | FAQ, Process, About, Services | | | |
 | RBI 2027 pillar (draft) | | | |
 | Hindi section (drafts) | | | |

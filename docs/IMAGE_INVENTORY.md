@@ -27,9 +27,40 @@ Text in the SVGs uses system fonts. If a rule changes, edit `tools/illustrations
 
 Re-run `node tools/media.mjs [slug…]` after changing a page H1.
 
-## Photographs
+## Photographs (Phase 3)
 
-None. Phase 3 removed every legacy stock photo (`assets/*.jpg`, 14 files) and their WebP variants (`assets/img/`, 1.6 MB in total): none were in use after the redesign, two were unrelated copyrighted book covers, two showed US tax forms, and two were stock people captioned as staff. The last three guides that used stock images now use their generated topic images like the other guides. The files remain in git history (commit `7e99185` and earlier) if needed.
+Original images generated for this site with Canva's image generator (owner-approved export), showing Indian people in Indian settings or no people at all. They are **illustrative**: they do not show Loan Free staff, advisers or clients, and every alt text starts "Illustrative photo:". The homepage hero carries a small "Illustrative image" label. No logos, bank branding, readable financial details, cash or official symbols.
+
+| Source (`src/photos/`, not deployed) | Published variants | Used on | Alt text (summary) |
+|---|---|---|---|
+| `hero-consultation.jpg` 1536×1024 | `assets/photos/hero-consultation-{480,800,1200}.{avif,webp}` | Homepage hero (LCP image; preloaded, `fetchpriority="high"`) | Woman calmly reviewing documents in a bright room |
+| `help-situation.jpg` 1200×900 | `help-situation-*` | Homepage "How we help" 01 | Man sorting bills and statements |
+| `help-options.jpg` 1200×900 | `help-options-*` | "How we help" 02 | Couple reviewing options on a laptop |
+| `help-coordination.jpg` 1200×900 | `help-coordination-*` | "How we help" 03 | Tidy desk with laptop, phone, envelope, folders (no people) |
+| `help-documents.jpg` 1200×900 | `help-documents-*` | "How we help" 04 | Hands placing papers into a navy binder |
+
+Regenerate variants after replacing a source: `python3 tools/photos.py` (needs Pillow 11.3+ for AVIF). Total published photo weight: 556 KB across 30 files; a page loads one size per image (e.g. hero 8 KB AVIF at 800 px).
+
+Canva links (full-size originals): hero `MAHZpUmEujw`, help 1 `MAHZpedw6jQ`, help 2 `MAHZpUKU1oU`, help 3 `MAHZpWKGG-Q`, help 4 `MAHZpSCLNRA` (open as `https://www.canva.com/M/<id>`).
+
+All 14 legacy stock photos were removed earlier in Phase 3 (two were copyrighted book covers, two showed US tax forms, two were stock people captioned as staff).
+
+## Scene and service illustrations (Phase 3, `tools/scenes.mjs`)
+
+| File | Used on |
+|---|---|
+| `hero-clarity.svg` | About page hero |
+| `calculator-planning.svg` | Calculator hero, homepage calculator teaser, knowledge-centre tool card, calculator promos |
+| `svc-personal-loan.svg` | Personal loan page hero; homepage featured service card |
+| `svc-credit-card.svg` | Credit card page hero |
+| `svc-multiple-emis.svg` | NBFC & app loans page hero; Settlement vs restructuring hero |
+| `svc-closure.svg` | OTS page hero |
+| `svc-msme.svg` | MSME page hero |
+| `svc-recovery-rules.svg` | Recovery agent page hero, loan-app page hero; homepage featured service card |
+| `svc-legal-notice.svg` | Legal notice page hero, cheque-bounce page hero |
+| `svc-credit-report.svg` | Credit report page hero |
+
+All are flat editorial illustrations in the brand palette with no people, logos or official seals; 2.8–6 KB each.
 
 ## Photos to commission (real, with consent)
 
