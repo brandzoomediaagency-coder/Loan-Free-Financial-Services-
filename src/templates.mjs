@@ -276,8 +276,9 @@ export function reviewBox(page) {
   const person = (id) => SITE.people.find((p) => p.id === id);
   const author = person(page.author);
   const reviewer = person(page.reviewer);
-  const fmt = (d) => d && new Date(d + 'T00:00:00Z').toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-  const who = author ? `<a href="/about.html#${author.id}">${esc(author.name)}</a>, ${esc(author.role)}` : `${SITE.name} editorial team`;
+  const hiPage = page.lang === 'hi';
+  const fmt = (d) => d && new Date(d + 'T00:00:00Z').toLocaleDateString(hiPage ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const who = author ? `<a href="/about.html#${author.id}">${esc(author.name)}</a>, ${esc(author.role)}` : `${SITE.name} ${hiPage ? 'संपादकीय टीम' : 'editorial team'}`;
   const rev = reviewer
     ? `Reviewed by <a href="/about.html#${reviewer.id}">${esc(reviewer.name)}</a>, ${esc(reviewer.credential)}${page.lastReviewed ? ` on ${fmt(page.lastReviewed)}` : ''}.`
     : 'Independent expert review of this page is pending.';
