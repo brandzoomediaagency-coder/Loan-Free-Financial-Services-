@@ -116,21 +116,21 @@
     }
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
-        if (subToggle && subToggle.getAttribute('aria-expanded') === 'true') { setSub(false); subToggle.focus(); return; }
-        if (panel && panel.classList.contains('is-open')) { setMenu(false); toggle.focus(); }
+        // Mobile: one Escape closes the whole drawer. Desktop: it closes the open dropdown.
+        if (panel && panel.classList.contains('is-open')) { setSub(false); setMenu(false); toggle.focus(); return; }
+        if (subToggle && subToggle.getAttribute('aria-expanded') === 'true') { setSub(false); subToggle.focus(); }
     });
 
     /* ------------------------------------------------------------ "On this page" rail */
     var tocBox = $('[data-doc-toc]');
     if (tocBox) {
-        var wide = window.matchMedia('(min-width: 1024px)');
-        var syncToc = function () { tocBox.open = wide.matches; };
-        syncToc();
-        wide.addEventListener('change', syncToc);
-        $$('a', tocBox).forEach(function (a) { a.addEventListener('click', function () { if (!wide.matches) tocBox.open = false; }); });
+        var tocBtn = $('.doc-toc-toggle', tocBox);
+        var setToc = function (open) { tocBox.classList.toggle('is-open', open); tocBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+        tocBtn.addEventListener('click', function () { setToc(!tocBox.classList.contains('is-open')); });
+        $$('ol a', tocBox).forEach(function (a) { a.addEventListener('click', function () { setToc(false); }); });
         if ('IntersectionObserver' in window) {
             var tocLinks = {};
-            $$('a', tocBox).forEach(function (a) { tocLinks[a.getAttribute('href').slice(1)] = a; });
+            $$('ol a', tocBox).forEach(function (a) { tocLinks[a.getAttribute('href').slice(1)] = a; });
             var spy = new IntersectionObserver(function (entries) {
                 entries.forEach(function (en) {
                     if (!en.isIntersecting) return;

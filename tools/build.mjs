@@ -308,10 +308,13 @@ function docLayout(body, page) {
   });
   if (items.length < 5) return body;
   const hi = page.lang === 'hi';
-  const toc = `<aside class="doc-toc" aria-label="${hi ? 'इस पेज पर' : 'On this page'}">
-        <details data-doc-toc><summary>${hi ? 'इस पेज पर' : 'On this page'} <i class="fas fa-chevron-down"></i></summary>
-            <ol>${items.map(([id, t]) => `<li><a href="#${id}">${t}</a></li>`).join('')}</ol>
-        </details>
+  const label = hi ? 'इस पेज पर' : 'On this page';
+  // No script changes layout here: CSS shows the list on desktop; on mobile a disclosure button
+  // reveals it (the list is hidden only when JS is running, so it still works without JS).
+  const toc = `<aside class="doc-toc" aria-label="${label}" data-doc-toc>
+        <button type="button" class="doc-toc-toggle" aria-expanded="false" aria-controls="doc-toc-list">${label} <i class="fas fa-chevron-down"></i></button>
+        <p class="doc-toc-label">${label}</p>
+        <ol id="doc-toc-list">${items.map(([id, t]) => `<li><a href="#${id}">${t}</a></li>`).join('')}</ol>
         <div class="doc-toc-cta"><p><strong>${hi ? 'अपनी स्थिति पर बात करें' : 'Need help with your situation?'}</strong>${hi ? 'पहली सलाह मुफ़्त और गोपनीय है।' : 'The first consultation is free and confidential.'}</p>
             <a href="#consult" data-lf-consult class="btn btn-light btn-sm" data-lf-loc="toc">${hi ? 'मुफ़्त सलाह' : 'Get a Free Consultation'}</a></div>
     </aside>`;

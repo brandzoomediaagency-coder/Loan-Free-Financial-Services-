@@ -5,7 +5,7 @@ Branch `phase-3-design-upgrade`, created from `phase-2-implementation` at `7e991
 ## 1. Starting point (Stage A)
 
 - Phase 2 was intact: 50 production pages built by `tools/build.mjs` from `src/pages`, shared templates, secure `/api/lead`, consent banner, privacy-safe tracking, drafts excluded from the live build. Working tree clean.
-- Design inconsistencies found: two CSS layers (`base.css` 58 KB legacy + `components.css` overrides) fighting each other; solid Font Awesome icons mixed in style and weight; three different card styles; the Services page used older card markup and listed 9 of the 10 services; the header had no service menu; the footer was a plain list; long service pages had no way to jump between sections; homepage testimonials were still shown although unverified.
+- Design inconsistencies found: two CSS layers (`base.css`, 58 KB of legacy rules, plus `components.css` overriding it); heavy solid icons; several unrelated card and section styles carried over from the original template; the Services page used older card markup and listed 9 of the 10 services; the header had no service menu; the footer was a plain list; long service pages had no way to jump between sections; homepage testimonials were still shown although unverified.
 
 ## 2. Reference analysis — settlemyloan.in (structure only)
 
