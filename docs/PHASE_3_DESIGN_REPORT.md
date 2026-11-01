@@ -88,11 +88,82 @@ Reviewed page content was not edited, except the homepage, the new calculator pa
 
 See `docs/PHASE_3_CALCULATOR_DOCUMENTATION.md` for formulas, inputs, validation, limitations, privacy and tests. Summary: an educational budgeting planner; the visitor enters every amount; no suggested percentage; capacity, remaining amount, illustrative months and "difference in your hypothetical scenario"; prominent disclaimer; all calculation in the browser with no storage, network, URL or console use; one parameter-free `calculator_used` analytics event under the existing consent rules; the Meta Pixel does not run on the page.
 
-QA_RESULTS
+## 9. Quality assurance (all executed on this branch)
 
-PERF_RESULTS
+| Check | Command | Result |
+|---|---|---|
+| Build and static checks (links, assets, titles, descriptions, canonicals, JSON-LD, sitemap, headings, alt text) | `node tools/check.mjs` | 51 pages, 0 errors, 0 warnings |
+| Calculator unit tests | `node tools/test-calculator.cjs` | 47 passed, 0 failed |
+| Calculator in the browser, incl. privacy | `node tools/qa/calculator-browser.mjs` | 40 passed, 0 failed (1440 and 390 px) |
+| Header, drawer, dropdowns, dialog, consent and Meta scope, TOC, form validation | `node tools/qa/interactions.mjs` | 28 passed, 0 failed |
+| Secure enquiry endpoint (`/api/lead`) | `node tools/test-lead.cjs` | Passed |
+| Unpublished drafts (5 Hindi pages, 2027 RBI recovery-rules draft) still build with the new templates, carry `noindex`, and are absent from the production build and sitemap | `node tools/build.mjs --drafts`, then `node tools/build.mjs` | 57 pages with drafts; production 51 pages, 49 sitemap URLs, no drafts |
+| Responsive sweep: every page at 375, 390, 430, 768, 1024, 1440 px | `node tools/qa/sweep.mjs dist` | 306 page loads; 0 horizontal overflow, 0 console errors, 0 failed requests |
 
-## Remaining manual actions and owner approvals
+**Results for every page.** All 51 pages (50 existing + the calculator) passed the static checks and the six-width sweep. SEO was compared with the Phase 2 inventory: the 50 existing URLs keep their titles, meta descriptions, robots directives, canonicals and JSON-LD types; the only new URL is `/settlement-calculator.html` (added to the sitemap, now 49 indexable URLs); drafts stay excluded; `vercel.json` and robots.txt are unchanged. The only intentional on-page SEO change is the homepage H1 (D11).
+
+**Accessibility.** Lighthouse accessibility is 100 on all six audited pages (mobile and desktop). Keyboard: dropdowns open with Enter/Space, one at a time, close on Escape and outside click, and return focus to their button; on mobile, one Escape closes the drawer and returns focus to the menu button; the enquiry dialog moves focus inside and restores it on close. Remaining small tap targets at phone widths are inline text links inside paragraphs (exempt under WCAG 2.2 target size), 24 px "card-link" arrows that sit inside a larger clickable card, and the visually hidden honeypot field and consent checkbox (the checkbox has a full-width clickable label).
+
+**Screenshots** (`docs/phase3/screenshots/v2/`, desktop 1440 px and mobile 390 px): home, calculator, personal loan settlement, credit card settlement, recovery agent harassment, about, resources, contact.
+
+
+## 10. Performance (Lighthouse, Phase 2 → Phase 3)
+
+Same tool, Chrome build, throttling and pages as the Phase 2 baseline, plus the new calculator page. Two sets were run because the Phase 2 report measured an uncompressed local server, while Vercel serves pages compressed. Raw output: `docs/perf/lighthouse-phase3v2-2026-11-01.txt` (Phase 3), `docs/perf/lighthouse-phase2-gzip-2026-11-01.txt` and `docs/perf/lighthouse-after-2026-11-01.txt` (Phase 2). Each figure is a single run; mobile LCP varies by about ±0.2 s between runs.
+
+**Compressed (gzip, as Vercel serves pages) — Phase 2 → Phase 3, mobile**
+
+| Page | Performance | LCP | FCP | TBT | CLS | Accessibility | Best practices | SEO | Transfer |
+|---|---|---|---|---|---|---|---|---|---|
+| Home | 99 → 99 | 2.0 s → 2.0 s | 1.5 s → 1.5 s | 28 ms → 62 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 333 KB → 304 KB |
+| Personal loan settlement | 100 → 100 | 1.7 s → 1.7 s | 1.4 s → 1.4 s | 38 ms → 52 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 292 KB → 291 KB |
+| About | 100 → 100 | 1.7 s → 1.7 s | 1.2 s → 1.4 s | 55 ms → 41 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 291 KB → 291 KB |
+| RBI guide | 99 → 99 | 1.7 s → 1.8 s | 1.4 s → 1.5 s | 73 ms → 24 ms | 0.025 → 0.023 | 100 → 100 | 100 → 100 | 100 → 100 | 303 KB → 312 KB |
+| Contact | 100 → 99 | 1.7 s → 1.8 s | 1.2 s → 1.5 s | 42 ms → 31 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 288 KB → 285 KB |
+| Calculator (new) | — → 99 | — → 1.8 s | — → 1.5 s | — → 53 ms | — → 0 | — → 100 | — → 100 | — → 100 | — → 295 KB |
+
+**Compressed (gzip, as Vercel serves pages) — Phase 2 → Phase 3, desktop**
+
+| Page | Performance | LCP | FCP | TBT | CLS | Accessibility | Best practices | SEO | Transfer |
+|---|---|---|---|---|---|---|---|---|---|
+| Home | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.4 s | 0 ms → 0 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 333 KB → 339 KB |
+| Personal loan settlement | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 ms → 0 ms | 0.001 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 292 KB → 291 KB |
+| About | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 ms → 0 ms | 0.001 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 291 KB → 291 KB |
+| RBI guide | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 ms → 0 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 303 KB → 312 KB |
+| Contact | 100 → 100 | 0.4 s → 0.4 s | 0.3 s → 0.3 s | 0 ms → 0 ms | 0.001 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 288 KB → 285 KB |
+| Calculator (new) | — → 100 | — → 0.4 s | — → 0.3 s | — → 0 ms | — → 0 | — → 100 | — → 100 | — → 100 | — → 295 KB |
+
+**Uncompressed (same conditions as the Phase 2 report baseline) — Phase 2 → Phase 3, mobile**
+
+| Page | Performance | LCP | FCP | TBT | CLS | Accessibility | Best practices | SEO | Transfer |
+|---|---|---|---|---|---|---|---|---|---|
+| Home | 94 → 94 | 2.8 s → 2.9 s | 2.0 s → 2.1 s | 30 ms → 32 ms | 0 → 0 | 96 → 100 | 100 → 100 | 100 → 100 | 472 KB → 455 KB |
+| Personal loan settlement | 97 → 96 | 2.3 s → 2.5 s | 1.8 s → 1.8 s | 10 ms → 25 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 404 KB → 419 KB |
+| About | 96 → 96 | 2.5 s → 2.6 s | 1.8 s → 1.8 s | 40 ms → 26 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 398 KB → 416 KB |
+| RBI guide | 97 → 94 | 2.4 s → 2.8 s | 1.8 s → 2.0 s | 50 ms → 31 ms | 0.025 → 0.023 | 100 → 100 | 100 → 100 | 100 → 100 | 414 KB → 433 KB |
+| Contact | 96 → 96 | 2.6 s → 2.5 s | 1.8 s → 1.8 s | 70 ms → 20 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 390 KB → 397 KB |
+| Calculator (new) | — → 94 | — → 2.9 s | — → 2.0 s | — → 54 ms | — → 0 | — → 100 | — → 100 | — → 100 | — → 433 KB |
+
+**Uncompressed (same conditions as the Phase 2 report baseline) — Phase 2 → Phase 3, desktop**
+
+| Page | Performance | LCP | FCP | TBT | CLS | Accessibility | Best practices | SEO | Transfer |
+|---|---|---|---|---|---|---|---|---|---|
+| Home | 100 → 100 | 0.6 s → 0.6 s | 0.4 s → 0.5 s | 0 ms → 0 ms | 0 → 0 | 96 → 100 | 100 → 100 | 100 → 100 | 472 KB → 492 KB |
+| Personal loan settlement | 100 → 100 | 0.5 s → 0.6 s | 0.4 s → 0.4 s | 0 ms → 0 ms | 0.001 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 404 KB → 419 KB |
+| About | 100 → 100 | 0.5 s → 0.5 s | 0.4 s → 0.4 s | 0 ms → 0 ms | 0.001 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 398 KB → 416 KB |
+| RBI guide | 100 → 100 | 0.5 s → 0.6 s | 0.4 s → 0.4 s | 0 ms → 0 ms | 0 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 414 KB → 433 KB |
+| Contact | 100 → 100 | 0.5 s → 0.5 s | 0.4 s → 0.4 s | 0 ms → 0 ms | 0.001 → 0 | 100 → 100 | 100 → 100 | 100 → 100 | 390 KB → 397 KB |
+| Calculator (new) | — → 100 | — → 0.6 s | — → 0.4 s | — → 0 ms | — → 0 | — → 100 | — → 100 | — → 100 | — → 433 KB |
+
+**Reading the results**
+
+- **Compressed (closest to production):** every page scores 99–100 on mobile and 100 on desktop, the same as Phase 2 within one point. LCP is unchanged or 0.1 s slower. CLS stays at 0 except the RBI guide (0.023, unchanged from Phase 2's 0.025). The homepage transfers 29 KB less on mobile despite the new photograph, because the photo is served as AVIF at a size matched to the screen.
+- **Accessibility** is 100 everywhere; the homepage improved from 96 to 100.
+- **Uncompressed (Phase 2 report conditions):** Home, About and Contact are level with Phase 2; Personal loan settlement is one point lower. **The RBI guide is lower: 97 → 94 (three reruns: 94, 96, 94; LCP 2.6–2.9 s against 2.4 s).** The cause is measurable: in the first Phase 3 pass the article's hero image moved to the shared 600/1200 px thumbnail set, and mobile screens pick the 1200 px file (image transfer 19 → 30 KB), and the single stylesheet is slightly larger (13 → 14 KB compressed). With compression on, the same page scores 99 with LCP 1.8 s (Phase 2: 99, 1.7 s). Adding an 800 px thumbnail for the 10 article heroes would close most of this gap if you want it; it was not done here.
+- The new calculator page scores 99 (compressed) / 94 (uncompressed) on mobile and 100 on desktop. Its script loads only on that page.
+
+
+## 11. Remaining manual actions and owner approvals
 
 See `MANUAL_ACTIONS_REQUIRED.md`. New or changed in this phase:
 

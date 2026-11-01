@@ -102,3 +102,16 @@ Full details: `docs/PHASE_3_DESIGN_REPORT.md`.
 | Touch targets under 44 px | Chips, filters, arrow links, small buttons raised to 44 px | Fixed | Tap-target scan at ≤430 px |
 | SEO preservation | Same 50 URLs, titles, descriptions, canonicals, robots, JSON-LD types, FAQ counts, sitemap set, robots.txt, vercel.json as Phase 2 | Verified | Diff of both builds; only the homepage H1 changed (intentional) |
 | Homepage H1 | Changed to the briefed headline; keyword line moved above it | Requires your approval (P3-1) | |
+
+### Phase 3 v2 additions (premium redesign, imagery, calculator)
+
+| Item | Solution | Status | Verification |
+|---|---|---|---|
+| Navigation per brief | Home · About Us · Services▾ · How It Works · Settlement Calculator · Resources▾ · FAQs · Contact; contact bar with confirmed hours | Fixed | `tools/qa/interactions.mjs` 28/28 |
+| Homepage per brief (16 sections) | Rebuilt; testimonials replaced by "What you can expect" | Fixed | Screenshots in `docs/phase3/screenshots/v2/` |
+| Original imagery | 5 generated photos (Indian context, illustrative, AVIF/WebP) + 10 SVG illustrations | Fixed | `docs/IMAGE_INVENTORY.md` |
+| Settlement scenario calculator | New page `/settlement-calculator.html` (in sitemap, canonical, unique title/description, FAQPage from visible FAQs only) | Fixed; explanatory text **requires legal review** | 47 unit + 40 browser tests |
+| Calculator privacy | Browser-only; no storage/URL/console/network; parameter-free analytics event; no Meta Pixel | Fixed | Browser network/storage/console test |
+| SEO preservation | All 50 original URLs: titles, descriptions, robots, canonicals and JSON-LD types unchanged vs Phase 2 inventories; robots.txt generator and vercel.json unchanged | Verified | Diff against `phase-2-implementation:docs/inventory/*` |
+| Homepage H1 | Briefed headline | Requires your approval (D11) | |
+| Performance | Compressed: 99–100 mobile, 100 desktop, level with Phase 2; uncompressed RBI guide 97 → 94 (hero image size) | Measured | `docs/perf/lighthouse-phase3v2-2026-11-01.txt` |
