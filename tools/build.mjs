@@ -431,8 +431,19 @@ function main() {
 
   const rendered = pages.map((p) => [p, render(p, pagesByPath, assets)]);
   const sprite = buildSprite();
+  // Guide images and share cards keep stable file names but are cached for 30 days,
+  // so every reference gets a content-hash query (?v=...) that changes with the file.
+  const verCache = new Map();
+  const versioned = (html) => html.replace(/(\/assets\/(?:thumbs|og)\/[\w.-]+\.(?:webp|jpg|png|avif))(?![\w?])/g, (m, rel) => {
+    if (!verCache.has(rel)) {
+      const f = path.join(ROOT, rel);
+      verCache.set(rel, fs.existsSync(f) ? crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex').slice(0, 8) : '');
+    }
+    const v = verCache.get(rel);
+    return v ? `${rel}?v=${v}` : rel;
+  });
   for (const [p, html] of rendered) {
-    write(p.rel, html.replace(/__ICONS__/g, sprite));
+    write(p.rel, versioned(html.replace(/__ICONS__/g, sprite)));
   }
 
   // Static files copied as-is.

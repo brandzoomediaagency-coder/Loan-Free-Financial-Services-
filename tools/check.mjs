@@ -105,7 +105,7 @@ for (const file of files) {
   }
   for (const m of html.matchAll(/srcset="([^"]+)"/g)) {
     for (const part of m[1].split(',')) {
-      const u = part.trim().split(' ')[0];
+      const u = part.trim().split(' ')[0].split('?')[0];
       if (u.startsWith('/') && !fs.existsSync(path.join(DIST, u))) err(`missing srcset image ${u}`);
     }
   }
