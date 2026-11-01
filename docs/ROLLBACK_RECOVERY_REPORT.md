@@ -75,6 +75,8 @@ All of the above. `main` has 25 root pages + 25 blog pages of static HTML and no
 
 ## Vercel
 
+**Update after the investigation:** Vercel's GitHub deployment records later confirmed the cause. Production deployment `5a4405a` (Phase 3) was replaced by production deployments of the old `main` (`95cf563`, `b9edf12`). See `docs/WEBSITE_RECOVERY_REPORT.md` §1.
+
 Not accessible from this session: no Vercel connector, and outbound requests to Vercel and the live domain were blocked. **Not verified:** production branch, latest production deployment SHA, rollback events, preview URLs.
 
 Note: the Phase 2/3 `vercel.json` sets `"buildCommand": "node tools/build.mjs"` and `"outputDirectory": "dist"`. The `main` version has neither and serves root files directly. A Vercel dashboard override of the build/output settings could break a Phase 3 deployment, so check these settings when deploying.

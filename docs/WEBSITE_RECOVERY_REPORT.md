@@ -3,11 +3,19 @@
 Date: 2026-11-01 · Recovery branch: `claude/bold-cerf-0b9gio` · Target: `main`
 Investigation details: [`docs/ROLLBACK_RECOVERY_REPORT.md`](ROLLBACK_RECOVERY_REPORT.md)
 
-## 1. Why the updates "rolled back"
+## 1. Why the updates "rolled back" (confirmed from GitHub deployment records)
 
-They were never on `main`. Phase 2 started from a parentless baseline commit (`793d47f`). That commit is a copy of `main@8ee5d0c` imported from a zip. As a result, `phase-2-implementation`, `phase-3-design-upgrade` and `claude/wonderful-edison-cp2xuq` share no Git history with `main`, and no PR was ever opened from them.
+Vercel records each deployment on GitHub. Deployment IDs are sequential; some records carry wrong (future) timestamps, so the order below is by ID.
 
-After Phase 3 was finished (`c528029`, 08:21 UTC), four tracking-only commits were pushed to the old `main`. The last was PR #2, merged at 09:49 UTC. Production (presumably deploying `main`) therefore kept serving the pre-Phase-2 site. Any Phase 3 version seen earlier was a local build (`localhost:8090`) or a preview deployment. Vercel could not be inspected from this session, so the production branch and deployment history are **unverified**.
+| Deployment ID | Environment | Commit | What it was |
+|---|---|---|---|
+| 7470301547 | **Production** | `5a4405a` | Phase 3 (calculator sliders, homepage redesign) **went live**, deployed from the Phase 3 branch rather than from `main` |
+| 7470493656 / 7470537760 | Preview only | `217f7b1`, `c528029` | Guide images, 6 new guides, WhatsApp fallback: **never reached production** |
+| 7470713793 | **Production** | `95cf563` | A push to `main`, which never contained Phase 2/3, built the old static site. **This replaced Phase 3 in production: the rollback.** |
+| 7470786924 | **Production** | `b9edf12` | PR #2 merged into `main`: old site + second GTM container |
+| 7471117216 | **Production** | `753e402` | This recovery (PR #3), with all Phase 2/3 work |
+
+Root cause: Phase 2/3 lived on a history unrelated to `main` (parentless baseline `793d47f`) and was never merged. Vercel's production branch is `main`. Phase 3 reached production once, by a deployment from the Phase 3 branch. The next ordinary push to `main` (tracking work from another session) redeployed the old `main` and silently replaced it.
 
 ## 2. Branch with the latest completed implementation
 
@@ -50,7 +58,7 @@ Screenshots: `docs/recovery/screenshots/` (home, calculator, blog, personal-loan
 
 ## 7. Unresolved issues
 
-- Vercel production branch, current deployment SHA and rollback history were not accessible to verify.
+- The Vercel dashboard and the live domain could not be opened from this session (network policy). Production status is taken from Vercel's GitHub deployment records: deployment 7471117216 of `753e402` reports `success`.
 - `LEAD_WEBHOOK_URL` and `LEAD_WEBHOOK_SECRET` must be set in Vercel for leads to be stored. Until then, every enquiry goes to WhatsApp (see `docs/LEAD_CAPTURE.md`).
 - Tags created inside the GTM containers must follow the rules in `docs/TRACKING_VERIFICATION.md`. A non-Google tag firing on "All Pages" would bypass the consent and neutral-page rules.
 - The privacy policy names GA4 and the Meta Pixel but not Google Tag Manager by name. Ask your adviser whether a mention is needed.
@@ -59,7 +67,11 @@ Screenshots: `docs/recovery/screenshots/` (home, calculator, blog, personal-loan
 
 ## 8–10. Deployment
 
-The owner approved going live. The recovery is delivered as a PR into `main`. Once it is merged, Vercel builds `main` if `main` is the production branch. After that:
+- Production branch: `main` (confirmed by Vercel's GitHub deployment records).
+- The owner approved going live. PR #3 was merged into `main` as `753e4029b32d41c339f1c7de7bde8a3647dc4fc0`. Vercel production deployment 7471117216 completed successfully: https://loan-free-financial-services-8c75crdfo-brandzoo-medias-projects.vercel.app
+- **Never deploy production from a side branch again.** Merge into `main` first; otherwise the next push to `main` replaces it.
+
+Remaining steps:
 
 1. In Vercel → Deployments, confirm the newest production deployment shows the merge commit and its build log contains "Built 57 pages".
 2. In Project Settings → Build & Output, make sure no dashboard override replaces `vercel.json`'s build command (`node tools/build.mjs`) or output directory (`dist`).
