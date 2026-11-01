@@ -4,7 +4,8 @@
   "description": "Confidential help with loan and credit card settlement, recovery-agent problems and legal notices. Delhi office, support across India. No false promises.",
   "type": "home",
   "dateModified": "2026-11-01",
-  "preloadPhoto": { "name": "hero-consultation", "sizes": "(max-width: 1023px) 92vw, 560px" }
+  "preloadPhoto": { "name": "hero-consultation", "sizes": "(max-width: 1023px) 92vw, 560px" },
+  "scripts": ["calculator"]
 }
 -->
 <!-- Hero: compact original photo beside the copy; no background photography. -->
@@ -17,7 +18,7 @@
                 recovery-related concerns. Understand your options through confidential, case-specific consultation.</p>
             <div class="hero-actions">
                 <a href="#consult" data-lf-consult class="btn btn-primary" data-lf-loc="hero"><i class="fas fa-comments"></i> Get a Confidential Consultation</a>
-                <a href="/settlement-calculator.html" class="btn btn-ghost-light" data-lf-loc="hero"><i class="fas fa-chart-line"></i> Try Settlement Calculator</a>
+                <a href="#calculator" class="btn btn-ghost-light" data-lf-loc="hero"><i class="fas fa-chart-line"></i> Try Settlement Calculator</a>
             </div>
             <ul class="hero-trust" aria-label="Our approach">
                 <li><i class="fas fa-circle-check"></i> Transparent guidance</li>
@@ -50,10 +51,16 @@
 <!-- Borrower situations -->
 <section class="section" aria-labelledby="situations-title">
     <div class="container">
-        <div class="section-head center">
-            <span class="eyebrow">Where to start</span>
-            <h2 id="situations-title">Are you facing any of these financial challenges?</h2>
-            <p>Choose the one closest to yours. Each page explains your rights and options in plain language.</p>
+        <div class="media-head">
+            <div class="section-head">
+                <span class="eyebrow">Where to start</span>
+                <h2 id="situations-title">Are you facing any of these financial challenges?</h2>
+                <p>Choose the one closest to yours. Each page explains your rights and options in plain language.</p>
+            </div>
+            <figure class="media-photo">
+                <!-- lf:photo name="home-situations" alt="Illustrative photo: a man at home looking at his phone, with loan statements on the table in front of him" sizes="(max-width: 899px) 92vw, 520px" -->
+                <figcaption>Illustrative image</figcaption>
+            </figure>
         </div>
         <div class="situation-grid">
             <article class="situation-card">
@@ -142,33 +149,40 @@
     </div>
 </section>
 
-<!-- Calculator preview -->
-<section class="section section-navy" aria-labelledby="calc-title">
-    <div class="container calc-teaser">
-        <div class="calc-teaser-copy">
-            <span class="eyebrow">Free tool</span>
-            <h2 id="calc-title">Explore your settlement scenario</h2>
-            <p>See how a hypothetical settlement amount fits your monthly budget, and how long saving for it could take.</p>
-            <ul class="calc-teaser-list">
-                <li><i class="fas fa-check"></i> You enter every figure — we never suggest a percentage</li>
-                <li><i class="fas fa-check"></i> Calculated on your device; nothing is saved or sent</li>
-                <li><i class="fas fa-check"></i> Honest about what no calculator can predict</li>
-            </ul>
-            <a href="/settlement-calculator.html" class="btn btn-light"><i class="fas fa-chart-line"></i> Open Calculator</a>
+<!-- Settlement scenario calculator (same component as /settlement-calculator.html) -->
+<section class="section section-soft home-calc" id="calculator" aria-labelledby="calc-title">
+    <div class="container">
+        <div class="home-calc-head">
+            <div class="section-head">
+                <span class="eyebrow">Free tool</span>
+                <h2 id="calc-title">Explore your settlement scenario</h2>
+                <p>See how a hypothetical settlement amount fits your monthly budget, and how long saving for it could take. Type your figures or drag the sliders.</p>
+                <ul class="home-calc-points">
+                    <li><i class="fas fa-check"></i> You enter every figure — we never suggest a percentage</li>
+                    <li><i class="fas fa-lock"></i> Calculated on your device; nothing is saved or sent</li>
+                    <li><i class="fas fa-circle-info"></i> Honest about what no calculator can predict</li>
+                </ul>
+            </div>
+            <figure class="home-calc-art"><img src="/assets/illustrations/calculator-planning.svg" width="560" height="420" loading="lazy" alt="Illustration of a monthly budget, a savings progress bar, a calendar and a calculator"></figure>
         </div>
-        <div class="calc-teaser-art">
-            <img src="/assets/illustrations/calculator-planning.svg" width="560" height="420" loading="lazy" alt="Illustration of a monthly budget, a savings progress bar, a calendar and a calculator">
-        </div>
+        <!-- lf:calculator h="3" -->
+        <p class="home-calc-more"><a class="link-arrow" href="/settlement-calculator.html">How the calculator works, its limits and FAQs <i class="fas fa-arrow-right"></i></a></p>
     </div>
 </section>
 
 <!-- Six-step process -->
 <section class="section" aria-labelledby="process-title">
     <div class="container">
-        <div class="section-head center">
-            <span class="eyebrow">How it works</span>
-            <h2 id="process-title">A clear, six-step process</h2>
-            <p>You stay informed and in control throughout. Only your lender can agree terms, so the route and timing vary from case to case.</p>
+        <div class="media-head is-flipped">
+            <div class="section-head">
+                <span class="eyebrow">How it works</span>
+                <h2 id="process-title">A clear, six-step process</h2>
+                <p>You stay informed and in control throughout. Only your lender can agree terms, so the route and timing vary from case to case.</p>
+            </div>
+            <figure class="media-photo">
+                <!-- lf:photo name="home-process" alt="Illustrative photo: a woman at a dining table writing a step-by-step plan in a notebook" sizes="(max-width: 899px) 92vw, 520px" -->
+                <figcaption>Illustrative image</figcaption>
+            </figure>
         </div>
         <ol class="timeline timeline-icons">
             <li class="timeline-step"><span class="tl-icon"><i class="fas fa-comments"></i></span><h3>Initial consultation</h3><p>A free, confidential conversation about your loans and what has changed.</p></li>
@@ -212,10 +226,13 @@
 <!-- What we do / do not do -->
 <section class="section" aria-labelledby="dodont-title">
     <div class="container">
-        <div class="section-head center">
-            <span class="eyebrow">Honest by design</span>
-            <h2 id="dodont-title">What we do — and what we don't</h2>
-            <p>Clarity protects you. Here is exactly where our role begins and ends.</p>
+        <div class="media-head">
+            <div class="section-head">
+                <span class="eyebrow">Honest by design</span>
+                <h2 id="dodont-title">What we do — and what we don't</h2>
+                <p>Clarity protects you. Here is exactly where our role begins and ends.</p>
+            </div>
+            <figure class="media-art"><img src="/assets/illustrations/honest-role.svg" width="560" height="420" loading="lazy" alt="Illustration: what we do — consultation, options, documents, lender contact — beside what we don't — lending, guaranteeing results, promising a waiver, advising default"></figure>
         </div>
         <div class="dodont">
             <div class="dodont-panel panel-do">
@@ -308,12 +325,18 @@
             <h2 id="expect-title">What you can expect from our consultation</h2>
             <p>Our commitments to every person who contacts us.</p>
         </div>
+        <div class="expect-layout">
+        <figure class="media-photo">
+            <!-- lf:photo name="home-consultation" alt="Illustrative photo: a woman by a window listening on a phone call, with a notebook in front of her" sizes="(max-width: 1099px) 92vw, 470px" -->
+            <figcaption>Illustrative image</figcaption>
+        </figure>
         <ul class="expect-grid">
             <li class="expect-card"><span class="expect-num">01</span><h3>A private, unhurried conversation</h3><p>We listen first. Nothing you share is passed to anyone without your permission.</p></li>
             <li class="expect-card"><span class="expect-num">02</span><h3>An honest view of your options</h3><p>Including when settlement is not the right route, and what each option means for your credit report.</p></li>
             <li class="expect-card"><span class="expect-num">03</span><h3>Clarity on fees before you decide</h3><p>The first consultation is free. Ask for our fees in writing before you engage us.</p></li>
             <li class="expect-card"><span class="expect-num">04</span><h3>No pressure, no promises we can't keep</h3><p>No guaranteed waivers, no countdowns. You decide what happens next.</p></li>
         </ul>
+        </div>
     </div>
 </section>
 
@@ -329,6 +352,7 @@
                 <p><strong>Have a question about your own situation?</strong> Ask us in confidence.</p>
                 <a href="#consult" data-lf-consult class="btn btn-primary btn-sm" data-lf-loc="faq">Get a Free Consultation</a>
             </div>
+            <figure class="faq-art"><img src="/assets/illustrations/faq-questions.svg" width="560" height="420" loading="lazy" alt="Illustration: questions about settlement and recovery calls answered in plain language"></figure>
         </div>
         <div class="faq-list">
         <div class="accordion-item">
@@ -391,11 +415,17 @@
                 <a href="https://wa.me/917042538878?text=Hi%2C%20I%20would%20like%20a%20free%20consultation%20about%20my%20loan%20situation." target="_blank" rel="noopener" class="btn btn-ghost-light"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
             </div>
         </div>
+        <div>
+        <figure class="final-photo">
+            <!-- lf:photo name="home-first-step" alt="Illustrative photo: a young man on a balcony typing a message on his phone" sizes="(max-width: 1023px) 92vw, 460px" -->
+            <figcaption>Illustrative image</figcaption>
+        </figure>
         <ul class="reach-list">
             <li><a href="tel:+917042538878"><i class="fas fa-phone-volume"></i><span><small>Call or WhatsApp</small>+91 70425 38878</span></a></li>
             <li><a href="mailto:info@athenalegalsolutionllp.in"><i class="fas fa-envelope"></i><span><small>Email</small>info@athenalegalsolutionllp.in</span></a></li>
             <li><div><i class="fas fa-clock"></i><span><small>Office hours</small>Mon–Sat, 10 a.m.–8 p.m.</span></div></li>
             <li><a href="/contact.html"><i class="fas fa-location-dot"></i><span><small>Visit by appointment</small>Tis Hazari Court, Delhi</span></a></li>
         </ul>
+        </div>
     </div>
 </section>

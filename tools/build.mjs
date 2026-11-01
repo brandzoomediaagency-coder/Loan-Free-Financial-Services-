@@ -109,7 +109,7 @@ const LUCIDE = {
   'book-open': 'book-open', 'calendar-check': 'calendar-check', 'clock-rotate-left': 'history', 'file-lines': 'file-text',
   users: 'users', plus: 'plus', minus: 'minus', 'scroll': 'scroll-text', 'badge-check': 'badge-check', 'message': 'message-circle',
   'arrow-up-right': 'arrow-up-right', 'circle-xmark': 'circle-x', 'square-check': 'square-check-big', language: 'languages',
-  building: 'building-2', wallet: 'wallet', 'file-warning': 'file-warning', siren: 'siren', 'eye-slash': 'eye-off',
+  building: 'building-2', wallet: 'wallet', sliders: 'sliders-horizontal', 'file-warning': 'file-warning', siren: 'siren', 'eye-slash': 'eye-off',
 };
 const usedIcons = new Map(); // sprite id -> { file, lucide }
 function iconSvg(name) {
@@ -332,6 +332,7 @@ function render(page, pagesByPath, assets) {
     .replace(/<!-- lf:article-cards -->/g, () => tpl.articleCards([...pagesByPath.values()]))
     .replace(/<!-- lf:services-index(?: level="(h[23])")? -->/g, (_, lvl) => tpl.servicesIndex(page, lvl || 'h3'))
     .replace(/<!-- lf:calculator-promo -->/g, () => tpl.calculatorPromo())
+    .replace(/<!-- lf:calculator(?: h="(\d)")? -->/g, (_, h) => tpl.calculator({ h: h ? Number(h) : 2 }))
     .replace(/<!-- lf:services-grid -->/g, () => tpl.servicesGrid())
     .replace(/<!-- lf:photo name="([^"]+)" alt="([^"]*)"(?: sizes="([^"]*)")?(?: class="([^"]*)")?( eager)? -->/g, (_, name, alt, sizes, cls, eager) => tpl.photo(name, { alt, sizes: sizes || '100vw', cls: cls || '', eager: Boolean(eager) }))
     .replace(/<!-- lf:related(?: heading="([^"]*)")? -->/g, (_, h) => tpl.related(page, pagesByPath, h))

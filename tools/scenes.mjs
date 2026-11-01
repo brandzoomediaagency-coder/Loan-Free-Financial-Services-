@@ -187,6 +187,28 @@ S['calculator-planning'] = () => svg(560, 420, 'Planning a hypothetical scenario
   calculator(330, 70, 1.05) + card(430, 210, 100, 100, `${R(0, 0, 100, 28, C.navy2, 14)}${R(0, 16, 100, 12, C.navy2, 0)}${T(50, 72, '?', 34, C.goldD, 700, 'middle')}`)
 );
 
+// Homepage "What we do / what we don't" illustration
+const crossDot = (cx, cy, r = 11, bg = '#FBECE8', fg = C.red) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${bg}"/><path d="M${cx - r * .38} ${cy - r * .38} L${cx + r * .38} ${cy + r * .38} M${cx + r * .38} ${cy - r * .38} L${cx - r * .38} ${cy + r * .38}" stroke="${fg}" stroke-width="${2.6 * r / 11}" stroke-linecap="round"/>`;
+S['honest-role'] = () => svg(560, 420, 'Our role, clearly defined',
+  'Illustration: a card listing what we do — consultation, options, documents — with green ticks, a card listing what we do not do — lending, guarantees, encouraging default — with crosses, and a shield between them.',
+  blob(130, 140, 120, C.greenXL) + blob(440, 300, 110, C.goldXL) +
+  card(30, 96, 230, 250, `${R(0, 0, 230, 48, C.green, 14)}${R(0, 34, 230, 14, C.green, 0)}${T(20, 31, 'What we do', 16, '#fff', 700)}
+    ${['Consultation', 'Your options', 'Documents', 'Lender contact'].map((l, i) => `${tickDot(32, 84 + i * 50, 12)}${T(54, 89 + i * 50, l, 14, C.ink, 600)}`).join('')}`) +
+  card(300, 126, 230, 250, `${R(0, 0, 230, 48, C.navy2, 14)}${R(0, 34, 230, 14, C.navy2, 0)}${T(20, 31, 'What we don’t', 16, '#fff', 700)}
+    ${['Lend money', 'Guarantee results', 'Promise a waiver', 'Advise default'].map((l, i) => `${crossDot(32, 84 + i * 50, 12)}${T(54, 89 + i * 50, l, 14, C.ink, 600)}`).join('')}`) +
+  `<g filter="url(#sh)"><circle cx="280" cy="88" r="40" fill="${C.paper}"/></g>${shield(280, 92, 1.9, 'url(#gGreen)')}`
+);
+
+// Homepage FAQ illustration
+S['faq-questions'] = () => svg(560, 420, 'Questions answered in plain language',
+  'Illustration: question bubbles about settlement and recovery calls, answered by a reply bubble with a tick, beside a phone and an open guide.',
+  blob(150, 120, 130, C.greenXL) + blob(430, 320, 110, C.goldXL) +
+  `<g filter="url(#sh)">${R(40, 60, 250, 86, C.paper, 18)}<path d="M80 146 l-6 26 l30 -26 Z" fill="${C.paper}"/></g>${iconCircle(84, 103, 24, C.goldXL, T(84, 112, '?', 26, C.goldD, 700, 'middle'))}${R(122, 88, 140, 9, C.navy3, 4.5)}${R(122, 106, 100, 8, C.line, 4)}` +
+  `<g filter="url(#sh)">${R(150, 180, 250, 86, C.paper, 18)}<path d="M360 266 l6 26 l-30 -26 Z" fill="${C.paper}"/></g>${iconCircle(194, 223, 24, C.goldXL, T(194, 232, '?', 26, C.goldD, 700, 'middle'))}${R(232, 208, 140, 9, C.navy3, 4.5)}${R(232, 226, 110, 8, C.line, 4)}` +
+  `<g filter="url(#sh)">${R(60, 300, 290, 96, 'url(#gNavy)', 18)}</g>${iconCircle(104, 348, 22, C.green, tick(94, 349, 1.2, '#fff'))}${R(140, 330, 170, 8, '#C9D6E3', 4)}${R(140, 346, 150, 8, '#8FA6BC', 4)}${R(140, 362, 110, 8, '#8FA6BC', 4)}` +
+  phone(420, 90, 1.3, `${R(8, 20, 52, 18, C.greenXL, 6)}${R(8, 46, 40, 6, C.line, 3)}${R(8, 58, 48, 6, C.line, 3)}${tickDot(34, 96, 11)}`)
+);
+
 fs.mkdirSync(OUT, { recursive: true });
 const only = process.argv.slice(2);
 let n = 0;

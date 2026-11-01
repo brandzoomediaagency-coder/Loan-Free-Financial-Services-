@@ -12,6 +12,8 @@ const widths = [375, 390, 430, 768, 1024, 1440];
 let problems = 0; const small = new Map();
 for (const url of pages) for (const w of widths) {
   const p = await b.newPage(); const errs = [];
+  // Analytics and pixel beacons are answered locally so test runs never reach Google or Meta.
+  await p.setRequestInterception(true); p.on('request', r => /\/g\/collect|google-analytics\.com\/.*collect|facebook\.com\/tr/.test(r.url()) ? r.respond({ status: 204, body: '' }) : r.continue());
   p.on('pageerror', e => errs.push(e.message));
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   p.on('requestfailed', r => { if (!/google|facebook|gtag/.test(r.url())) errs.push('failed ' + r.url()); });

@@ -6,8 +6,11 @@ const b = await puppeteer.launch({ executablePath: `${process.env.HOME}/.cache/p
 const base = 'http://localhost:8090';
 const results = []; const out = (k, v, pass) => { results.push(pass); console.log((pass ? 'PASS ' : 'FAIL ') + k.padEnd(56), v); };
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
+// Analytics and pixel beacons are answered locally so test runs never reach Google or Meta.
+const BEACON = /\/g\/collect|google-analytics\.com\/.*collect|facebook\.com\/tr/;
+const block = async (page, log) => { await page.setRequestInterception(true); page.on('request', r => { if (log) log.push(r.url()); BEACON.test(r.url()) ? r.respond({ status: 204, body: '' }) : r.continue(); }); };
 let p = await b.newPage(); await p.setViewport({ width: 1440, height: 900 });
-const reqs = []; p.on('request', r => reqs.push(r.url()));
+const reqs = []; await block(p, reqs);
 await p.goto(base + '/', { waitUntil: 'networkidle2' });
 out('consent banner on first visit', '', await p.$eval('#lf-consent', e => !e.hidden));
 out('no Meta request before consent', '', !reqs.some(u => u.includes('fbevents')));
@@ -40,7 +43,7 @@ out('Escape closes dialog', '', await p.$eval('#consult', d => !d.open));
 await p.close();
 
 // mobile
-p = await b.newPage(); await p.setViewport({ width: 390, height: 844 });
+p = await b.newPage(); await p.setViewport({ width: 390, height: 844 }); await block(p);
 await p.evaluateOnNewDocument(() => { try { localStorage.setItem('lf_consent', 'essential'); } catch (e) {} });
 await p.goto(base + '/', { waitUntil: 'networkidle2' });
 out('mobile: drawer hidden initially', '', await p.$eval('#primary-menu', e => getComputedStyle(e).visibility === 'hidden'));

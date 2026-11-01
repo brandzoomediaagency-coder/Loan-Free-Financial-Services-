@@ -139,6 +139,27 @@
         return m + (m === 1 ? ' month' : ' months') + (y ? ' (' + parts.join(' ') + ')' : '');
     }
 
+    /* ------------------------------------------------------------ sliders */
+    // Sliders move in 1,000 steps. Budget sliders use a cubic scale so small amounts get fine control
+    // and large ones are still reachable; the hypothetical slider is linear from 0 to the outstanding amount.
+    // Values snap to round figures; the very end of the scale returns the maximum exactly.
+    var SLIDER_STEPS = 1000;
+    function roundStep(v) { return v < 1e4 ? 100 : v < 1e5 ? 500 : v < 1e6 ? 1000 : v < 1e7 ? 10000 : 100000; }
+    function sliderToValue(pos, max, linear) {
+        if (!(max > 0)) return 0;
+        var p = Math.max(0, Math.min(SLIDER_STEPS, Math.round(pos)));
+        if (p === SLIDER_STEPS) return max;
+        var t = p / SLIDER_STEPS;
+        var raw = linear ? t * max : max * t * t * t;
+        var step = linear ? (max < 1e5 ? 100 : max < 1e7 ? 1000 : 10000) : roundStep(raw);
+        return Math.min(max, Math.round(raw / step) * step);
+    }
+    function valueToSlider(value, max, linear) {
+        if (!(max > 0) || !(value > 0)) return 0;
+        var r = Math.min(1, value / max);
+        return Math.round((linear ? r : Math.cbrt(r)) * SLIDER_STEPS);
+    }
+
     /* ------------------------------------------------------------ browser binding */
     function mount(doc) {
         var form = doc.querySelector('[data-lf-calc]');
@@ -172,7 +193,12 @@
             });
         }
 
-        function set(key, text) { var el = out && out.querySelector('[data-r="' + key + '"]'); if (el) el.textContent = text; }
+        function set(key, text) {
+            var el = out && out.querySelector('[data-r="' + key + '"]');
+            if (el) el.textContent = text;
+            // The form carries a short copy of the summary for small screens, where the results panel is further down.
+            if (key === 'summary') { var mini = form.querySelector('[data-r="summary-mini"]'); if (mini) mini.textContent = text; }
+        }
 
         function render(touchedOnly) {
             var read = readAll();
@@ -232,9 +258,53 @@
             }
         }
 
+        // Sliders: each [data-range-for] range mirrors one text field. Ranges have no name, so they are never
+        // part of form data; the text field stays the source of truth.
+        var ranges = Array.prototype.slice.call(form.querySelectorAll('[data-range-for]'));
+        function rangeMax(range) {
+            var m = range.getAttribute('data-max');
+            if (m === 'outstanding') { var o = parseAmount(form.elements.outstanding.value); return o.error || o.empty ? 0 : o.value; }
+            return Number(m);
+        }
+        function syncRange(range) {
+            var field = form.elements[range.getAttribute('data-range-for')];
+            var max = rangeMax(range);
+            var linear = range.hasAttribute('data-linear');
+            if (range.getAttribute('data-max') === 'outstanding') {
+                range.disabled = !(max > 0);
+                range.parentNode.classList.toggle('is-disabled', range.disabled);
+                var note = range.closest('.calc-field').querySelector('.calc-hint-slider');
+                if (note) note.hidden = !range.disabled;
+            }
+            var p = parseAmount(field.value);
+            var unset = p.empty || !!p.error;
+            range.value = String(unset ? 0 : valueToSlider(p.value, max, linear));
+            range.setAttribute('aria-valuetext', unset ? 'Not set' : formatINR(p.value));
+            range.parentNode.classList.toggle('is-unset', unset);
+            range.style.setProperty('--fill', (Number(range.value) / SLIDER_STEPS * 100) + '%');
+        }
+        function syncRanges() { ranges.forEach(syncRange); }
+        ranges.forEach(function (range) {
+            range.addEventListener('input', function () {
+                var name = range.getAttribute('data-range-for');
+                var field = form.elements[name];
+                var v = sliderToValue(Number(range.value), rangeMax(range), range.hasAttribute('data-linear'));
+                // A hypothetical amount of zero means "not entered", so the slider's start clears the field.
+                field.value = name === 'hypothetical' && v === 0 ? '' : formatGrouped(v);
+                field.setAttribute('data-touched', '1');
+                range.setAttribute('aria-valuetext', field.value ? formatINR(v) : 'Not set');
+                range.parentNode.classList.toggle('is-unset', !field.value);
+                range.style.setProperty('--fill', (Number(range.value) / SLIDER_STEPS * 100) + '%');
+                if (name === 'outstanding') ranges.forEach(function (r) { if (r !== range) syncRange(r); });
+                render(true);
+            });
+        });
+
         var timer;
         form.addEventListener('input', function (e) {
+            if (e.target && e.target.type === 'range') return;
             if (e.target && e.target.name) e.target.setAttribute('data-touched', '1');
+            syncRanges();
             clearTimeout(timer);
             timer = setTimeout(function () { render(true); }, 150);
         });
@@ -244,6 +314,7 @@
             el.setAttribute('data-touched', '1');
             var p = parseAmount(el.value);
             if (!p.empty && !p.error) el.value = formatGrouped(p.value);
+            syncRanges();
             render(true);
         });
         form.addEventListener('submit', function (e) {
@@ -258,12 +329,14 @@
         form.addEventListener('reset', function () {
             setTimeout(function () {
                 FIELDS.forEach(function (k) { if (form.elements[k]) form.elements[k].removeAttribute('data-touched'); });
+                syncRanges();
                 render(true);
                 if (form.elements.outstanding) form.elements.outstanding.focus();
             }, 0);
         });
+        syncRanges();
         render(true);
     }
 
-    return { parseAmount: parseAmount, calculate: calculate, formatINR: formatINR, formatMonths: formatMonths, mount: mount, FIELDS: FIELDS, MAX_AMOUNT: MAX_AMOUNT };
+    return { parseAmount: parseAmount, calculate: calculate, formatINR: formatINR, formatMonths: formatMonths, sliderToValue: sliderToValue, valueToSlider: valueToSlider, SLIDER_STEPS: SLIDER_STEPS, mount: mount, FIELDS: FIELDS, MAX_AMOUNT: MAX_AMOUNT };
 });

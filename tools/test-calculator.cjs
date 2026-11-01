@@ -106,6 +106,36 @@ test('Indian rupee grouping', () => assert.equal(C.formatINR(1234567), '₹12,34
 test('paise shown only when present', () => assert.equal(C.formatINR(1500.5), '₹1,500.50'));
 test('months wording', () => { assert.equal(C.formatMonths(1), '1 month'); assert.equal(C.formatMonths(14), '14 months (1 year 2 months)'); assert.equal(C.formatMonths(0), 'Already covered'); assert.equal(C.formatMonths(500), 'More than 10 years'); });
 
+console.log('sliders');
+const S = C.SLIDER_STEPS;
+test('start of the scale is zero', () => { assert.equal(C.sliderToValue(0, 1e7), 0); assert.equal(C.sliderToValue(0, 345678, true), 0); });
+test('end of the scale is exactly the maximum', () => { assert.equal(C.sliderToValue(S, 1e7), 1e7); assert.equal(C.sliderToValue(S, 345678, true), 345678); });
+test('positions outside the range are clamped', () => { assert.equal(C.sliderToValue(-50, 5e5), 0); assert.equal(C.sliderToValue(S + 50, 5e5), 5e5); });
+test('values never decrease as the slider moves right', () => {
+  for (const [max, lin] of [[1e7, false], [5e5, false], [1e5, false], [345678, true], [52000, true]]) {
+    let prev = -1;
+    for (let pos = 0; pos <= S; pos++) { const v = C.sliderToValue(pos, max, lin); assert.ok(v >= prev, `${max} at ${pos}`); assert.ok(v <= max); prev = v; }
+  }
+});
+test('budget scale gives fine control at small amounts', () => {
+  assert.ok(C.sliderToValue(250, 1e7) < 2e5, 'a quarter of the way is under 2 lakh');
+  assert.ok(C.sliderToValue(500, 5e5) < 1e5, 'half way on income is under 1 lakh');
+});
+test('values snap to round figures', () => { for (let pos = 1; pos < S; pos += 37) assert.equal(C.sliderToValue(pos, 1e7) % 100, 0); });
+test('hypothetical slider is linear in the outstanding amount, never above it', () => {
+  assert.equal(C.sliderToValue(500, 400000, true), 200000);
+  for (let pos = 0; pos <= S; pos += 25) assert.ok(C.sliderToValue(pos, 345678, true) <= 345678);
+});
+test('typed values map back to a nearby slider position', () => {
+  for (const [v, max, lin] of [[150000, 1e7, false], [45000, 5e5, false], [120000, 400000, true]]) {
+    const back = C.sliderToValue(C.valueToSlider(v, max, lin), max, lin);
+    assert.ok(Math.abs(back - v) / v < 0.03, `${v} -> ${back}`);
+  }
+});
+test('typed values above the slider range sit at the end of the slider', () => assert.equal(C.valueToSlider(5e7, 1e7), S));
+test('empty or zero values sit at the start', () => { assert.equal(C.valueToSlider(null, 1e7), 0); assert.equal(C.valueToSlider(0, 1e7), 0); });
+test('no maximum yet (outstanding not entered) gives zero', () => { assert.equal(C.sliderToValue(600, 0, true), 0); assert.equal(C.valueToSlider(1000, 0, true), 0); });
+
 console.log('privacy (static checks on the source)');
 const src = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'js', 'calculator.js'), 'utf8');
 const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');

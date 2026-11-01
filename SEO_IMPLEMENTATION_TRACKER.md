@@ -115,3 +115,4 @@ Full details: `docs/PHASE_3_DESIGN_REPORT.md`.
 | SEO preservation | All 50 original URLs: titles, descriptions, robots, canonicals and JSON-LD types unchanged vs Phase 2 inventories; robots.txt generator and vercel.json unchanged | Verified | Diff against `phase-2-implementation:docs/inventory/*` |
 | Homepage H1 | Briefed headline | Requires your approval (D11) | |
 | Performance | Compressed: 99–100 mobile, 100 desktop, level with Phase 2; uncompressed RBI guide 97 → 94 (hero image size) | Measured | `docs/perf/lighthouse-phase3v2-2026-11-01.txt` |
+| Calculator sliders + homepage calculator + section images | Sliders on every amount (hypothetical capped at outstanding, no % marks); full calculator on the homepage; a relevant photo or illustration in every homepage section | Fixed | 58 unit + 122 browser tests; sweep 306 loads clean; Lighthouse home 99 |

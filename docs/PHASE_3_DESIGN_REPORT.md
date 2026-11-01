@@ -48,19 +48,19 @@ Icons: Lucide outline icons (ISC) in one SVG sprite; Font Awesome only for brand
 
 1. Contact bar — verified details only (phone, email, hours confirmed by the owner, India-wide phone/WhatsApp support).
 2. Header — Home · About Us · Services▾ · How It Works · Settlement Calculator · Resources▾ · FAQs · Contact, with "Get a Free Consultation". Full navigation from 1200 px; drawer below. Between 1200 and 1599 px the menu shows "Calculator" (screen readers still hear "Settlement Calculator") so the bar fits on one line.
-3. Hero — "Understand your loan resolution options. Move forward with clarity." with the briefed copy, "Get a Confidential Consultation", "Try Settlement Calculator" and the reassurance line. Right: original photo, labelled "Illustrative image", with two verified reassurance cards.
+3. Hero — "Understand your loan resolution options. Move forward with clarity." with the briefed copy, "Get a Confidential Consultation", "Try Settlement Calculator" (jumps to the calculator further down the homepage) and the reassurance line. Right: original photo, labelled "Illustrative image", with two verified reassurance cards.
 4. Trust strip — five verified service characteristics; no statistics.
-5. Situations — six cards linking to existing pages.
+5. Situations — original photo beside the heading; six cards linking to existing pages.
 6. Services — all ten real services in a 12-cell grid (two featured with illustrations), each with "Learn more" and "Free consultation".
 7. How we help — four original photo cards; states that not every lender agrees to a settlement.
-8. Calculator preview — "Explore your settlement scenario" + "Open Calculator".
-9. Six-step timeline — step 3 is "Financial assessment" rather than "Financial and legal assessment", because Loan Free is not a law firm; legal questions go to independent advocates.
+8. Calculator — the full working calculator, with sliders ("Explore your settlement scenario"), plus a link to the calculator page for the explanation and FAQs.
+9. Six-step timeline — original photo beside the heading; step 3 is "Financial assessment" rather than "Financial and legal assessment", because Loan Free is not a law firm; legal questions go to independent advocates.
 10. Why choose Loan Free — six genuine characteristics + the "who does what" diagram.
-11. What we do / what we don't — the briefed lists, plus "We are not RBI-approved".
+11. What we do / what we don't — "our role" illustration beside the heading; the briefed lists, plus "We are not RBI-approved".
 12. Knowledge centre — seven topic links (Hindi guides omitted until approved) and four resource cards including the calculator.
-13. What you can expect from our consultation — replaces testimonials, which stay unpublished (unverified).
-14. FAQ — the 11 existing answers, unchanged; link to the full FAQ page.
-15. Final CTA — briefed headline and copy, consultation + WhatsApp, verified contact details.
+13. What you can expect from our consultation — original photo beside the four commitments; replaces testimonials, which stay unpublished (unverified).
+14. FAQ — questions-and-answers illustration in the side column (desktop); the 11 existing answers, unchanged; link to the full FAQ page.
+15. Final CTA — original photo above the contact details; briefed headline and copy, consultation + WhatsApp, verified contact details.
 16. Footer — brand, services, resources (including the calculator), company, contact, legal.
 
 The homepage `<title>` and meta description are unchanged; the H1 changed to the briefed headline (owner decision D11).
@@ -86,7 +86,7 @@ Reviewed page content was not edited, except the homepage, the new calculator pa
 
 ## 8. Settlement calculator
 
-See `docs/PHASE_3_CALCULATOR_DOCUMENTATION.md` for formulas, inputs, validation, limitations, privacy and tests. Summary: an educational budgeting planner; the visitor enters every amount; no suggested percentage; capacity, remaining amount, illustrative months and "difference in your hypothetical scenario"; prominent disclaimer; all calculation in the browser with no storage, network, URL or console use; one parameter-free `calculator_used` analytics event under the existing consent rules; the Meta Pixel does not run on the page.
+See `docs/PHASE_3_CALCULATOR_DOCUMENTATION.md` for formulas, inputs, validation, limitations, privacy and tests. Summary: an educational budgeting planner; the visitor enters every amount; no suggested percentage; capacity, remaining amount, illustrative months and "difference in your hypothetical scenario"; prominent disclaimer; all calculation in the browser with no storage, network, URL or console use; one parameter-free `calculator_used` analytics event under the existing consent rules; the Meta Pixel does not run on the calculator page and sends nothing from the calculator on the homepage. Every amount can be typed or set with a slider, and the full calculator also appears on the homepage (see section 12).
 
 ## 9. Quality assurance (all executed on this branch)
 
@@ -162,6 +162,41 @@ Same tool, Chrome build, throttling and pages as the Phase 2 baseline, plus the 
 - **Uncompressed (Phase 2 report conditions):** Home, About and Contact are level with Phase 2; Personal loan settlement is one point lower. **The RBI guide is lower: 97 → 94 (three reruns: 94, 96, 94; LCP 2.6–2.9 s against 2.4 s).** The cause is measurable: in the first Phase 3 pass the article's hero image moved to the shared 600/1200 px thumbnail set, and mobile screens pick the 1200 px file (image transfer 19 → 30 KB), and the single stylesheet is slightly larger (13 → 14 KB compressed). With compression on, the same page scores 99 with LCP 1.8 s (Phase 2: 99, 1.7 s). Adding an 800 px thumbnail for the 10 article heroes would close most of this gap if you want it; it was not done here.
 - The new calculator page scores 99 (compressed) / 94 (uncompressed) on mobile and 100 on desktop. Its script loads only on that page.
 
+
+## 12. Update — calculator sliders, calculator on the homepage, an image in every homepage section
+
+Requested after the first review: drag controls for the calculator, the calculator visible on the homepage, and a relevant image in every homepage section.
+
+**Calculator.** Every amount now has a slider kept in sync with its text box (details and ranges in `docs/PHASE_3_CALCULATOR_DOCUMENTATION.md`). The hypothetical-amount slider runs from ₹0 to the outstanding amount the visitor entered, is disabled until then, and has no percentage marks, so it never suggests a figure. On phones a compact live summary stays in view while dragging. The calculator markup is now one shared component (`calculator()` in `src/templates.mjs`) used on both the calculator page and the homepage.
+
+**Homepage.** The calculator teaser was replaced by the full working calculator (`#calculator`); the hero's "Try Settlement Calculator" button now jumps to it, and a link leads to the calculator page for the explanation, limits and FAQs. The Meta Pixel still runs on the homepage after marketing consent (it is a neutral URL in the Phase 2 rule), with automatic event collection off; the browser test confirms it sends no event while the calculator is used and that no entered or slider-produced amount appears in any request.
+
+**Images.** Every homepage section now has a relevant image:
+
+| Section | Image |
+|---|---|
+| Hero | Existing photo (woman reviewing documents) |
+| Situations | New photo: man at home looking at his phone, statements on the table |
+| Services | Existing service illustrations (featured cards) |
+| How we help | Existing four photos |
+| Calculator | Calculator illustration |
+| Six-step process | New photo: woman writing a step-by-step plan |
+| Why choose Loan Free | Existing "who does what" diagram |
+| What we do / don't | New illustration: our role, clearly defined |
+| Knowledge centre | Existing guide thumbnails |
+| What to expect | New photo: woman listening on a phone call |
+| FAQ | New illustration: questions answered (desktop side column) |
+| Final call to action | New photo: young man typing a message on his phone |
+
+The trust strip keeps its icons (it is a single line of short facts). The four new photos were generated in Canva for this site (Indian people in Indian settings, owner-approved export), labelled "Illustrative image", and never presented as staff or clients; they are served as AVIF/WebP at 480/800/1200 px and lazy-loaded.
+
+**Checks (all executed).** `node tools/check.mjs`: 51 pages, 0 errors, 0 warnings. Calculator unit tests: 58 passed (11 new slider tests). Calculator browser test: 122 passed on the calculator page and the homepage at 1440 and 390 px (sliders by keyboard, mouse and touch; privacy with all cookies accepted). Interactions: 28/28. Lead endpoint test: passed. Six-width sweep of all 51 pages: 306 loads, no overflow or errors; the slider touch area was raised from 28 to 44 px after the sweep flagged it. No duplicate element IDs; titles, descriptions, canonicals, robots and structured-data types unchanged.
+
+The QA scripts now intercept analytics and pixel beacons and answer them locally. Earlier runs of the interactions test accepted cookies on the homepage with real tags, so a handful of page-view hits from `localhost` may have reached the live GA4 property and Meta Pixel during testing on 31 Oct–1 Nov 2026; they can be filtered by hostname.
+
+**Performance (Lighthouse, compressed, mobile; `docs/perf/lighthouse-phase3v3-gzip-2026-11-01.txt`).** Homepage 99, LCP 2.0 s, CLS 0, 326 KB (was 99 / 2.0 s / 304 KB before this update: +22 KB for the calculator script and the new lazy-loaded images). Calculator page 99 / 1.8 s. Personal loan, About, RBI guide and Contact 99–100, unchanged. Desktop 100 on all six.
+
+**Screenshots** (`docs/phase3/screenshots/v3/`): full homepage and calculator page at 1440 and 390 px; each changed homepage section at both widths; the mobile live summary while dragging.
 
 ## 11. Remaining manual actions and owner approvals
 
