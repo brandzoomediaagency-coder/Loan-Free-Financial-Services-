@@ -80,7 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ------------------------------------------------------------------
- * Meta Pixel standard events (pixel ID 1010576377287782)
+ * Meta Pixel standard events (pixel ID 1010576377287782), also pushed to
+ * the GTM dataLayer as 'meta_lead' / 'meta_contact'.
  * Base code + PageView live in each page's <head>.
  * - Lead:    any consultation/contact form successfully submitted
  * - Contact: clicks on WhatsApp, phone (tel:) or email (mailto:) links
@@ -88,6 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
  * ------------------------------------------------------------------ */
 (function () {
     function track(event, params) {
+        // Mirror to GTM dataLayer as 'meta_lead' / 'meta_contact' custom events
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push(Object.assign({ event: 'meta_' + event.toLowerCase() }, params || {}));
         if (typeof window.fbq === 'function') {
             try { window.fbq('track', event, params || {}); } catch (err) { /* ignore */ }
         }
