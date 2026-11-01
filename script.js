@@ -78,3 +78,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+/* ------------------------------------------------------------------
+ * Meta Pixel standard events (pixel ID 1010576377287782)
+ * Base code + PageView live in each page's <head>.
+ * - Lead:    any consultation/contact form successfully submitted
+ * - Contact: clicks on WhatsApp, phone (tel:) or email (mailto:) links
+ * No form values (name, phone, debt details) are sent to Meta.
+ * ------------------------------------------------------------------ */
+(function () {
+    function track(event, params) {
+        if (typeof window.fbq === 'function') {
+            try { window.fbq('track', event, params || {}); } catch (err) { /* ignore */ }
+        }
+    }
+
+    // Lead: 'submit' only fires after native HTML validation passes.
+    // Capture phase so it runs before inline onsubmit handlers open WhatsApp.
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form || form.tagName !== 'FORM') return;
+        track('Lead', {
+            content_name: form.id || 'consultation-popup',
+            content_category: 'Free Consultation'
+        });
+    }, true);
+
+    // Contact: WhatsApp / call / email link clicks.
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest ? e.target.closest('a[href]') : null;
+        if (!link) return;
+        var href = link.getAttribute('href') || '';
+        var method = null;
+        if (/^tel:/i.test(href)) method = 'phone';
+        else if (/^mailto:/i.test(href)) method = 'email';
+        else if (/(wa\.me|whatsapp\.com)/i.test(href)) method = 'whatsapp';
+        if (!method) return;
+        track('Contact', { content_name: method, content_category: 'Contact Click' });
+    }, true);
+})();
