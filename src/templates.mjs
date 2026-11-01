@@ -262,7 +262,7 @@ export function globals(page) {
     <p>${hi
       ? 'हम साइट को बेहतर बनाने के लिए एनालिटिक्स कुकी और आपकी अनुमति होने पर ही विज्ञापन-मापन का उपयोग करते हैं। आपकी फ़ॉर्म जानकारी इन प्लेटफ़ॉर्म को नहीं भेजी जाती।'
       : 'We use analytics cookies to understand how the site is used and, only if you allow it, advertising measurement. Your form details are never sent to these platforms.'}
-    <a href="/privacy-policy.html#cookies">${hi ? 'और जानें' : 'Learn more'}</a></p>
+    <a href="/privacy-policy.html#cookies">${hi ? 'कुकी के बारे में और जानें' : 'How we use cookies'}</a></p>
     <div class="consent-actions">
         <button type="button" class="btn btn-outline btn-sm" data-consent="essential">${hi ? 'केवल ज़रूरी' : 'Essential only'}</button>
         <button type="button" class="btn btn-primary btn-sm" data-consent="all">${hi ? 'सभी स्वीकार करें' : 'Accept all'}</button>

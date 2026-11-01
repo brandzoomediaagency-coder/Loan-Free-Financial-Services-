@@ -11,8 +11,8 @@
     --radius-md: 16px;
     --radius-lg: 24px;
     --ring: 0 0 0 3px rgba(0, 135, 90, 0.35);
-    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --font-heading: 'Poppins', 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: 'Poppins', 'Poppins Fallback', 'Inter', system-ui, sans-serif;
 }
 
 /* ---------- Base refinements ---------- */
@@ -63,7 +63,7 @@ a { color: inherit; }
 .breadcrumbs { background: var(--off-white); border-bottom: 1px solid var(--gray-light); font-size: 0.9rem; }
 .breadcrumbs ol { display: flex; flex-wrap: wrap; gap: 0.25rem 0; padding: 0.75rem 0; margin: 0; }
 .breadcrumbs li + li::before { content: "›"; margin: 0 0.5rem; color: var(--gray-medium); }
-.breadcrumbs a { color: var(--primary-green); text-decoration: none; }
+.breadcrumbs a { color: #006b47; text-decoration: none; }
 article .breadcrumbs { background: none; border: 0; }
 article .breadcrumbs .container { padding: 0; }
 
