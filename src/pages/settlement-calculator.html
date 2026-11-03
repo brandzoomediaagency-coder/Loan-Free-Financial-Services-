@@ -1,25 +1,25 @@
 <!--page
 {
-  "title": "Loan Settlement Scenario Calculator (India) | Loan Free",
-  "description": "Explore how a hypothetical settlement amount fits your monthly budget and how long saving for it could take. Private, educational, no predictions.",
+  "title": "Loan Settlement Calculator & Legal Fee Estimator | Loan Free",
+  "description": "Explore an illustrative loan settlement scenario and calculate the applicable professional fee based on your total outstanding loan amount.",
   "type": "page",
   "breadcrumbs": [["Resources", "/blog.html"], ["Settlement Calculator"]],
-  "dateModified": "2026-11-01",
+  "dateModified": "2026-11-03",
   "scripts": ["calculator"],
-  "heroArt": { "src": "/assets/illustrations/calculator-planning.svg", "w": 560, "h": 420, "alt": "Illustration of a monthly budget, a savings progress bar, a calendar and a calculator" },
+  "heroArt": { "src": "/assets/illustrations/calculator-planning.svg", "w": 560, "h": 420, "alt": "Illustration: a total outstanding amount leading to two separate cards, an illustrative settlement scenario and a professional fee" },
   "related": ["/personal-loan-settlement.html", "/loan-ots-one-time-settlement.html", "/loan-settlement-vs-restructuring.html", "/credit-score-guidance.html", "/blog/what-to-do-when-you-cannot-pay-emi.html"]
 }
 -->
 <header class="hero-page">
     <div class="container">
         <span class="hero-kicker">Free tool</span>
-        <h1>Loan Settlement Scenario Calculator</h1>
-        <p>Explore how a hypothetical settlement amount fits your monthly budget and understand the savings effort involved.</p>
+        <h1>Loan Settlement &amp; Legal Fee Calculator</h1>
+        <p>Explore an illustrative loan settlement scenario and calculate the applicable professional fee based on your total outstanding loan.</p>
     </div>
 </header>
 <!-- lf:breadcrumbs -->
 
-<section class="calc-section" aria-labelledby="calc-form-title">
+<section class="calc-section" aria-labelledby="calc-inputs-title">
     <div class="container">
         <!-- lf:calculator -->
     </div>
@@ -27,33 +27,35 @@
 
 <section class="content-section bg-white">
     <div class="container content-wrap long-form-section">
-        <h2 id="what-it-does">What this calculator does</h2>
-        <p>It helps you look at one question calmly: if you were to explore a settlement, could your monthly budget realistically
-            build the amount, and how long might that take? You enter your own figures, including any hypothetical amount you
-            want to test. The calculator then shows how much your budget leaves each month and how long saving the remaining
-            amount would take at that pace.</p>
-        <p>It does not suggest a settlement amount or percentage. There is no standard figure that banks or NBFCs accept.</p>
+        <h2 id="how-it-works">How the calculator works</h2>
+        <p>You enter one figure — the combined outstanding amount across your loans — and choose the loan types that apply.
+            The calculator then shows two separate figures:</p>
+        <ul class="content-list">
+            <li><strong>An illustrative settlement scenario:</strong> <!-- lf:calc-percent --> of your total outstanding amount.
+                This is a hypothetical reference point. It is not an offer, an estimate of what your lender will accept, or a guarantee.</li>
+            <li><strong>Our applicable legal / professional fee:</strong> worked out from the fee structure below.</li>
+        </ul>
+        <p>The two figures are shown separately and are not added together. Our fee is separate from any amount paid to a
+            lender: if a lender agrees to a settlement, the settlement amount is paid directly to that lender, not to us.</p>
 
-        <h2 id="how-it-works">How the calculations work</h2>
-        <div class="table-wrap">
-            <table class="content-table">
-                <caption class="visually-hidden">Calculator formulas</caption>
-                <thead><tr><th scope="col">Result</th><th scope="col">How it is calculated</th></tr></thead>
-                <tbody>
-                    <tr><th scope="row">Estimated monthly capacity</th><td>Monthly income − essential expenses − other commitments − safety buffer. If this is negative, it is shown as zero.</td></tr>
-                    <tr><th scope="row">Remaining amount to build</th><td>Hypothetical amount − existing savings, never below zero.</td></tr>
-                    <tr><th scope="row">Illustrative time to build it</th><td>Remaining amount ÷ monthly capacity, rounded up to whole months. Shown only when monthly capacity is above zero.</td></tr>
-                    <tr><th scope="row">Difference in your hypothetical scenario</th><td>Outstanding amount − hypothetical amount. Shown only when the hypothetical amount is not more than the outstanding amount.</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p class="table-note">The calculator assumes your income and expenses stay the same each month. Real budgets change, and interest or charges on the loan may keep adding up while you save.</p>
+        <h2 id="fee-structure">Our fee structure</h2>
+        <!-- lf:calc-fee-table -->
+        <p class="table-note">The rate for the band your total falls in applies to the <strong>entire</strong> outstanding amount.
+            It is a single rate, not a slab system where different parts of the amount are charged at different rates.
+            Results are rounded to the nearest rupee. Applicable taxes, if any, are not included; final terms and charges are
+            confirmed in writing before you engage us.</p>
 
-        <h2 id="limits">What it cannot predict</h2>
+        <h2 id="examples">Worked examples</h2>
+        <!-- lf:calc-examples 1000000 2500000 10000000 -->
+        <p class="table-note">Illustrative settlement amount = total outstanding × <!-- lf:calc-percent -->. Estimated fee = total
+            outstanding × the rate for its band. These are illustrations, not offers or assurances.</p>
+
+        <h2 id="limits">What the calculator cannot tell you</h2>
         <ul class="content-list">
             <li>Whether your lender will agree to settle at all — settlement is never a right.</li>
-            <li>The amount a lender may accept, or whether it will accept payment in instalments.</li>
-            <li>How long a lender takes to decide, or how your account balance will change while you save.</li>
+            <li>The amount a lender may accept. The <!-- lf:calc-percent --> scenario is only an illustration; an actual settlement, if offered, may be for a different amount.</li>
+            <li>Whether a particular loan or account qualifies. That depends on the lender, the loan, your circumstances and applicable law.</li>
+            <li>How long a lender takes to decide, or how your balance will change in the meantime.</li>
             <li>The effect on your credit report beyond the general point that a settled account is reported as "Settled".</li>
         </ul>
 
@@ -90,17 +92,19 @@
         </ul>
 
         <h2 id="faq">Frequently asked questions</h2>
-        <div class="accordion-item"><button class="accordion-header">Does this calculator tell me how much my lender will accept? <i class="fas fa-chevron-down"></i></button>
-            <div class="accordion-content"><p>No. It only shows how a figure you choose fits your own budget. Lenders decide under their own policies and your circumstances, and no calculator can predict that.</p></div></div>
-        <div class="accordion-item"><button class="accordion-header">Why doesn't it suggest a settlement percentage? <i class="fas fa-chevron-down"></i></button>
-            <div class="accordion-content"><p>Because no universal percentage exists. Suggesting one would be misleading and could lead to unrealistic expectations or poor decisions.</p></div></div>
+        <div class="accordion-item"><button class="accordion-header">Is <!-- lf:calc-percent --> what my lender will accept? <i class="fas fa-chevron-down"></i></button>
+            <div class="accordion-content"><p>No. <!-- lf:calc-percent --> is a single reference figure used only to illustrate a settlement scenario. It is not an offer, a prediction or a guarantee. Lenders decide each case under their own policies, and an actual settlement, if a lender agrees to one, may be for a different amount.</p></div></div>
+        <div class="accordion-item"><button class="accordion-header">How is the professional fee calculated? <i class="fas fa-chevron-down"></i></button>
+            <div class="accordion-content"><p>The rate depends on your total outstanding amount: <!-- lf:calc-fee-summary -->. The rate for your band applies to the whole amount. For example, <!-- lf:calc-fee-example 2500000 -->.</p></div></div>
+        <div class="accordion-item"><button class="accordion-header">Does the fee include GST or other charges? <i class="fas fa-chevron-down"></i></button>
+            <div class="accordion-content"><p>The calculator does not add taxes or other charges. If GST or any other charge applies, it will be confirmed in writing, together with the final terms, before you engage us.</p></div></div>
+        <div class="accordion-item"><button class="accordion-header">Is the fee paid to my lender? <i class="fas fa-chevron-down"></i></button>
+            <div class="accordion-content"><p>No. Our professional fee is separate from any settlement amount. If a lender agrees to settle, the settlement amount is paid directly to the lender, not to us.</p></div></div>
+        <div class="accordion-item"><button class="accordion-header">Can secured loans such as home or vehicle loans be settled the same way? <i class="fas fa-chevron-down"></i></button>
+            <div class="accordion-content"><p>Not necessarily. Home loans, vehicle loans, loans against property and gold loans are backed by an asset, and the lender may be able to act against that asset under the loan agreement and applicable law. Settlement and recovery procedures can therefore differ. See our guide on <a href="/blog/sarfaesi-notice-13-2-borrower-options.html">SARFAESI notices</a>.</p></div></div>
         <div class="accordion-item"><button class="accordion-header">Is anything I enter saved or shared? <i class="fas fa-chevron-down"></i></button>
-            <div class="accordion-content"><p>No. Everything is calculated in your browser. The figures are not sent to us, not stored on your device by this page, not added to the web address, and not shared with analytics or advertising services. Refreshing the page clears them.</p></div></div>
-        <div class="accordion-item"><button class="accordion-header">What should I enter as a safety buffer? <i class="fas fa-chevron-down"></i></button>
-            <div class="accordion-content"><p>An amount you want to keep aside each month for emergencies such as medical costs or repairs. Keeping a buffer makes any plan more realistic.</p></div></div>
-        <div class="accordion-item"><button class="accordion-header">My budget shows no monthly capacity. What can I do? <i class="fas fa-chevron-down"></i></button>
-            <div class="accordion-content"><p>Speak to your lender early about your situation and ask about options such as restructuring. You can also talk to us in confidence about what may be possible in your case.</p></div></div>
-        <div class="accordion-item"><button class="accordion-header">Should I stop paying EMIs to save for a settlement? <i class="fas fa-chevron-down"></i></button>
+            <div class="accordion-content"><p>No. Everything is calculated in your browser. The amount and loan types you choose are not sent to us, not stored on your device by this page, not added to the web address, and not shared with analytics or advertising services. Refreshing the page clears them.</p></div></div>
+        <div class="accordion-item"><button class="accordion-header">Should I stop paying EMIs to explore a settlement? <i class="fas fa-chevron-down"></i></button>
             <div class="accordion-content"><p>No. Stopping payments on purpose adds interest and charges, harms your credit report and can lead to recovery action. Settlement is meant for genuine hardship.</p></div></div>
         <div class="accordion-item"><button class="accordion-header">Will settling affect my credit report? <i class="fas fa-chevron-down"></i></button>
             <div class="accordion-content"><p>Usually yes. The account is reported as "Settled", which lenders treat as a negative mark. See <a href="/credit-score-guidance.html">credit report guidance</a>.</p></div></div>

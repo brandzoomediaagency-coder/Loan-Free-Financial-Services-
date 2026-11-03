@@ -45,7 +45,8 @@ function loadPages() {
     try { fm = JSON.parse(m[1]); } catch (e) { throw new Error(`Bad front matter JSON in ${file}: ${e.message}`); }
     const rel = path.relative(dir, file).split(path.sep).join('/');
     const urlPath = rel === 'index.html' ? '/' : rel.endsWith('/index.html') ? '/' + rel.slice(0, -10) : '/' + rel;
-    const body = raw.slice(m[0].length);
+    // Calculator facts (percentages, fee tiers, examples) come from src/js/calculator.js CONFIG.
+    const body = tpl.expandCalcTokens(raw.slice(m[0].length));
     const h1 = (body.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1];
     return {
       lang: 'en', index: true, ...fm, rel, path: urlPath, body,

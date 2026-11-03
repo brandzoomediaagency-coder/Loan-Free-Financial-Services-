@@ -61,6 +61,7 @@ Status key: **Verified** = checked against the official text saved in `docs/rese
 |---|---|---|---|
 | Service pages (12) | | | |
 | Settlement scenario calculator page (new in Phase 3) | | | Uses only the RBI framework facts listed above (board-approved policy, >3 months = restructuring, 12-month cooling period) and "Settled" reporting |
+| Loan Settlement & Legal Fee Calculator (replaced the above, 3 Nov 2026) | | | **Needs review before production.** Adds (1) an illustrative 30% settlement scenario supplied by the business — this re-introduces a percentage after "fixed waiver percentages" were removed above; it is labelled as hypothetical, not an offer or guarantee, wherever it appears; (2) a published fee schedule (1% / 0.75% / 0.50% flat on the whole amount) under the heading "legal / professional fee", while the site states it is not a law firm and other pages say fees are given in writing on request; (3) a secured-loan note and a SARFAESI guide link; (4) the business-supplied disclaimer text. See `docs/SIMPLE_CALCULATOR_IMPLEMENTATION_REPORT.md` §9 |
 | FAQ, Process, About, Services | | | |
 | RBI 2027 pillar (draft) | | | |
 | Hindi section (drafts) | | | |

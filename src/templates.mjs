@@ -3,6 +3,7 @@
 // site-wide. Icons are written as <i class="fas fa-NAME"> and converted to
 // the SVG sprite by the build.
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import { SITE, NAV, SERVICE_GROUPS, RESOURCE_GROUPS } from './site.config.mjs';
 
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -506,103 +507,149 @@ export function photoPreload(name, sizes) {
 
 // Calculator teaser and in-page promo (no figures are passed anywhere).
 export function calculatorPromo() {
-  return `<aside class="calc-promo" aria-label="Settlement scenario calculator">
+  return `<aside class="calc-promo" aria-label="Loan settlement and legal fee calculator">
     <img src="/assets/illustrations/calculator-planning.svg" width="560" height="420" loading="lazy" alt="">
-    <div><p class="calc-promo-title">Try the settlement scenario calculator</p>
-    <p>See how a hypothetical amount fits your monthly budget and how long saving for it could take. Private, educational, and it never predicts what a lender will accept.</p>
+    <div><p class="calc-promo-title">Try the settlement &amp; fee calculator</p>
+    <p>Enter your total outstanding to see an illustrative ${CALC.formatPercent(CALC.CONFIG.SETTLEMENT_SCENARIO_PERCENT)} settlement scenario and our applicable professional fee. Private, and never a prediction of what a lender will accept.</p>
     <a class="btn btn-outline btn-sm" href="/settlement-calculator.html"><i class="fas fa-chart-line"></i> Open the calculator</a></div>
 </aside>`;
 }
 
-// Settlement scenario calculator (src/js/calculator.js binds it). Used on the calculator page and the homepage.
-// Each amount has a text box and a slider kept in sync. Slider ranges are only for convenience: a typed amount
-// above the range is kept as typed. The hypothetical-amount slider runs from 0 to the outstanding amount and
-// carries no percentage marks, so it never suggests a figure.
-const CALC_FIELDS = {
-  outstanding: { label: 'Current outstanding loan amount', hint: 'The total your lender says is due on this loan. Check your latest statement.', max: 10000000, maxLabel: '₹1 crore+', required: true },
-  income: { label: 'Monthly take-home income', hint: 'What you receive each month after tax and deductions.', max: 500000, maxLabel: '₹5 lakh+', required: true },
-  expenses: { label: 'Essential household expenses', hint: 'Rent, food, utilities, school fees, medicines, transport.', max: 500000, maxLabel: '₹5 lakh+', required: true },
-  commitments: { label: 'Other monthly commitments', hint: 'Other EMIs and regular payments, not counting the loan you are exploring.', max: 300000, maxLabel: '₹3 lakh+' },
-  buffer: { label: 'Monthly safety buffer', hint: 'An amount you want to keep aside each month for emergencies.', max: 100000, maxLabel: '₹1 lakh+' },
-  savings: { label: 'Existing savings for this purpose', hint: 'Money you could put towards this, if any.', max: 5000000, maxLabel: '₹50 lakh+' },
-  hypothetical: { label: 'Hypothetical settlement amount', hint: 'Any amount you want to explore. We do not suggest one: no fixed percentage applies, and only your lender decides.', max: 'outstanding', maxLabel: 'Your outstanding amount', groupOptional: true },
-};
-
-function calcField(name, opts = {}) {
-  const f = CALC_FIELDS[name];
-  const optional = !f.required && !f.groupOptional && !opts.noOpt ? ' <span class="calc-opt">(optional)</span>' : '';
-  const dynamic = f.max === 'outstanding';
-  return `<div class="calc-field">
-    <label for="calc-${name}">${f.label}${optional}</label>
-    <div class="calc-input"><span aria-hidden="true">₹</span><input id="calc-${name}" name="${name}" type="text" inputmode="decimal" autocomplete="off" aria-describedby="hint-${name} err-${name}"${f.required ? ' required' : ''}></div>
-    <div class="calc-slider is-unset"><input type="range" class="calc-range" id="range-${name}" data-range-for="${name}" data-max="${dynamic ? 'outstanding' : f.max}"${dynamic ? ' data-linear' : ''} min="0" max="1000" step="1" value="0" aria-label="${f.label} slider" aria-valuetext="Not set"${dynamic ? ' disabled' : ''}></div>
-    <div class="calc-range-scale" aria-hidden="true"><span>₹0</span><span>${f.maxLabel}</span></div>
-    <p class="calc-hint" id="hint-${name}">${f.hint}${dynamic ? ' <span class="calc-hint-slider">Enter the outstanding amount to use the slider.</span>' : ''}</p>
-    <p class="calc-error" id="err-${name}" hidden></p>
-  </div>`;
-}
+// Loan Settlement & Legal Fee Calculator (src/js/calculator.js binds it and holds every business
+// number in CONFIG). Used on the calculator page and the homepage. Two inputs: the total outstanding
+// amount and an optional multi-select of loan types. The illustrative settlement scenario and the
+// professional fee are shown in separate cards and never added together.
+const CALC = createRequire(import.meta.url)('./js/calculator.js');
+const pctLabel = () => CALC.formatPercent(CALC.CONFIG.SETTLEMENT_SCENARIO_PERCENT);
 
 export function calculator({ h = 2 } = {}) {
-  const H = `h${h}`;
-  return `<p class="calc-banner"><i class="fas fa-circle-info"></i> <span><strong>An educational planner, not a prediction.</strong> No universal settlement percentage exists, and only your lender can decide whether to settle and for how much.</span></p>
-<div class="calc-grid">
-  <form class="calc-form" data-lf-calc novalidate autocomplete="off" aria-describedby="calc-privacy">
-    <${H} id="calc-form-title" class="calc-heading">Your figures</${H}>
-    <p class="calc-how"><i class="fas fa-sliders"></i> Type an amount or drag the slider. Results update as you go.</p>
-    <fieldset class="calc-group">
-      <legend><span class="calc-step">1</span> The loan</legend>
-      ${calcField('outstanding')}
-    </fieldset>
-    <fieldset class="calc-group">
-      <legend><span class="calc-step">2</span> Your monthly budget</legend>
-      <div class="calc-row">${calcField('income')}${calcField('expenses')}</div>
-      <div class="calc-row">${calcField('commitments')}${calcField('buffer')}</div>
-    </fieldset>
-    <fieldset class="calc-group">
-      <legend><span class="calc-step">3</span> Your scenario <span class="calc-opt">(optional)</span></legend>
-      <div class="calc-row">${calcField('savings', { noOpt: true })}${calcField('hypothetical')}</div>
-    </fieldset>
-    <p class="calc-live" data-r="summary-mini" aria-hidden="true"></p>
-    <div class="calc-actions">
-      <button type="submit" class="btn btn-primary"><i class="fas fa-chart-line"></i> Show my results</button>
-      <button type="reset" class="btn btn-outline"><i class="fas fa-arrows-rotate"></i> Clear all</button>
-    </div>
-    <p class="calc-privacy" id="calc-privacy"><i class="fas fa-lock"></i> Calculated on your device. Nothing you enter is saved, sent to us, or shared with analytics or advertising services.</p>
-  </form>
-
-  <div class="calc-results is-empty" data-lf-calc-results tabindex="-1" aria-labelledby="calc-results-title">
-    <${H} id="calc-results-title" class="calc-heading">Your snapshot</${H}>
-    <p class="calc-summary" data-r="summary" aria-live="polite">Your results will appear here as you type.</p>
-    <div class="calc-cards">
-      <div class="calc-card"><span class="calc-label">Current outstanding</span><span class="calc-value" data-r="outstanding">—</span><span class="calc-explain">The amount you entered as due on the loan.</span></div>
-      <div class="calc-card calc-card-key"><span class="calc-label">Estimated monthly capacity</span><span class="calc-value" data-r="capacity">—</span><span class="calc-explain">Income minus essentials, other commitments and your buffer. Shown as zero if negative.</span></div>
-      <div class="calc-card"><span class="calc-label">Hypothetical amount entered</span><span class="calc-value" data-r="hypothetical">—</span><span class="calc-explain">The figure you chose to explore — not an offer or estimate.</span></div>
-      <div class="calc-card"><span class="calc-label">Existing savings</span><span class="calc-value" data-r="savings">—</span><span class="calc-explain">Savings you said could go towards this.</span></div>
-      <div class="calc-card"><span class="calc-label">Remaining amount to build</span><span class="calc-value" data-r="remaining">—</span><span class="calc-explain">Hypothetical amount minus savings (never below zero).</span></div>
-      <div class="calc-card calc-card-key"><span class="calc-label">Illustrative time to build it</span><span class="calc-value" data-r="months">—</span><span class="calc-explain">Remaining amount ÷ monthly capacity, rounded up to whole months.</span></div>
-      <div class="calc-card calc-card-wide"><span class="calc-label">Difference in your hypothetical scenario</span><span class="calc-value" data-r="difference">—</span><span class="calc-explain">Outstanding amount minus the hypothetical amount you entered. This is not a saving, discount or waiver — only your lender can agree any amount.</span></div>
-    </div>
-    <div class="calc-progress">
-      <div class="calc-progress-head"><span>Savings towards your scenario</span></div>
-      <div class="calc-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="calc-progress-label"><span class="calc-bar" data-r="progress"></span></div>
-      <p class="calc-progress-label" id="calc-progress-label" data-r="progress-label">Enter a hypothetical amount to see this</p>
-    </div>
-    <ul class="calc-notes" data-r="notes" hidden></ul>
-    <div class="calc-disclaimer" role="note">
-      <p><strong>Important:</strong> This calculator is for educational and illustrative purposes only. It does not predict whether a lender will approve a settlement, the amount a lender may accept, or the time required to resolve an account. Any actual settlement depends on the lender's decision and individual circumstances. Do not stop repayments, ignore notices or make financial decisions based only on this calculator. Consider obtaining independent professional advice.</p>
-      <p>A settled loan is usually reported as "Settled" on your credit report, which can make future borrowing harder for several years.</p>
-    </div>
-    <div class="calc-cta">
-      <p class="calc-cta-title">Want to understand your available options?</p>
-      <p>Every borrower's situation is different. Discuss your circumstances with our team for case-specific guidance.</p>
-      <div class="calc-cta-actions">
-        <a href="#consult" data-lf-consult class="btn btn-primary" data-lf-loc="calculator"><i class="fas fa-comments"></i> Get a Confidential Consultation</a>
-        <a href="/services.html" class="btn btn-outline">Explore Loan Settlement Services</a>
+  const H = `h${h}`, HC = `h${h + 1}`;
+  const C = CALC.CONFIG;
+  const pct = pctLabel();
+  const options = C.LOAN_TYPES.map((lt) => `<li><label class="calc-ms-opt"><input type="checkbox" value="${lt.id}" data-loan-type><span class="calc-ms-box" aria-hidden="true"><i class="fas fa-check"></i></span><span>${esc(lt.label)}</span></label></li>`).join('');
+  const tiers = C.FEE_TIERS.map((tr) => `<li data-tier="${tr.id}"><span>${esc(tr.label)} <span class="calc-tier-tag">Your tier</span></span><strong>${CALC.formatPercent(tr.bps / 100)}</strong></li>`).join('');
+  return `<div class="calc" data-lf-calc>
+  <div class="calc-shell">
+    <form class="calc-inputs" data-calc-form novalidate autocomplete="off" aria-labelledby="calc-inputs-title">
+      <${H} class="calc-step-title" id="calc-inputs-title"><span class="calc-step" aria-hidden="true">1</span> Enter your loan details</${H}>
+      <div class="calc-fields">
+        <div class="calc-field">
+          <label class="calc-label" for="calc-amount">Total Outstanding Loan Amount</label>
+          <div class="calc-input"><span aria-hidden="true">₹</span><input id="calc-amount" data-calc-amount type="text" inputmode="decimal" autocomplete="off" placeholder="10,00,000" required aria-required="true" aria-describedby="calc-amount-hint calc-amount-error"></div>
+          <p class="calc-hint" id="calc-amount-hint">Enter the combined outstanding amount across your loans.</p>
+          <p class="calc-error" id="calc-amount-error" data-calc-amount-error hidden></p>
+        </div>
+        <div class="calc-field">
+          <span class="calc-label" id="calc-types-label">What type of loan do you have?</span>
+          <div class="calc-ms" data-lf-ms>
+            <button type="button" class="calc-ms-toggle" data-ms-toggle aria-expanded="false" aria-controls="calc-types-panel" aria-labelledby="calc-types-label calc-types-value" aria-describedby="calc-types-hint"><span class="calc-ms-value" id="calc-types-value" data-ms-value>Select loan types</span><i class="fas fa-chevron-down"></i></button>
+            <div class="calc-ms-panel" id="calc-types-panel" data-ms-panel hidden>
+              <div class="calc-ms-tools"><button type="button" class="calc-ms-link" data-ms-all>Select all</button><button type="button" class="calc-ms-link" data-ms-clear>Clear all</button></div>
+              <fieldset class="calc-ms-group"><legend class="visually-hidden">Loan types (select all that apply)</legend>
+                <ul class="calc-ms-list">${options}</ul>
+              </fieldset>
+              <div class="calc-ms-foot"><button type="button" class="btn btn-primary btn-sm" data-ms-done>Done</button></div>
+            </div>
+          </div>
+          <ul class="calc-chips" data-r="chips" aria-label="Selected loan types" hidden></ul>
+          <template data-chip-template><li class="calc-chip"><span></span><button type="button" class="calc-chip-x"><i class="fas fa-xmark"></i></button></li></template>
+          <p class="calc-hint" id="calc-types-hint">Select all loan categories that apply. Enter their combined outstanding amount above.</p>
+          <p class="calc-note" data-r="secured" role="note" hidden><i class="fas fa-circle-info"></i><span><strong>Secured loan selected.</strong> Home loans, vehicle loans, loans against property and gold loans are backed by an asset, so settlement and recovery procedures can differ.</span></p>
+        </div>
       </div>
-      <p class="calc-cta-note">Starting a consultation does not share any figures you entered here.</p>
+    </form>
+
+    <div class="calc-results is-empty" data-calc-results tabindex="-1" aria-labelledby="calc-results-title">
+      <div class="calc-results-head">
+        <${H} class="calc-step-title" id="calc-results-title"><span class="calc-step" aria-hidden="true">2</span> Your results</${H}>
+        <p class="calc-status" data-r="status">Enter your total outstanding loan amount to see your results.</p>
+      </div>
+      <p class="visually-hidden" data-r="live" aria-live="polite"></p>
+      <div class="calc-cards">
+        <div class="calc-card calc-card-loan">
+          <div class="calc-card-head"><span class="calc-card-icon"><i class="fas fa-wallet"></i></span><${HC} class="calc-card-title">Your loan details</${HC}></div>
+          <dl class="calc-figures">
+            <div class="calc-fig-main"><dt>Total outstanding loan amount</dt><dd class="calc-big" data-r="outstanding">—</dd></div>
+            <div class="calc-fig-main"><dt>Selected loan types</dt><dd><ul class="calc-type-list" data-r="types" hidden></ul><span class="calc-muted" data-r="types-none">None selected yet</span></dd></div>
+          </dl>
+          <p class="calc-fine">Choosing a loan type does not mean an account qualifies for settlement. That depends on the lender, the loan, your circumstances and applicable law.</p>
+        </div>
+        <div class="calc-card calc-card-settle">
+          <div class="calc-card-head"><span class="calc-card-icon"><i class="fas fa-handshake"></i></span><${HC} class="calc-card-title">Illustrative settlement scenario</${HC}></div>
+          <dl class="calc-figures">
+            <div><dt>Reference settlement percentage</dt><dd><span class="calc-pill">${pct}</span></dd></div>
+            <div class="calc-fig-main"><dt>Illustrative settlement amount</dt><dd class="calc-big" data-r="settlement">—</dd></div>
+          </dl>
+          <p class="calc-text" data-r="settlement-text">Shown as ${pct} of your total outstanding, for illustration only.</p>
+          <p class="calc-caution"><i class="fas fa-triangle-exclamation"></i><span>Illustration only — not a lender-approved offer or a guaranteed outcome. Lenders decide each case: an actual settlement, if offered, may be for a different amount.</span></p>
+        </div>
+        <div class="calc-card calc-card-fee">
+          <div class="calc-card-head"><span class="calc-card-icon"><i class="fas fa-scale-balanced"></i></span><${HC} class="calc-card-title">Our applicable legal / professional fee</${HC}></div>
+          <dl class="calc-figures">
+            <div><dt>Applicable fee percentage</dt><dd><span class="calc-pill" data-r="fee-percent">—</span></dd></div>
+            <div class="calc-fig-main"><dt>Estimated fee</dt><dd class="calc-big" data-r="fee">—</dd></div>
+          </dl>
+          <p class="calc-text" data-r="fee-calc">The rate depends on your total outstanding amount.</p>
+          <p class="calc-text calc-tier-text" data-r="fee-tier"></p>
+          <ul class="calc-tiers" aria-label="Our fee structure">${tiers}</ul>
+          <p class="calc-fine">The fee is calculated according to the total outstanding amount and our stated fee structure. Applicable taxes, if any, are not included and will be confirmed before engagement. This fee is separate from any amount paid to your lender.</p>
+        </div>
+      </div>
+      <p class="calc-privacy"><i class="fas fa-lock"></i> Calculated on your device. Nothing you enter is saved, sent to us, or shared with analytics or advertising services.</p>
     </div>
   </div>
+
+  <div class="calc-cta" data-lf-loc="calculator">
+    <div class="calc-cta-copy">
+      <${H} class="calc-cta-title">Want to Explore Your Loan Settlement Options?</${H}>
+      <p>Every loan account is different. Speak with our team to understand the available options and the process applicable to your situation.</p>
+    </div>
+    <div class="calc-cta-actions">
+      <a href="#consult" data-lf-consult class="btn btn-primary"><i class="fas fa-comments"></i> Get a Free Consultation</a>
+      <a href="${waLink(t('en').waDefault)}" target="_blank" rel="noopener" class="btn btn-ghost-light"><i class="fab fa-whatsapp"></i> Talk to Us on WhatsApp</a>
+    </div>
+    <p class="calc-cta-note"><i class="fas fa-lock"></i> Contacting us does not share any figures you entered in the calculator.</p>
+  </div>
+
+  <div class="calc-disclaimer" role="note" aria-label="Important disclaimer">
+    <p><strong>Important Disclaimer:</strong> This calculator is for educational and illustrative purposes only. The ${pct} figure is a hypothetical calculation and is not a guaranteed settlement offer or an assurance that any lender will accept a particular amount. Actual settlement terms depend on the lender's decision, account status, financial circumstances and applicable rules. Loan settlement may affect credit reporting and future borrowing eligibility. The professional fee shown is based on the fee structure provided by Loan Free Financial Services and is an estimate. Final terms and applicable charges will be communicated before engagement. Do not stop repayments, ignore lender communications or make financial decisions solely on the basis of this calculator. Consider obtaining independent professional advice.</p>
+    <p>Loan Free Financial Services is not a lender and is not approved by the Reserve Bank of India. Neither the RBI nor any lender has reviewed or endorsed this calculator or our fee structure.</p>
+  </div>
 </div>`;
+}
+
+// Calculator facts used in page copy, generated from the same CONFIG so the text always matches
+// the arithmetic. Expanded when pages are loaded (before FAQ structured data is extracted):
+//   <!-- lf:calc-percent -->               "30%"
+//   <!-- lf:calc-fee-summary -->           "1% (up to and including ₹10,00,000), 0.75% (...) and 0.50% (...)"
+//   <!-- lf:calc-fee-example 2500000 -->   "₹25,00,000 × 0.75% = ₹18,750"
+//   <!-- lf:calc-fee-table -->             fee structure table
+//   <!-- lf:calc-examples 1000000 2500000 --> worked examples table
+export function expandCalcTokens(html) {
+  if (!html.includes('<!-- lf:calc-')) return html;
+  const C = CALC.CONFIG;
+  const rate = (tr) => CALC.formatPercent(tr.bps / 100);
+  const lower = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+  const feeExample = (n) => { const f = CALC.legalFee(n); return `${CALC.formatINR(n)} × ${f.percentLabel} = ${CALC.formatINR(f.amount)}`; };
+  const summary = C.FEE_TIERS.map((tr) => `${rate(tr)} (${lower(tr.label)})`);
+  return html
+    .replace(/<!-- lf:calc-percent -->/g, () => pctLabel())
+    .replace(/<!-- lf:calc-fee-summary -->/g, () => summary.slice(0, -1).join(', ') + ' and ' + summary[summary.length - 1])
+    .replace(/<!-- lf:calc-fee-example (\d+) -->/g, (_, n) => feeExample(Number(n)))
+    .replace(/<!-- lf:calc-fee-table -->/g, () => `<div class="table-wrap">
+            <table class="content-table">
+                <caption class="visually-hidden">Professional fee structure</caption>
+                <thead><tr><th scope="col">Total outstanding loan amount</th><th scope="col">Rate applied to the entire amount</th></tr></thead>
+                <tbody>${C.FEE_TIERS.map((tr) => `<tr><th scope="row">${esc(tr.label)}</th><td>${rate(tr)}</td></tr>`).join('')}</tbody>
+            </table>
+        </div>`)
+    .replace(/<!-- lf:calc-examples ([\d ]+) -->/g, (_, list) => `<div class="table-wrap">
+            <table class="content-table">
+                <caption class="visually-hidden">Worked examples</caption>
+                <thead><tr><th scope="col">Total outstanding</th><th scope="col">Illustrative settlement scenario (${pctLabel()})</th><th scope="col">Fee rate</th><th scope="col">Estimated professional fee</th></tr></thead>
+                <tbody>${list.trim().split(/\s+/).map(Number).map((n) => { const r = CALC.calculate(n, []).results; return `<tr><th scope="row">${CALC.formatINR(n)}</th><td>${CALC.formatINR(r.settlement.amount)}</td><td>${r.fee.percentLabel}</td><td>${CALC.formatINR(r.fee.amount)}</td></tr>`; }).join('')}</tbody>
+            </table>
+        </div>`);
 }
 
 // Homepage service grid: every real service, two featured with an illustration.

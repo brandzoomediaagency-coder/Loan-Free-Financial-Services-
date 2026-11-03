@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Unit tests for the Loan Settlement Scenario Calculator (src/js/calculator.js).
+// Unit tests for the Loan Settlement & Legal Fee Calculator (src/js/calculator.js).
 // Run: node tools/test-calculator.cjs
 'use strict';
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
 const C = require(path.join(__dirname, '..', 'src', 'js', 'calculator.js'));
 
 let passed = 0, failed = 0;
@@ -11,140 +12,149 @@ function test(name, fn) {
   try { fn(); passed++; console.log('  ok  ' + name); }
   catch (e) { failed++; console.log('  FAIL ' + name + '\n       ' + e.message); }
 }
-const base = { outstanding: 500000, income: 60000, expenses: 30000, commitments: 10000, buffer: 5000, savings: 50000, hypothetical: null };
-const run = (o) => C.calculate(Object.assign({}, base, o));
+const L = 100000, CR = 10000000; // ₹1 lakh, ₹1 crore
+
+console.log('configuration');
+test('SETTLEMENT_SCENARIO_PERCENT is 30 and is the single source', () => {
+  assert.equal(C.CONFIG.SETTLEMENT_SCENARIO_PERCENT, 30);
+  assert.equal(C.SETTLEMENT_SCENARIO_PERCENT, 30);
+});
+test('fee tiers: 1% / 0.75% / 0.50% in one config object', () => {
+  assert.deepEqual(C.CONFIG.FEE_TIERS.map((t) => t.bps), [100, 75, 50]);
+  assert.equal(C.FEE_TIERS, C.CONFIG.FEE_TIERS);
+});
+test('eleven loan types in the agreed order', () => {
+  assert.deepEqual(C.LOAN_TYPES.map((t) => t.label), ['Credit Card Outstanding', 'Personal Loan', 'Business Loan', 'Education Loan', 'Consumer Durable Loan', 'Vehicle Loan', 'Home Loan', 'Loan Against Property', 'Gold Loan', 'Overdraft / Cash Credit', 'Other']);
+});
+test('no maximum of ₹1 crore (limit is a typing-error guard of ₹1,000 crore)', () => assert.equal(C.MAX_AMOUNT, 1e10));
+
+console.log('illustrative settlement scenario (30%)');
+const settle = (n) => C.settlementScenario(n).amount;
+test('₹10,00,000 -> ₹3,00,000', () => assert.equal(settle(10 * L), 3 * L));
+test('₹25,00,000 -> ₹7,50,000', () => assert.equal(settle(25 * L), 7.5 * L));
+test('₹1,00,00,000 -> ₹30,00,000', () => assert.equal(settle(CR), 30 * L));
+test('₹1,50,00,000 -> ₹45,00,000', () => assert.equal(settle(1.5 * CR), 45 * L));
+test('rounded to the nearest rupee (₹10,00,001 -> ₹3,00,000)', () => { assert.equal(settle(1000001), 300000); assert.equal(C.settlementScenario(1000001).exact, 300000.3); });
+test('reports the reference percentage', () => { const s = C.settlementScenario(10 * L); assert.equal(s.percent, 30); assert.equal(s.percentLabel, '30%'); });
+
+console.log('legal / professional fee (flat-rate tiers on the entire amount)');
+const fee = (n) => C.legalFee(n);
+test('₹10,00,000 -> 1% -> ₹10,000 (boundary is inclusive)', () => { const f = fee(10 * L); assert.equal(f.percentLabel, '1%'); assert.equal(f.amount, 10000); });
+test('₹10,00,001 -> 0.75% (just above ₹10 lakh)', () => { const f = fee(1000001); assert.equal(f.percentLabel, '0.75%'); assert.equal(f.amount, 7500); });
+test('₹10,00,000.01 -> 0.75% (paise above the boundary)', () => assert.equal(fee(1000000.01).bps, 75));
+test('₹25,00,000 -> 0.75% -> ₹18,750', () => { const f = fee(25 * L); assert.equal(f.percentLabel, '0.75%'); assert.equal(f.amount, 18750); });
+test('₹99,99,999 -> 0.75% (just below ₹1 crore)', () => { const f = fee(9999999); assert.equal(f.percentLabel, '0.75%'); assert.equal(f.exact, 74999.9925); assert.equal(f.amount, 75000); });
+test('₹1,00,00,000 -> 0.50% -> ₹50,000 (boundary belongs to the top tier)', () => { const f = fee(CR); assert.equal(f.percentLabel, '0.50%'); assert.equal(f.amount, 50000); });
+test('₹1,50,00,000 -> 0.50% -> ₹75,000', () => { const f = fee(1.5 * CR); assert.equal(f.percentLabel, '0.50%'); assert.equal(f.amount, 75000); });
+test('small amounts use 1% (₹1 -> ₹0.01, shown as ₹0)', () => { const f = fee(1); assert.equal(f.bps, 100); assert.equal(f.exact, 0.01); });
+test('rate applies to the whole amount, not as slabs', () => {
+  // A marginal slab would give 10,000 + 0.75% of 15 lakh = 21,250; the agreed rule gives 18,750.
+  assert.equal(fee(25 * L).amount, 18750);
+  assert.notEqual(fee(25 * L).amount, 21250);
+});
+test('documented threshold effect: fee falls just above each boundary', () => {
+  assert.ok(fee(1000001).amount < fee(10 * L).amount);
+  assert.ok(fee(CR).amount < fee(9999999).amount);
+});
+test('tier labels and ids', () => {
+  assert.equal(C.feeTier(10 * L).id, 'tier-1');
+  assert.equal(C.feeTier(10 * L + 1).id, 'tier-2');
+  assert.equal(C.feeTier(CR - 1).id, 'tier-2');
+  assert.equal(C.feeTier(CR).id, 'tier-3');
+  assert.equal(C.feeTier(1e10).id, 'tier-3');
+});
+
+console.log('calculate(): results, empty and invalid input');
+test('valid amount returns both figures separately (never combined)', () => {
+  const r = C.calculate(10 * L, ['personal']);
+  assert.equal(r.ok, true);
+  assert.equal(r.results.settlement.amount, 3 * L);
+  assert.equal(r.results.fee.amount, 10000);
+  assert.ok(!('total' in r.results) && !('payable' in r.results) && !('savings' in r.results));
+});
+test('empty input -> "required", no results', () => { const r = C.calculate(null, []); assert.equal(r.error, 'required'); assert.equal(r.results, null); });
+test('zero -> error, no results (no misleading ₹0)', () => { const r = C.calculate(0, []); assert.equal(r.error, 'zero'); assert.equal(r.results, null); });
+test('negative -> error, no results', () => { const r = C.calculate(-5000, []); assert.equal(r.error, 'negative'); assert.equal(r.results, null); });
+test('NaN / non-number -> invalid', () => { assert.equal(C.calculate(NaN, []).error, 'invalid'); assert.equal(C.calculate('1000', []).error, 'invalid'); });
+test('very large amounts: ₹500 crore works exactly', () => {
+  const r = C.calculate(5e9, []).results;
+  assert.equal(r.settlement.amount, 1.5e9); assert.equal(r.fee.amount, 2.5e7); assert.equal(r.fee.percentLabel, '0.50%');
+});
+test('above ₹1,000 crore -> too large', () => assert.equal(C.calculate(1e10 + 1, []).error, 'too-large'));
+test('each error has a friendly message', () => { for (const k of ['required', 'invalid', 'negative', 'zero', 'too-large']) assert.ok(C.MESSAGES[k].length > 10, k); });
 
 console.log('parseAmount');
-test('plain digits', () => assert.equal(C.parseAmount('150000').value, 150000));
-test('Indian grouping with commas', () => assert.equal(C.parseAmount('1,50,000').value, 150000));
-test('rupee sign and spaces', () => assert.equal(C.parseAmount(' ₹ 2,00,000 ').value, 200000));
-test('Rs prefix', () => assert.equal(C.parseAmount('Rs. 5000').value, 5000));
+test('plain digits', () => assert.equal(C.parseAmount('1000000').value, 1000000));
+test('Indian grouping', () => assert.equal(C.parseAmount('10,00,000').value, 1000000));
+test('rupee sign and spaces', () => assert.equal(C.parseAmount(' ₹ 25,00,000 ').value, 2500000));
+test('Rs / INR prefix', () => { assert.equal(C.parseAmount('Rs. 5000').value, 5000); assert.equal(C.parseAmount('INR 5000').value, 5000); });
 test('decimals kept to paise', () => assert.equal(C.parseAmount('1500.556').value, 1500.56));
-test('empty is empty, not zero', () => { const p = C.parseAmount(''); assert.equal(p.empty, true); assert.equal(p.value, null); });
-test('negative rejected', () => assert.match(C.parseAmount('-500').error, /negative/));
-test('text rejected', () => assert.match(C.parseAmount('five lakh').error, /digits/));
-test('mixed text rejected', () => assert.ok(C.parseAmount('12abc').error));
-test('very large rejected', () => assert.match(C.parseAmount('99999999999').error, /too large/));
-test('limit itself accepted', () => assert.equal(C.parseAmount(String(C.MAX_AMOUNT)).value, C.MAX_AMOUNT));
+test('₹1 crore and above accepted', () => { assert.equal(C.parseAmount('1,00,00,000').value, CR); assert.equal(C.parseAmount('15,00,00,000').value, 15 * CR); });
+test('empty is empty, not zero', () => { const p = C.parseAmount('   '); assert.equal(p.empty, true); assert.equal(p.value, null); });
+test('negative rejected', () => assert.equal(C.parseAmount('-500').error, 'negative'));
+test('text rejected', () => assert.equal(C.parseAmount('ten lakh').error, 'invalid'));
+test('mixed text rejected', () => assert.equal(C.parseAmount('12abc').error, 'invalid'));
+test('zero rejected', () => assert.equal(C.parseAmount('0').error, 'zero'));
+test('too large rejected', () => assert.equal(C.parseAmount('99999999999').error, 'too-large'));
 
-console.log('monthly capacity');
-test('capacity = income - expenses - commitments - buffer', () => assert.equal(run({}).results.capacity, 15000));
-test('optional fields empty count as zero', () => assert.equal(run({ commitments: null, buffer: null, savings: null }).results.capacity, 30000));
-test('negative capacity shown as zero with note', () => {
-  const r = run({ expenses: 50000 });
-  assert.equal(r.results.capacity, 0);
-  assert.ok(r.notes.some((n) => n.key === 'zero-capacity'));
+console.log('loan types');
+test('multiple selections kept in list order', () => assert.deepEqual(C.normaliseLoanTypes(['home', 'credit-card', 'personal']), ['credit-card', 'personal', 'home']));
+test('duplicates and unknown ids removed', () => assert.deepEqual(C.normaliseLoanTypes(['personal', 'personal', 'crypto']), ['personal']));
+test('removing a type removes it from the results', () => {
+  const before = C.calculate(10 * L, ['personal', 'credit-card']).loanTypes;
+  const after = C.calculate(10 * L, before.filter((t) => t !== 'personal')).loanTypes;
+  assert.deepEqual(before, ['credit-card', 'personal']); assert.deepEqual(after, ['credit-card']);
 });
-test('exactly zero capacity', () => assert.equal(run({ expenses: 45000 }).results.capacity, 0));
-test('expenses greater than income: zero capacity + explanation', () => {
-  const r = run({ expenses: 70000 });
-  assert.equal(r.results.capacity, 0);
-  assert.ok(r.notes.some((n) => n.key === 'expenses-exceed'));
+test('no types selected is allowed', () => assert.deepEqual(C.calculate(10 * L, []).loanTypes, []));
+test('labels for display', () => assert.deepEqual(C.loanTypeLabels(['overdraft', 'gold']), ['Gold Loan', 'Overdraft / Cash Credit']));
+test('secured note: home, vehicle, property and gold loans', () => {
+  for (const id of ['home', 'vehicle', 'property', 'gold']) assert.equal(C.hasSecuredLoan([id]), true, id);
+  for (const id of ['credit-card', 'personal', 'business', 'education', 'consumer-durable', 'overdraft', 'other']) assert.equal(C.hasSecuredLoan([id]), false, id);
+  assert.equal(C.calculate(10 * L, ['personal', 'home']).secured, true);
 });
-test('zero income: zero capacity + explanation', () => {
-  const r = run({ income: 0 });
-  assert.equal(r.results.capacity, 0);
-  assert.ok(r.notes.some((n) => n.key === 'zero-income'));
-});
-
-console.log('required fields and invalid input');
-test('missing outstanding -> error, no results', () => { const r = run({ outstanding: null }); assert.ok(r.errors.outstanding); assert.equal(r.results, null); });
-test('zero outstanding -> error', () => assert.ok(run({ outstanding: 0 }).errors.outstanding));
-test('missing income -> error', () => assert.ok(run({ income: null }).errors.income));
-test('missing expenses -> error', () => assert.ok(run({ expenses: null }).errors.expenses));
-test('negative number passed directly -> error', () => assert.ok(run({ buffer: -1 }).errors.buffer));
-test('NaN passed directly -> error', () => assert.ok(run({ savings: NaN }).errors.savings));
-
-console.log('hypothetical scenario');
-test('no hypothetical -> affordability snapshot only', () => {
-  const r = run({}).results;
-  assert.equal(r.scenario, false); assert.equal(r.difference, null); assert.equal(r.months, null); assert.equal(r.hypothetical, null);
-});
-test('remaining = hypothetical - savings', () => assert.equal(run({ hypothetical: 200000 }).results.remaining, 150000));
-test('months = ceil(remaining / capacity)', () => assert.equal(run({ hypothetical: 200000 }).results.months, 10));
-test('months rounds up', () => assert.equal(run({ hypothetical: 200001 }).results.months, 11));
-test('difference = outstanding - hypothetical', () => assert.equal(run({ hypothetical: 200000 }).results.difference, 300000));
-test('progress = savings / hypothetical', () => assert.equal(run({ hypothetical: 200000 }).results.progress, 0.25));
-test('hypothetical equal to outstanding is allowed (difference 0)', () => {
-  const r = run({ hypothetical: 500000 }); assert.equal(r.results.scenario, true); assert.equal(r.results.difference, 0);
-});
-test('hypothetical above outstanding -> error, no difference shown', () => {
-  const r = run({ hypothetical: 600000 });
-  assert.ok(r.errors.hypothetical); assert.equal(r.results.scenario, false); assert.equal(r.results.difference, null);
-});
-test('hypothetical of zero -> error', () => assert.ok(run({ hypothetical: 0 }).errors.hypothetical));
-test('savings greater than hypothetical -> nothing left to build', () => {
-  const r = run({ hypothetical: 40000 });
-  assert.equal(r.results.remaining, 0); assert.equal(r.results.months, 0); assert.equal(r.results.progress, 1);
-  assert.ok(r.notes.some((n) => n.key === 'savings-cover'));
-});
-test('zero capacity with amount still to build -> months not calculated', () => {
-  const r = run({ expenses: 60000, hypothetical: 200000 });
-  assert.equal(r.results.capacity, 0); assert.equal(r.results.months, null); assert.equal(r.results.remaining, 150000);
-});
-test('very long timeline flagged', () => {
-  const r = run({ income: 46000, hypothetical: 500000, savings: 0 });
-  assert.equal(r.results.capacity, 1000); assert.equal(r.results.months, 500);
-  assert.ok(r.notes.some((n) => n.key === 'long'));
-});
-test('large but valid amounts do not overflow', () => {
-  const r = C.calculate({ outstanding: 9e9, income: 5e8, expenses: 1e8, commitments: 0, buffer: 0, savings: 1e9, hypothetical: 5e9 });
-  assert.equal(r.results.remaining, 4e9); assert.equal(r.results.months, 10); assert.equal(r.results.difference, 4e9);
-});
-test('decimal amounts handled to paise', () => {
-  const r = C.calculate({ outstanding: 100000.5, income: 50000.25, expenses: 20000.1, commitments: 0, buffer: 0, savings: 0, hypothetical: 30000.15 });
-  assert.equal(r.results.capacity, 30000.15); assert.equal(r.results.months, 1); assert.equal(r.results.difference, 70000.35);
-});
-test('never suggests an amount: hypothetical stays null unless entered', () => {
-  const r = run({ hypothetical: null }).results;
-  assert.equal(r.hypothetical, null);
-  assert.ok(!('suggested' in r));
+test('loan type never changes the figures', () => {
+  const a = C.calculate(25 * L, []).results, b = C.calculate(25 * L, C.LOAN_TYPES.map((t) => t.id)).results;
+  assert.deepEqual(a, b);
 });
 
 console.log('formatting');
-test('Indian rupee grouping', () => assert.equal(C.formatINR(1234567), '₹12,34,567'));
-test('paise shown only when present', () => assert.equal(C.formatINR(1500.5), '₹1,500.50'));
-test('months wording', () => { assert.equal(C.formatMonths(1), '1 month'); assert.equal(C.formatMonths(14), '14 months (1 year 2 months)'); assert.equal(C.formatMonths(0), 'Already covered'); assert.equal(C.formatMonths(500), 'More than 10 years'); });
+test('Indian rupee grouping', () => { assert.equal(C.formatINR(1000000), '₹10,00,000'); assert.equal(C.formatINR(10000000), '₹1,00,00,000'); assert.equal(C.formatINR(18750), '₹18,750'); });
+test('paise shown only when present', () => { assert.equal(C.formatINR(1500.5), '₹1,500.50'); assert.equal(C.formatINR(300000), '₹3,00,000'); });
+test('percent labels', () => { assert.equal(C.formatPercent(1), '1%'); assert.equal(C.formatPercent(0.75), '0.75%'); assert.equal(C.formatPercent(0.5), '0.50%'); assert.equal(C.formatPercent(30), '30%'); });
+test('groupIndian on long digit strings', () => { assert.equal(C.groupIndian('1000000000'), '1,00,00,00,000'); assert.equal(C.groupIndian('999'), '999'); });
+test('live input formatting', () => {
+  assert.equal(C.formatAmountInput('1000000'), '10,00,000');
+  assert.equal(C.formatAmountInput('10,00,0000'), '1,00,00,000');
+  assert.equal(C.formatAmountInput('₹2500000'), '25,00,000');
+  assert.equal(C.formatAmountInput('0012'), '12');
+  assert.equal(C.formatAmountInput('1500.567'), '1,500.56');
+  assert.equal(C.formatAmountInput('1500.'), '1,500.');
+  assert.equal(C.formatAmountInput(''), '');
+});
+test('live formatting leaves invalid text alone (null)', () => { assert.equal(C.formatAmountInput('-500'), null); assert.equal(C.formatAmountInput('abc'), null); });
 
-console.log('sliders');
-const S = C.SLIDER_STEPS;
-test('start of the scale is zero', () => { assert.equal(C.sliderToValue(0, 1e7), 0); assert.equal(C.sliderToValue(0, 345678, true), 0); });
-test('end of the scale is exactly the maximum', () => { assert.equal(C.sliderToValue(S, 1e7), 1e7); assert.equal(C.sliderToValue(S, 345678, true), 345678); });
-test('positions outside the range are clamped', () => { assert.equal(C.sliderToValue(-50, 5e5), 0); assert.equal(C.sliderToValue(S + 50, 5e5), 5e5); });
-test('values never decrease as the slider moves right', () => {
-  for (const [max, lin] of [[1e7, false], [5e5, false], [1e5, false], [345678, true], [52000, true]]) {
-    let prev = -1;
-    for (let pos = 0; pos <= S; pos++) { const v = C.sliderToValue(pos, max, lin); assert.ok(v >= prev, `${max} at ${pos}`); assert.ok(v <= max); prev = v; }
-  }
+console.log('page copy is generated from the same configuration');
+const tplCheck = require('node:child_process').spawnSync(process.execPath, ['--input-type=module', '-e', `
+  import { expandCalcTokens } from ${JSON.stringify('file://' + path.join(__dirname, '..', 'src', 'templates.mjs'))};
+  console.log(JSON.stringify([expandCalcTokens('<!-- lf:calc-percent -->'), expandCalcTokens('<!-- lf:calc-fee-example 2500000 -->'), expandCalcTokens('<!-- lf:calc-fee-summary -->')]));
+`], { encoding: 'utf8' });
+test('tokens: percent, example and summary', () => {
+  const [pct, ex, sum] = JSON.parse(tplCheck.stdout);
+  assert.equal(pct, '30%');
+  assert.equal(ex, '₹25,00,000 × 0.75% = ₹18,750');
+  assert.match(sum, /^1% \(up to and including ₹10,00,000\), 0\.75% .* and 0\.50% \(₹1,00,00,000 and above\)$/);
 });
-test('budget scale gives fine control at small amounts', () => {
-  assert.ok(C.sliderToValue(250, 1e7) < 2e5, 'a quarter of the way is under 2 lakh');
-  assert.ok(C.sliderToValue(500, 5e5) < 1e5, 'half way on income is under 1 lakh');
-});
-test('values snap to round figures', () => { for (let pos = 1; pos < S; pos += 37) assert.equal(C.sliderToValue(pos, 1e7) % 100, 0); });
-test('hypothetical slider is linear in the outstanding amount, never above it', () => {
-  assert.equal(C.sliderToValue(500, 400000, true), 200000);
-  for (let pos = 0; pos <= S; pos += 25) assert.ok(C.sliderToValue(pos, 345678, true) <= 345678);
-});
-test('typed values map back to a nearby slider position', () => {
-  for (const [v, max, lin] of [[150000, 1e7, false], [45000, 5e5, false], [120000, 400000, true]]) {
-    const back = C.sliderToValue(C.valueToSlider(v, max, lin), max, lin);
-    assert.ok(Math.abs(back - v) / v < 0.03, `${v} -> ${back}`);
-  }
-});
-test('typed values above the slider range sit at the end of the slider', () => assert.equal(C.valueToSlider(5e7, 1e7), S));
-test('empty or zero values sit at the start', () => { assert.equal(C.valueToSlider(null, 1e7), 0); assert.equal(C.valueToSlider(0, 1e7), 0); });
-test('no maximum yet (outstanding not entered) gives zero', () => { assert.equal(C.sliderToValue(600, 0, true), 0); assert.equal(C.valueToSlider(1000, 0, true), 0); });
 
 console.log('privacy (static checks on the source)');
-const src = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'js', 'calculator.js'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, '..', 'src', 'js', 'calculator.js'), 'utf8');
 const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 test('no storage APIs', () => assert.ok(!/localStorage|sessionStorage|document\.cookie|indexedDB/.test(code)));
 test('no network APIs', () => assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon|WebSocket|new Image\(/.test(code)));
-test('no URL writes', () => assert.ok(!/history\.(push|replace)State|location\.(href|search|hash)\s*=/.test(code)));
+test('no URL writes', () => assert.ok(!/history\.(push|replace)State|location\.(href|search|hash)\s*=|location\.assign|location\.replace/.test(code)));
 test('no console logging', () => assert.ok(!/console\./.test(code)));
-test('no Meta Pixel calls', () => assert.ok(!/fbq\(/.test(code)));
-test('analytics event carries no parameters', () => {
+test('no Meta Pixel or dataLayer calls', () => assert.ok(!/fbq\(|dataLayer/.test(code)));
+test('no WhatsApp links built from values', () => assert.ok(!/wa\.me|whatsapp/i.test(code)));
+test('analytics: one existing event, no parameters', () => {
   const calls = code.match(/gtag\(([^)]*)\)/g) || [];
   assert.equal(calls.length, 1);
   assert.equal(calls[0], "gtag('event', 'calculator_used')");

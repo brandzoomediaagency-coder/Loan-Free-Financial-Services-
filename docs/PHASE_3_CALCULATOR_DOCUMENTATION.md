@@ -1,5 +1,10 @@
 # Loan Settlement Scenario Calculator — documentation
 
+> **Superseded on 3 Nov 2026.** The seven-field budget planner described below was replaced by the two-field
+> Loan Settlement & Legal Fee Calculator. The current behaviour, formulas, tests and open decisions are in
+> [`SIMPLE_CALCULATOR_IMPLEMENTATION_REPORT.md`](SIMPLE_CALCULATOR_IMPLEMENTATION_REPORT.md). This file is kept
+> as the record of the Phase 3 implementation; its privacy rules still apply unchanged.
+
 Where it appears: its own page `/settlement-calculator.html` (with the explanatory content and FAQs) and the homepage section "Explore your settlement scenario" (`#calculator`, linked from the hero's "Try Settlement Calculator" button). Both use the same component: markup from `calculator()` in `src/templates.mjs` (build marker `<!-- lf:calculator -->`), logic and browser binding in `src/js/calculator.js`, loaded only on those two pages via front matter `"scripts": ["calculator"]`. Tests: `tools/test-calculator.cjs` (unit) and `tools/qa/calculator-browser.mjs` (browser, both pages).
 
 ## Purpose and limits
