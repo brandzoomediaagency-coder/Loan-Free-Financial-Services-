@@ -65,7 +65,7 @@ All 14 legacy stock photos were removed earlier in Phase 3 (two were copyrighted
 | File | Used on |
 |---|---|
 | `hero-clarity.svg` | About page hero |
-| `calculator-planning.svg` | Calculator hero, homepage calculator section, knowledge-centre tool card, calculator promos |
+| `calculator-planning.svg` | Calculator hero, homepage calculator section, knowledge-centre tool card, calculator promos. Redrawn 3 Nov 2026 for the fee calculator (total outstanding → separate scenario and fee cards; figures generated from the calculator configuration) |
 | `honest-role.svg` | Homepage "What we do — and what we don't" |
 | `faq-questions.svg` | Homepage FAQ (desktop aside) |
 | `svc-personal-loan.svg` | Personal loan page hero; homepage featured service card |

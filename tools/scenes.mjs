@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'assets/illustrations');
@@ -79,19 +80,30 @@ svc('svc-closure', 'Loan closure documentation', 'Illustration: a no-dues letter
   paper(80, 60, 160, 210, { n: 8, accent: C.green }) + paper(270, 70, 120, 120, { n: 4, accent: C.gold, rot: 6 }) +
   `<g filter="url(#sh2)">${iconCircle(212, 236, 30, C.green, tick(197, 237, 1.5, '#fff'))}</g>`);
 
-// Calculator illustration
-S['calculator-planning'] = () => svg(560, 420, 'Planning a hypothetical scenario against your monthly budget',
-  'Illustration: a budget card balancing income against expenses, a savings progress bar building month by month, a calendar and a calculator. It shows planning, not a guaranteed reduction.',
-  blob(440, 100, 120, C.greenXL) + blob(120, 330, 110, C.goldXL) +
-  card(40, 50, 250, 170, `${T(20, 32, 'Monthly budget', 15, C.navy, 700)}
-    ${T(20, 64, 'Income', 12, '#556070', 500)}${R(100, 55, 130, 12, C.green, 6)}
-    ${T(20, 92, 'Essentials', 12, '#556070', 500)}${R(100, 83, 82, 12, C.navy3, 6)}
-    ${T(20, 120, 'Other EMIs', 12, '#556070', 500)}${R(100, 111, 34, 12, C.navy4, 6)}
-    ${T(20, 148, 'Buffer', 12, '#556070', 500)}${R(100, 139, 18, 12, C.gold, 6)}`) +
-  card(110, 240, 300, 120, `${T(20, 32, 'Building the amount', 14, C.navy, 700)}${R(20, 50, 260, 16, C.bg2, 8)}${R(20, 50, 150, 16, 'url(#gGreen)', 8)}
-    ${Array.from({ length: 6 }, (_, i) => `<circle cx="${30 + i * 48}" cy="${90}" r="7" fill="${i < 3 ? C.green : C.line}"/>`).join('')}`) +
-  calculator(330, 70, 1.05) + card(430, 210, 100, 100, `${R(0, 0, 100, 28, C.navy2, 14)}${R(0, 16, 100, 12, C.navy2, 0)}${T(50, 72, '?', 34, C.goldD, 700, 'middle')}`)
-);
+// Calculator illustration: one input (total outstanding, with loan-type tags) leading to two SEPARATE
+// cards — the illustrative settlement scenario and the professional fee. The example figures are
+// computed from src/js/calculator.js CONFIG so the picture always matches the calculator.
+const CALC = createRequire(import.meta.url)('../src/js/calculator.js');
+S['calculator-planning'] = () => {
+  const ex = CALC.calculate(1000000, []).results;
+  const pct = ex.settlement.percentLabel, rate = ex.fee.percentLabel;
+  const pill = (x, y, w, label, fill, color) => `${R(x, y, w, 24, fill, 12)}${T(x + w / 2, y + 17, label, 13, color, 700, 'middle')}`;
+  const tag = (x, y, w, label) => `${R(x, y, w, 22, C.greenXL, 11)}${T(x + w / 2, y + 15, label, 11, C.green, 700, 'middle')}`;
+  return svg(560, 420, 'An illustrative settlement scenario and our professional fee, shown separately',
+    `Illustration: a total outstanding amount of ${CALC.formatINR(ex.outstanding)} with loan-type tags leads to two separate cards — an illustrative settlement scenario at ${pct} and the professional fee at ${rate} — beside a calculator. The figures are examples, not offers or guarantees.`,
+    blob(450, 96, 112, C.greenXL) + blob(110, 340, 104, C.goldXL) +
+    card(28, 34, 300, 136, `${T(20, 30, 'Total outstanding', 13, '#556070', 600)}
+      ${R(20, 42, 260, 44, C.bg, 10, `stroke="${C.line}" stroke-width="1.5"`)}${T(36, 71, '₹', 18, C.navy, 700)}${T(56, 72, CALC.formatINR(ex.outstanding).replace('₹', ''), 20, C.navy, 700)}
+      ${tag(20, 98, 84, 'Credit card')}${tag(110, 98, 70, 'Personal')}${tag(186, 98, 48, 'Other')}`) +
+    calculator(392, 40, 1.05) +
+    dashPath('M120 176 C120 200 118 212 118 226', C.goldD) + dashPath('M250 176 C300 200 360 214 386 236', C.green) +
+    card(28, 232, 228, 156, `${R(14, 0, 200, 5, C.gold, 2.5)}${T(18, 34, 'Illustrative scenario', 14, C.navy, 700)}${pill(18, 48, 52, pct, C.gold, C.navy)}
+      ${T(18, 106, CALC.formatINR(ex.settlement.amount), 26, C.navy, 700)}${lines(18, 124, 180, 2, 11, C.line, .55)}`) +
+    card(276, 244, 256, 156, `${R(14, 0, 228, 5, C.green, 2.5)}${T(18, 34, 'Professional fee', 14, C.navy, 700)}${pill(18, 48, 46, rate, C.green, '#fff')}
+      ${T(18, 106, CALC.formatINR(ex.fee.amount), 26, C.green, 700)}
+      ${R(18, 122, 220, 9, C.green, 4.5)}${R(18, 136, 220, 6, C.line, 3)}${R(18, 146, 220, 6, C.line, 3)}`)
+  );
+};
 
 // Homepage "What we do / what we don't" illustration
 const crossDot = (cx, cy, r = 11, bg = '#FBECE8', fg = C.red) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${bg}"/><path d="M${cx - r * .38} ${cy - r * .38} L${cx + r * .38} ${cy + r * .38} M${cx + r * .38} ${cy - r * .38} L${cx - r * .38} ${cy + r * .38}" stroke="${fg}" stroke-width="${2.6 * r / 11}" stroke-linecap="round"/>`;
