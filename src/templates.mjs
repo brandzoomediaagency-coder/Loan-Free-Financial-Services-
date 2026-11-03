@@ -536,7 +536,7 @@ export function calculator({ h = 2 } = {}) {
         <div class="calc-field">
           <label class="calc-label" for="calc-amount">Total Outstanding Loan Amount</label>
           <div class="calc-input"><span aria-hidden="true">₹</span><input id="calc-amount" data-calc-amount type="text" inputmode="decimal" autocomplete="off" placeholder="10,00,000" required aria-required="true" aria-describedby="calc-amount-hint calc-amount-error"></div>
-          <p class="calc-hint" id="calc-amount-hint">Enter the combined outstanding amount across your loans.</p>
+          <p class="calc-hint" id="calc-amount-hint">Enter the combined outstanding amount across your unsecured loans.</p>
           <p class="calc-error" id="calc-amount-error" data-calc-amount-error hidden></p>
         </div>
         <div class="calc-field">
@@ -554,7 +554,7 @@ export function calculator({ h = 2 } = {}) {
           <ul class="calc-chips" data-r="chips" aria-label="Selected loan types" hidden></ul>
           <template data-chip-template><li class="calc-chip"><span></span><button type="button" class="calc-chip-x"><i class="fas fa-xmark"></i></button></li></template>
           <p class="calc-hint" id="calc-types-hint">Select all loan categories that apply. Enter their combined outstanding amount above.</p>
-          <p class="calc-note" data-r="secured" role="note" hidden><i class="fas fa-circle-info"></i><span><strong>Secured loan selected.</strong> Home loans, vehicle loans, loans against property and gold loans are backed by an asset, so settlement and recovery procedures can differ.</span></p>
+          <p class="calc-note" role="note"><i class="fas fa-circle-info"></i><span><strong>Unsecured loans only.</strong> Our settlement services do not cover secured loans such as home loans, vehicle loans, loans against property or gold loans.</span></p>
         </div>
       </div>
     </form>
