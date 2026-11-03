@@ -1,10 +1,12 @@
 /* Loan Settlement & Legal Fee Calculator.
  *
  * The visitor enters one amount (total outstanding across their loans) and, optionally, the loan
- * types that apply. The calculator shows two SEPARATE figures:
+ * types that apply. The calculator shows two SEPARATE concepts:
  *   1. an illustrative settlement scenario at a single reference percentage (CONFIG below) —
  *      not a lender offer, prediction or guarantee;
- *   2. the professional fee under the business's stated fee structure (CONFIG below).
+ *   2. the Loan Free service fee estimate under the business's stated fee structure (CONFIG below):
+ *      a MONTHLY professional fee, payable for CONFIG.PAYMENT_MONTHS months, with service coverage
+ *      for CONFIG.SERVICE_MONTHS months.
  * They are never added together into one payable amount.
  *
  * Every business number lives in CONFIG. src/templates.mjs reads the same object when the site is
@@ -38,14 +40,30 @@
         // replace this with that range and update the page copy.
         SETTLEMENT_SCENARIO_PERCENT: 30,
 
-        // Professional fee: FLAT-RATE tiers. The rate of the tier the TOTAL falls in applies to the
-        // ENTIRE amount (this is not a progressive / marginal slab). Rates are in basis points
-        // (100 = 1%) so the arithmetic stays exact. Tiers are checked in order; `max` is the upper
-        // bound of the tier and `maxInclusive` says whether an amount exactly equal to it belongs here.
+        // Professional fee: a MONTHLY fee worked out from the TOTAL outstanding amount entered.
+        //   - Below MIN_STANDARD_OUTSTANDING: a FIXED monthly fee (BELOW_MINIMUM_MONTHLY_FEE), not a
+        //     percentage. Our standard engagement starts at MIN_STANDARD_OUTSTANDING, but visitors
+        //     below it can still apply for consideration — they are never shown as ineligible.
+        //   - From MIN_STANDARD_OUTSTANDING: FLAT-RATE tiers. The rate of the tier the TOTAL falls in
+        //     applies to the ENTIRE amount (this is not a progressive / marginal slab).
+        // The same monthly fee (rounded to the nearest rupee) is payable for PAYMENT_MONTHS months;
+        // it is not recalculated on a reducing balance. Services are provided for SERVICE_MONTHS months.
+        MIN_STANDARD_OUTSTANDING: 200000,
+        BELOW_MINIMUM_MONTHLY_FEE: 2000,
+        PAYMENT_MONTHS: 8,
+        SERVICE_MONTHS: 12,
+
+        // Percentage tiers from MIN_STANDARD_OUTSTANDING upwards. Rates are in basis points
+        // (100 = 1%) so the arithmetic stays exact. Tiers are checked in order; `min` is where the
+        // tier starts (documentation and tests), `max` is its upper bound and `maxInclusive` says
+        // whether an amount exactly equal to `max` belongs to this tier rather than the next.
+        //   ₹2,00,000 – ₹10,00,000 inclusive        1%
+        //   above ₹10,00,000 – below ₹1,00,00,000   0.75%
+        //   ₹1,00,00,000 and above                  0.50%
         FEE_TIERS: [
-            { id: 'tier-1', bps: 100, max: 1000000, maxInclusive: true, label: 'Up to and including ₹10,00,000' },
-            { id: 'tier-2', bps: 75, max: 10000000, maxInclusive: false, label: 'Above ₹10,00,000 and below ₹1,00,00,000' },
-            { id: 'tier-3', bps: 50, max: Infinity, maxInclusive: false, label: '₹1,00,00,000 and above' }
+            { id: 'tier-1', bps: 100, min: 200000, max: 1000000, maxInclusive: true, label: '₹2,00,000 to ₹10,00,000 inclusive' },
+            { id: 'tier-2', bps: 75, min: 1000000, max: 10000000, maxInclusive: false, label: 'Above ₹10,00,000 and below ₹1,00,00,000' },
+            { id: 'tier-3', bps: 50, min: 10000000, max: Infinity, maxInclusive: false, label: '₹1,00,00,000 and above' }
         ],
 
         // Guard against typing errors only (₹1,000 crore). It is not a business limit.
@@ -115,8 +133,27 @@
         return { percent: pct, percentLabel: formatPercent(pct), exact: exact, amount: Math.round(exact) };
     }
 
-    // The tier whose rate applies to the whole amount.
+    // The fixed-fee category below the standard threshold, described like the percentage tiers so
+    // the page can list all four bands. Built from CONFIG, never edited directly.
+    var BELOW_STANDARD_TIER = {
+        id: 'tier-0',
+        fixed: true,
+        monthlyFee: CONFIG.BELOW_MINIMUM_MONTHLY_FEE,
+        min: 0,
+        max: CONFIG.MIN_STANDARD_OUTSTANDING,
+        maxInclusive: false,
+        label: 'Below ' + formatINR(CONFIG.MIN_STANDARD_OUTSTANDING)
+    };
+    // Every fee band, in order: the fixed-fee band, then the percentage tiers.
+    var FEE_SCHEDULE = [BELOW_STANDARD_TIER].concat(CONFIG.FEE_TIERS);
+
+    // The band that applies to the total. Boundaries (no overlaps):
+    //   amount <  ₹2,00,000                       fixed fee
+    //   ₹2,00,000 <= amount <= ₹10,00,000         1%
+    //   ₹10,00,000 < amount <  ₹1,00,00,000       0.75%
+    //   amount >= ₹1,00,00,000                    0.50%
     function feeTier(amount) {
+        if (amount < CONFIG.MIN_STANDARD_OUTSTANDING) return BELOW_STANDARD_TIER;
         var tiers = CONFIG.FEE_TIERS;
         for (var i = 0; i < tiers.length; i++) {
             var t = tiers[i];
@@ -125,12 +162,43 @@
         return tiers[tiers.length - 1];
     }
 
-    // Professional fee = total outstanding × the tier rate, applied to the ENTIRE amount,
-    // rounded to the nearest rupee. Taxes or other charges are NOT added.
-    function legalFee(amount) {
+    // Monthly professional fee for a valid total, rounded to the nearest rupee.
+    //   below the standard threshold: the fixed monthly fee;
+    //   otherwise: total outstanding × the tier rate, applied to the ENTIRE amount.
+    // Taxes or other charges are NOT added.
+    function monthlyFee(amount) {
         var tier = feeTier(amount);
+        if (tier.fixed) {
+            return { tier: tier, fixed: true, bps: null, percent: null, percentLabel: null, rateLabel: 'Fixed ' + formatINR(tier.monthlyFee) + '/month', exact: tier.monthlyFee, amount: tier.monthlyFee };
+        }
         var exact = toPaise(amount) * tier.bps / 1000000; // paise × bps / (100 × 10,000) = rupees
-        return { tier: tier, bps: tier.bps, percent: tier.bps / 100, percentLabel: formatPercent(tier.bps / 100), exact: exact, amount: Math.round(exact) };
+        var pct = formatPercent(tier.bps / 100);
+        return { tier: tier, fixed: false, bps: tier.bps, percent: tier.bps / 100, percentLabel: pct, rateLabel: pct + '/month', exact: exact, amount: Math.round(exact) };
+    }
+
+    // The single fee utility used by the page, the build and the tests. Returns null for an empty,
+    // zero, negative or otherwise invalid amount, so no misleading estimate is ever shown.
+    //   monthlyFee  = the monthly fee above (rounded to the nearest rupee)
+    //   totalFee    = monthlyFee × PAYMENT_MONTHS (uses the ROUNDED monthly fee)
+    //   serviceMonths is the service period; it is not a number of payments.
+    function feeEstimate(amount) {
+        if (validateAmount(amount)) return null;
+        var m = monthlyFee(amount);
+        return {
+            outstanding: amount,
+            tier: m.tier,
+            fixed: m.fixed,
+            bps: m.bps,
+            percent: m.percent,
+            percentLabel: m.percentLabel,
+            rateLabel: m.rateLabel,
+            monthlyExact: m.exact,
+            monthlyFee: m.amount,
+            paymentMonths: CONFIG.PAYMENT_MONTHS,
+            totalFee: m.amount * CONFIG.PAYMENT_MONTHS,
+            serviceMonths: CONFIG.SERVICE_MONTHS,
+            belowStandard: amount < CONFIG.MIN_STANDARD_OUTSTANDING
+        };
     }
 
     // Keeps only known loan types, without duplicates, in the order they are listed.
@@ -153,7 +221,7 @@
         var types = normaliseLoanTypes(loanTypes);
         var err = validateAmount(amount);
         var out = { ok: !err, error: err, message: err ? MESSAGES[err] : '', loanTypes: types, results: null };
-        if (!err) out.results = { outstanding: amount, settlement: settlementScenario(amount), fee: legalFee(amount) };
+        if (!err) out.results = { outstanding: amount, settlement: settlementScenario(amount), fee: feeEstimate(amount) };
         return out;
     }
 
@@ -167,6 +235,14 @@
         } catch (e) {
             return '₹' + groupIndian(String(Math.round(n)));
         }
+    }
+    // Short form for prose: 200000 -> "₹2 lakh", 1000000 -> "₹10 lakh", 10000000 -> "₹1 crore",
+    // 15000000 -> "₹1.5 crore". Below ₹1 lakh it falls back to formatINR.
+    function formatShortINR(n) {
+        var short = function (x) { return String(Number(x.toFixed(2))); };
+        if (n >= 1e7) return '₹' + short(n / 1e7) + ' crore';
+        if (n >= 1e5) return '₹' + short(n / 1e5) + ' lakh';
+        return formatINR(n);
     }
     // 1 -> "1%", 0.75 -> "0.75%", 0.5 -> "0.50%", 30 -> "30%".
     function formatPercent(p) {
@@ -350,25 +426,38 @@
                 row.classList.toggle('is-active', on);
                 if (on) row.setAttribute('aria-current', 'true'); else row.removeAttribute('aria-current');
             });
+            var below = $('[data-r="below-note"]', out);
+            if (below) below.hidden = !(r && r.fee.belowStandard);
             if (!r) {
-                ['outstanding', 'settlement', 'fee', 'fee-percent'].forEach(function (k) { set(k, '—'); });
+                ['outstanding', 'settlement', 'fee-outstanding', 'fee-rate', 'fee-monthly', 'fee-total'].forEach(function (k) { set(k, '—'); });
                 set('status', parsed.empty ? 'Enter your total outstanding loan amount to see your results.' : 'Please correct the amount above to see your results.');
                 set('settlement-text', 'Shown as ' + formatPercent(CONFIG.SETTLEMENT_SCENARIO_PERCENT) + ' of your total outstanding, for illustration only.');
-                set('fee-calc', 'The rate depends on your total outstanding amount.');
+                set('fee-calc', 'The monthly fee depends on your total outstanding amount.');
+                set('fee-plan', 'Monthly fee × ' + CONFIG.PAYMENT_MONTHS + ' months');
                 set('fee-tier', '');
                 announce(parsed.empty ? '' : MESSAGES[errKey || calc.error] || '');
                 return;
             }
             var s = r.settlement, f = r.fee;
+            var monthly = formatINR(f.monthlyFee), total = formatINR(f.totalFee);
             set('status', 'Based on a total outstanding of ' + formatINR(r.outstanding) + '. Results update as you type.');
             set('outstanding', formatINR(r.outstanding));
             set('settlement', formatINR(s.amount));
             set('settlement-text', 'At a ' + s.percentLabel + ' illustrative scenario, the amount would be approximately ' + formatINR(s.amount) + '.');
-            set('fee-percent', f.percentLabel);
-            set('fee', formatINR(f.amount));
-            set('fee-calc', formatINR(r.outstanding) + ' × ' + f.percentLabel + ' = ' + formatINR(f.amount));
-            set('fee-tier', 'Your total falls in the tier “' + f.tier.label + '”, so ' + f.percentLabel + ' applies to the entire amount.');
-            announce('Illustrative settlement scenario at ' + s.percentLabel + ': ' + formatINR(s.amount) + '. Our applicable professional fee at ' + f.percentLabel + ': ' + formatINR(f.amount) + '.');
+            set('fee-outstanding', formatINR(f.outstanding));
+            set('fee-rate', f.rateLabel);
+            set('fee-monthly', monthly);
+            set('fee-calc', f.fixed
+                ? 'A fixed fee applies to totals ' + f.tier.label.charAt(0).toLowerCase() + f.tier.label.slice(1) + '.'
+                : formatINR(f.outstanding) + ' × ' + f.percentLabel + ' = ' + monthly + ' per month');
+            set('fee-plan', monthly + ' × ' + f.paymentMonths + ' months');
+            set('fee-total', total);
+            set('fee-tier', f.fixed
+                ? 'Your total falls in the tier “' + f.tier.label + '”, so a fixed fee of ' + monthly + ' per month applies.'
+                : 'Your total falls in the tier “' + f.tier.label + '”, so ' + f.percentLabel + ' per month applies to the entire amount.');
+            announce('Illustrative settlement scenario at ' + s.percentLabel + ': ' + formatINR(s.amount) + '. '
+                + 'Our professional fee: ' + monthly + ' per month for ' + f.paymentMonths + ' months, ' + total + ' in total, with ' + f.serviceMonths + ' months of service.'
+                + (f.belowStandard ? ' Your amount is below our standard ' + formatShortINR(CONFIG.MIN_STANDARD_OUTSTANDING) + ' threshold; you can still apply for consideration.' : ''));
             if (!tracked && typeof window !== 'undefined' && typeof window.gtag === 'function') {
                 // One aggregate event per page view. No amounts, loan types, results or personal data.
                 tracked = true;
@@ -411,6 +500,7 @@
         CONFIG: CONFIG,
         SETTLEMENT_SCENARIO_PERCENT: CONFIG.SETTLEMENT_SCENARIO_PERCENT,
         FEE_TIERS: CONFIG.FEE_TIERS,
+        FEE_SCHEDULE: FEE_SCHEDULE,
         LOAN_TYPES: CONFIG.LOAN_TYPES,
         MAX_AMOUNT: CONFIG.MAX_AMOUNT,
         MESSAGES: MESSAGES,
@@ -418,11 +508,13 @@
         validateAmount: validateAmount,
         settlementScenario: settlementScenario,
         feeTier: feeTier,
-        legalFee: legalFee,
+        monthlyFee: monthlyFee,
+        feeEstimate: feeEstimate,
         calculate: calculate,
         normaliseLoanTypes: normaliseLoanTypes,
         loanTypeLabels: loanTypeLabels,
         formatINR: formatINR,
+        formatShortINR: formatShortINR,
         formatPercent: formatPercent,
         groupIndian: groupIndian,
         formatAmountInput: formatAmountInput,

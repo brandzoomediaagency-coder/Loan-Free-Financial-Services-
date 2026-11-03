@@ -2,6 +2,8 @@
 
 Date: 3 Nov 2026 · Branch: `claude/serene-newton-af01oj` (from `main` at `753e402`) · URL: `/settlement-calculator.html` (unchanged)
 
+> **Fee model superseded, 3 Nov 2026.** The fee in §5 is now a **monthly** fee payable for 8 months, with a fixed ₹2,000 a month below ₹2 lakh and 12 months of service. See `docs/CALCULATOR_PRICING_UPDATE_REPORT.md`. Everything else in this report still applies.
+
 **Status: merged to `main` on 3 Nov 2026 with the owner's approval** (brandzoomediaagency-coder/Loan-Free-Financial-Services-#4). Vercel builds production from `main`. The live site could not be checked from the build environment, so please confirm it in Vercel and in a browser. The business and legal decisions in §9 are still open.
 
 **Update, 3 Nov 2026 — unsecured loans only.** The business provides settlement services for unsecured loans only. The changes:

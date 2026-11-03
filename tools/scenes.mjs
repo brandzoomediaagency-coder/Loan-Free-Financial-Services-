@@ -81,16 +81,17 @@ svc('svc-closure', 'Loan closure documentation', 'Illustration: a no-dues letter
   `<g filter="url(#sh2)">${iconCircle(212, 236, 30, C.green, tick(197, 237, 1.5, '#fff'))}</g>`);
 
 // Calculator illustration: one input (total outstanding, with loan-type tags) leading to two SEPARATE
-// cards — the illustrative settlement scenario and the professional fee. The example figures are
-// computed from src/js/calculator.js CONFIG so the picture always matches the calculator.
+// cards — the illustrative settlement scenario and the monthly professional fee (payable for
+// PAYMENT_MONTHS months, with SERVICE_MONTHS months of service). The example figures are computed
+// from src/js/calculator.js CONFIG so the picture always matches the calculator.
 const CALC = createRequire(import.meta.url)('../src/js/calculator.js');
 S['calculator-planning'] = () => {
   const ex = CALC.calculate(1000000, []).results;
-  const pct = ex.settlement.percentLabel, rate = ex.fee.percentLabel;
+  const pct = ex.settlement.percentLabel, rate = ex.fee.percentLabel, f = ex.fee;
   const pill = (x, y, w, label, fill, color) => `${R(x, y, w, 24, fill, 12)}${T(x + w / 2, y + 17, label, 13, color, 700, 'middle')}`;
   const tag = (x, y, w, label) => `${R(x, y, w, 22, C.greenXL, 11)}${T(x + w / 2, y + 15, label, 11, C.green, 700, 'middle')}`;
-  return svg(560, 420, 'An illustrative settlement scenario and our professional fee, shown separately',
-    `Illustration: a total outstanding amount of ${CALC.formatINR(ex.outstanding)} with loan-type tags leads to two separate cards — an illustrative settlement scenario at ${pct} and the professional fee at ${rate} — beside a calculator. The figures are examples, not offers or guarantees.`,
+  return svg(560, 420, 'An illustrative settlement scenario and our monthly professional fee, shown separately',
+    `Illustration: a total outstanding amount of ${CALC.formatINR(ex.outstanding)} with loan-type tags leads to two separate cards — an illustrative settlement scenario at ${pct}, and a monthly professional fee at ${rate} (${CALC.formatINR(f.monthlyFee)} × ${f.paymentMonths} months = ${CALC.formatINR(f.totalFee)}, with ${f.serviceMonths} months of service) — beside a calculator. The figures are examples, not offers or guarantees.`,
     blob(450, 96, 112, C.greenXL) + blob(110, 340, 104, C.goldXL) +
     card(28, 34, 300, 136, `${T(20, 30, 'Total outstanding', 13, '#556070', 600)}
       ${R(20, 42, 260, 44, C.bg, 10, `stroke="${C.line}" stroke-width="1.5"`)}${T(36, 71, '₹', 18, C.navy, 700)}${T(56, 72, CALC.formatINR(ex.outstanding).replace('₹', ''), 20, C.navy, 700)}
@@ -99,9 +100,9 @@ S['calculator-planning'] = () => {
     dashPath('M120 176 C120 200 118 212 118 226', C.goldD) + dashPath('M250 176 C300 200 360 214 386 236', C.green) +
     card(28, 232, 228, 156, `${R(14, 0, 200, 5, C.gold, 2.5)}${T(18, 34, 'Illustrative scenario', 14, C.navy, 700)}${pill(18, 48, 52, pct, C.gold, C.navy)}
       ${T(18, 106, CALC.formatINR(ex.settlement.amount), 26, C.navy, 700)}${lines(18, 124, 180, 2, 11, C.line, .55)}`) +
-    card(276, 244, 256, 156, `${R(14, 0, 228, 5, C.green, 2.5)}${T(18, 34, 'Professional fee', 14, C.navy, 700)}${pill(18, 48, 46, rate, C.green, '#fff')}
-      ${T(18, 106, CALC.formatINR(ex.fee.amount), 26, C.green, 700)}
-      ${R(18, 122, 220, 9, C.green, 4.5)}${R(18, 136, 220, 6, C.line, 3)}${R(18, 146, 220, 6, C.line, 3)}`)
+    card(276, 244, 256, 156, `${R(14, 0, 228, 5, C.green, 2.5)}${T(18, 30, 'Monthly fee', 14, C.navy, 700)}${pill(18, 40, 86, rate + ' / mo', C.green, '#fff')}
+      ${T(18, 94, CALC.formatINR(f.monthlyFee), 24, C.green, 700)}${T(18, 115, `× ${f.paymentMonths} months = ${CALC.formatINR(f.totalFee)}`, 13, C.navy, 700)}
+      ${tag(18, 126, 150, `${f.serviceMonths} months of service`)}`)
   );
 };
 
