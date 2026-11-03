@@ -1,5 +1,6 @@
 // Browser test of the Loan Settlement & Legal Fee Calculator on its own page and on the homepage:
-// live results and Indian formatting, fee-tier boundaries, empty/invalid input, the loan-type
+// live results and Indian formatting, the Loan Free service fee estimate (monthly fee, 8-month
+// payment plan, 12-month service coverage, below-₹2-lakh message), fee-tier boundaries, empty/invalid input, the loan-type
 // multi-select (mouse, keyboard, outside click, Escape, select/clear all, chips), responsive
 // dropdown fit at 375–1440 px, the consultation/WhatsApp CTAs and the lead-form WhatsApp fallback,
 // and privacy (no entered value in any request, the URL, storage, the console or analytics).
@@ -59,7 +60,9 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   // Empty state: no misleading zero values.
   const empty = await p.evaluate(() => [...document.querySelectorAll('[data-calc-results] [data-r]')].map((e) => e.textContent).join(' | '));
   out('empty state: no ₹0 values, helpful prompt shown', !/₹0\b/.test(empty) && /Enter your total outstanding loan amount/.test(empty));
-  out('empty state: fee percentage and amounts show a dash', (await text(p, 'fee')) === '—' && (await text(p, 'settlement')) === '—' && (await text(p, 'fee-percent')) === '—');
+  out('empty state: fee rate and amounts show a dash', (await text(p, 'fee-monthly')) === '—' && (await text(p, 'fee-total')) === '—' && (await text(p, 'settlement')) === '—' && (await text(p, 'fee-rate')) === '—');
+  out('empty state: no below-₹2-lakh message', !(await p.locator('[data-r="below-note"]').isVisible()));
+  out('empty state: payment and service durations shown as policy (8 / 12 months)', /Payment duration\s*8 months\s*Service duration\s*12 months/.test(await p.locator('.calc-cover-list').innerText()));
 
   // ₹10 lakh example from the brief, typed key by key.
   await typeAmount(p, '1000000');
@@ -67,14 +70,38 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   out('₹10,00,000: outstanding shown', (await text(p, 'outstanding')) === '₹10,00,000');
   out('₹10,00,000: settlement scenario ₹3,00,000 at 30%', (await text(p, 'settlement')) === '₹3,00,000' && (await p.locator('.calc-card-settle .calc-pill').innerText()) === '30%');
   out('₹10,00,000: supporting sentence', (await text(p, 'settlement-text')) === 'At a 30% illustrative scenario, the amount would be approximately ₹3,00,000.');
-  out('₹10,00,000: fee 1% = ₹10,000', (await text(p, 'fee-percent')) === '1%' && (await text(p, 'fee')) === '₹10,000', await text(p, 'fee-calc'));
-  out('₹10,00,000: first tier highlighted', await p.locator('[data-tier="tier-1"]').evaluate((e) => e.classList.contains('is-active') && e.getAttribute('aria-current') === 'true'));
+  out('₹10,00,000: fee estimate shows the outstanding amount', (await text(p, 'fee-outstanding')) === '₹10,00,000');
+  out('₹10,00,000: 1%/month = ₹10,000 a month', (await text(p, 'fee-rate')) === '1%/month' && (await text(p, 'fee-monthly')) === '₹10,000', await text(p, 'fee-calc'));
+  out('₹10,00,000: calculation line', (await text(p, 'fee-calc')) === '₹10,00,000 × 1% = ₹10,000 per month');
+  out('₹10,00,000: payment plan ₹10,000 × 8 months, total ₹80,000', (await text(p, 'fee-plan')) === '₹10,000 × 8 months' && (await text(p, 'fee-total')) === '₹80,000');
+  out('₹10,00,000: 12 months of service shown prominently', /12 months\s*of service/.test(await p.locator('.calc-cover').innerText()));
+  out('₹10,00,000: second band (₹2 lakh–₹10 lakh) highlighted', await p.locator('[data-tier="tier-1"]').evaluate((e) => e.classList.contains('is-active') && e.getAttribute('aria-current') === 'true'));
+  out('₹10,00,000: no below-₹2-lakh message', !(await p.locator('[data-r="below-note"]').isVisible()));
+  out('settlement and fee cards are separate elements', (await p.locator('.calc-card-settle [data-r="fee-total"], .calc-card-fee [data-r="settlement"]').count()) === 0);
 
-  // Boundaries and examples through the UI.
-  for (const [v, settle, pct, fee] of [['2500000', '₹7,50,000', '0.75%', '₹18,750'], ['1000001', '₹3,00,000', '0.75%', '₹7,500'], ['9999999', '₹30,00,000', '0.75%', '₹75,000'], ['10000000', '₹30,00,000', '0.50%', '₹50,000'], ['15000000', '₹45,00,000', '0.50%', '₹75,000'], ['5000000000', '₹1,50,00,00,000', '0.50%', '₹2,50,00,000']]) {
+  // Below ₹2 lakh: fixed fee, application message, never blocked.
+  await p.fill('#calc-amount', '150000');
+  out('₹1,50,000: fixed ₹2,000/month, ₹2,000 × 8 months = ₹16,000', (await text(p, 'fee-rate')) === 'Fixed ₹2,000/month' && (await text(p, 'fee-monthly')) === '₹2,000' && (await text(p, 'fee-plan')) === '₹2,000 × 8 months' && (await text(p, 'fee-total')) === '₹16,000');
+  const belowMsg = await p.locator('[data-r="below-note"]').innerText().catch(() => '');
+  out('₹1,50,000: below-₹2-lakh application message shown', await p.locator('[data-r="below-note"]').isVisible() && belowMsg.trim() === 'Your outstanding amount is below our standard ₹2 lakh service threshold. You can still submit an application for consideration. Our fixed professional fee for this category is ₹2,000 per month for 8 months, with service coverage for 12 months.', belowMsg.slice(0, 60));
+  out('₹1,50,000: no error, input valid, fixed band highlighted', (await p.getAttribute('#calc-amount', 'aria-invalid')) === 'false' && await p.locator('[data-tier="tier-0"]').evaluate((e) => e.classList.contains('is-active')));
+  out('₹1,50,000: consultation and WhatsApp CTAs still available', await p.locator('.calc-cta [data-lf-consult]').isVisible() && await p.locator('.calc-cta a[href^="https://wa.me/"]').isVisible());
+
+  // Boundaries and examples through the UI: [input, settlement, rate, monthly, total, below-₹2-lakh message].
+  for (const [v, settle, rate, monthly, total, below] of [
+    ['1', '₹0', 'Fixed ₹2,000/month', '₹2,000', '₹16,000', true],
+    ['199999', '₹60,000', 'Fixed ₹2,000/month', '₹2,000', '₹16,000', true],
+    ['200000', '₹60,000', '1%/month', '₹2,000', '₹16,000', false],
+    ['500000', '₹1,50,000', '1%/month', '₹5,000', '₹40,000', false],
+    ['1000001', '₹3,00,000', '0.75%/month', '₹7,500', '₹60,000', false],
+    ['2500000', '₹7,50,000', '0.75%/month', '₹18,750', '₹1,50,000', false],
+    ['9999999', '₹30,00,000', '0.75%/month', '₹75,000', '₹6,00,000', false],
+    ['10000000', '₹30,00,000', '0.50%/month', '₹50,000', '₹4,00,000', false],
+    ['15000000', '₹45,00,000', '0.50%/month', '₹75,000', '₹6,00,000', false],
+    ['5000000000', '₹1,50,00,00,000', '0.50%/month', '₹2,50,00,000', '₹20,00,00,000', false]]) {
     await p.fill('#calc-amount', v);
-    const got = [await text(p, 'settlement'), await text(p, 'fee-percent'), await text(p, 'fee')];
-    out(`₹${v}: ${settle} / ${pct} / ${fee}`, got[0] === settle && got[1] === pct && got[2] === fee, got.join(' '));
+    const got = [await text(p, 'settlement'), await text(p, 'fee-rate'), await text(p, 'fee-monthly'), await text(p, 'fee-total'), await p.locator('[data-r="below-note"]').isVisible()];
+    out(`₹${v}: ${settle} / ${rate} / ${monthly} × 8 = ${total}${below ? ' / below-₹2-lakh message' : ''}`, got[0] === settle && got[1] === rate && got[2] === monthly && got[3] === total && got[4] === below, got.join(' '));
   }
 
   // Caret stays beside the digit being typed when grouping changes.
@@ -89,7 +116,7 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
     await p.fill('#calc-amount', v);
     const st = await p.evaluate(() => ({ err: document.querySelector('[data-calc-amount-error]'), inv: document.getElementById('calc-amount').getAttribute('aria-invalid') }));
     const msg = await p.locator('[data-calc-amount-error]').innerText().catch(() => '');
-    out(`invalid "${v}": message, aria-invalid, no results`, re.test(msg) && st.inv === 'true' && (await text(p, 'fee')) === '—' && (await text(p, 'settlement')) === '—', msg);
+    out(`invalid "${v}": message, aria-invalid, no results or fee estimate`, re.test(msg) && st.inv === 'true' && (await text(p, 'fee-monthly')) === '—' && (await text(p, 'fee-total')) === '—' && (await text(p, 'settlement')) === '—' && !(await p.locator('[data-r="below-note"]').isVisible()), msg);
   }
   await p.fill('#calc-amount', '');
   await p.press('#calc-amount', 'Enter');
@@ -110,10 +137,10 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   out('selected options visibly marked', (await p.locator('.calc-ms-opt.is-checked').count()) === 2);
   out('chips list the selected types', (await p.locator('[data-r="chips"] .calc-chip').allInnerTexts()).map((s) => s.trim()).join('|') === 'Credit Card Outstanding|Personal Loan');
   out('results card lists the selected types', (await p.locator('[data-r="types"] li').allInnerTexts()).join('|') === 'Credit Card Outstanding|Personal Loan');
-  out('loan types do not change the figures', (await text(p, 'fee')) === '₹18,750' && (await text(p, 'settlement')) === '₹7,50,000');
+  out('loan types do not change the figures', (await text(p, 'fee-monthly')) === '₹18,750' && (await text(p, 'fee-total')) === '₹1,50,000' && (await text(p, 'settlement')) === '₹7,50,000');
   const offered = (await p.locator('.calc-ms-opt').allInnerTexts()).map((s) => s.trim());
   out('only unsecured loan types are offered (7, no home/vehicle/property/gold)', offered.length === 7 && !offered.some((l) => /\b(home|vehicle|car|property|gold)\b/i.test(l)), offered.join(' | '));
-  out('"unsecured loans only" scope note is shown', /Unsecured loans only/.test(await p.locator('.calc-note').innerText()));
+  out('"unsecured loans only" scope note is shown', /Unsecured loans only/.test(await p.locator('.calc-inputs .calc-note').innerText()));
   await p.locator('.calc-ms-opt', { hasText: 'Business Loan (unsecured)' }).click();
   await p.mouse.click(5, 300);
   out('click outside closes the dropdown', (await toggle.getAttribute('aria-expanded')) === 'false' && !(await panel.isVisible()));
@@ -149,7 +176,9 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   await typeAmount(p, '7342191');
   await p.locator('#calc-amount').blur();
   await p.waitForTimeout(1500);
-  const needles = ['7342191', '73,42,191', '73%2C42%2C191', '2202657', '22,02,657', '55066', '55,066', 'consumer-durable', 'Consumer Durable', 'Consumer%20Durable'];
+  // 0.75% of ₹73,42,191 = ₹55,066 a month; × 8 = ₹4,40,528. 30% = ₹22,02,657.
+  out('privacy amount: fee figures as expected', (await text(p, 'fee-monthly')) === '₹55,066' && (await text(p, 'fee-total')) === '₹4,40,528');
+  const needles = ['7342191', '73,42,191', '73%2C42%2C191', '2202657', '22,02,657', '55066', '55,066', '440528', '4,40,528', '4%2C40%2C528', 'consumer-durable', 'Consumer Durable', 'Consumer%20Durable'];
   const leak = requests.filter((u) => needles.some((n) => u.includes(n)));
   out('no network request contains an amount, result or loan type', leak.length === 0, leak[0] ? leak[0].slice(0, 90) : `${requests.length} requests checked`);
   out('URL unchanged (no query string or hash with values)', p.url() === startUrl);
@@ -167,7 +196,12 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   }
   out('no page errors', errors.length === 0, errors[0] || '');
 
-  // CTAs.
+  // CTAs and disclaimers.
+  out('CTA below the fee estimate: "Discuss Your Loan Settlement Options"', (await p.locator('.calc-cta-title').innerText()).trim() === 'Discuss Your Loan Settlement Options'
+    && /service process, applicable fees and options for your loan account/.test(await p.locator('.calc-cta-copy p').innerText())
+    && await p.evaluate(() => !!(document.querySelector('.calc-card-fee').compareDocumentPosition(document.querySelector('.calc-cta')) & Node.DOCUMENT_POSITION_FOLLOWING)));
+  const disc = await p.locator('.calc-disclaimer').innerText();
+  out('existing disclaimer kept and fee disclaimer added', /Important Disclaimer:/.test(disc) && /Fee Estimate Disclaimer:/.test(disc) && /paid directly to the lender/.test(disc));
   const wa = await p.locator('.calc-cta a[href^="https://wa.me/"]').getAttribute('href');
   out('WhatsApp CTA uses the existing number and the neutral message', wa.startsWith(`https://wa.me/${WA_NUMBER}?text=`) && decodeURIComponent(wa.split('text=')[1]) === 'Hi, I would like a free consultation about my loan situation.');
   out('no WhatsApp link on the page carries calculator values', !(await p.evaluate(() => [...document.querySelectorAll('a[href^="https://wa.me"]')].map((a) => a.href).join(' '))).match(/7342191|73%2C42|Consumer/));
@@ -196,7 +230,23 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
 console.log('-- responsive dropdown and layout');
 for (const width of [375, 390, 430, 768, 1024, 1440]) {
   const { ctx, p } = await openPage('/settlement-calculator.html', width, { consent: 'essential' });
-  await p.fill('#calc-amount', '1000000000');
+  // Largest accepted amount (₹1,000 crore): every figure must fit inside its own block.
+  await p.fill('#calc-amount', '10000000000');
+  const fit = await p.evaluate(() => {
+    const bad = [];
+    for (const el of document.querySelectorAll('.calc-results .calc-big, .calc-results .calc-mid, .calc-results .calc-plan, .calc-results .calc-pill, .calc-cover strong, .calc-tiers strong')) {
+      const r = el.getBoundingClientRect(), box = el.closest('.calc-fee-block, .calc-card, .calc-tiers').getBoundingClientRect();
+      if (el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).display !== 'inline') bad.push(el.dataset.r || el.className);
+      if (r.left < box.left - 1 || r.right > box.right + 1) bad.push((el.dataset.r || el.className) + ' outside');
+    }
+    const blocks = [...document.querySelectorAll('.calc-fee-block')].map((b) => b.getBoundingClientRect());
+    for (let i = 0; i < blocks.length; i++) for (let j = i + 1; j < blocks.length; j++) {
+      const a = blocks[i], b = blocks[j];
+      if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) bad.push(`blocks ${i} and ${j} overlap`);
+    }
+    return { bad, monthly: document.querySelector('[data-r="fee-monthly"]').textContent, total: document.querySelector('[data-r="fee-total"]').textContent };
+  });
+  out(`${width}px: ₹1,000 crore fee values fit their blocks, blocks do not overlap`, fit.bad.length === 0 && fit.total === '₹40,00,00,000', fit.bad.slice(0, 3).join(', ') || `${fit.monthly} / ${fit.total}`);
   await p.locator('[data-ms-toggle]').click();
   await p.waitForTimeout(900); // the site uses smooth scrolling; let it settle before measuring
   const r = await p.evaluate(() => {
@@ -210,7 +260,7 @@ for (const width of [375, 390, 430, 768, 1024, 1440]) {
       .map((e) => e.className || e.tagName);
     return { overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, left: panel.left, right: panel.right, top: panel.top, header, doneBottom: done.bottom, barTop, tiny };
   });
-  out(`${width}px: no horizontal overflow (₹100 crore entered, dropdown open)`, r.overflow === 0, `overflow ${r.overflow}`);
+  out(`${width}px: no horizontal overflow (₹1,000 crore entered, dropdown open)`, r.overflow === 0, `overflow ${r.overflow}`);
   out(`${width}px: dropdown within the screen width`, r.left >= 0 && r.right <= width);
   out(`${width}px: dropdown not under the header, Done button above the call bar`, r.top >= r.header - 1 && r.doneBottom <= r.barTop + 1, `top ${Math.round(r.top)} header ${Math.round(r.header)} done ${Math.round(r.doneBottom)} bar ${Math.round(r.barTop)}`);
   out(`${width}px: touch targets at least 44px tall`, r.tiny.length === 0, r.tiny.slice(0, 3).join(','));

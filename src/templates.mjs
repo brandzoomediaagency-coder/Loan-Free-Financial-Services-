@@ -510,7 +510,7 @@ export function calculatorPromo() {
   return `<aside class="calc-promo" aria-label="Loan settlement and legal fee calculator">
     <img src="/assets/illustrations/calculator-planning.svg" width="560" height="420" loading="lazy" alt="">
     <div><p class="calc-promo-title">Try the settlement &amp; fee calculator</p>
-    <p>Enter your total outstanding to see an illustrative ${CALC.formatPercent(CALC.CONFIG.SETTLEMENT_SCENARIO_PERCENT)} settlement scenario and our applicable professional fee. Private, and never a prediction of what a lender will accept.</p>
+    <p>Enter your total outstanding to see an illustrative ${CALC.formatPercent(CALC.CONFIG.SETTLEMENT_SCENARIO_PERCENT)} settlement scenario and our monthly professional fee, payable for ${CALC.CONFIG.PAYMENT_MONTHS} months with ${CALC.CONFIG.SERVICE_MONTHS} months of service. Private, and never a prediction of what a lender will accept.</p>
     <a class="btn btn-outline btn-sm" href="/settlement-calculator.html"><i class="fas fa-chart-line"></i> Open the calculator</a></div>
 </aside>`;
 }
@@ -518,16 +518,20 @@ export function calculatorPromo() {
 // Loan Settlement & Legal Fee Calculator (src/js/calculator.js binds it and holds every business
 // number in CONFIG). Used on the calculator page and the homepage. Two inputs: the total outstanding
 // amount and an optional multi-select of loan types. The illustrative settlement scenario and the
-// professional fee are shown in separate cards and never added together.
+// Loan Free service fee estimate (monthly fee × payment months, plus the service period) are shown
+// in separate cards and never added together.
 const CALC = createRequire(import.meta.url)('./js/calculator.js');
 const pctLabel = () => CALC.formatPercent(CALC.CONFIG.SETTLEMENT_SCENARIO_PERCENT);
+// "Fixed ₹2,000/month" for the fixed band, "1%/month" for a percentage tier.
+const tierRate = (tr) => tr.fixed ? `Fixed ${CALC.formatINR(tr.monthlyFee)}/month` : `${CALC.formatPercent(tr.bps / 100)}/month`;
 
 export function calculator({ h = 2 } = {}) {
-  const H = `h${h}`, HC = `h${h + 1}`;
+  const H = `h${h}`, HC = `h${h + 1}`, HB = `h${h + 2}`;
   const C = CALC.CONFIG;
   const pct = pctLabel();
+  const P = C.PAYMENT_MONTHS, S = C.SERVICE_MONTHS;
   const options = C.LOAN_TYPES.map((lt) => `<li><label class="calc-ms-opt"><input type="checkbox" value="${lt.id}" data-loan-type><span class="calc-ms-box" aria-hidden="true"><i class="fas fa-check"></i></span><span>${esc(lt.label)}</span></label></li>`).join('');
-  const tiers = C.FEE_TIERS.map((tr) => `<li data-tier="${tr.id}"><span>${esc(tr.label)} <span class="calc-tier-tag">Your tier</span></span><strong>${CALC.formatPercent(tr.bps / 100)}</strong></li>`).join('');
+  const tiers = CALC.FEE_SCHEDULE.map((tr) => `<li data-tier="${tr.id}"><span>${esc(tr.label)} <span class="calc-tier-tag">Your tier</span></span><strong>${tierRate(tr)}</strong></li>`).join('');
   return `<div class="calc" data-lf-calc>
   <div class="calc-shell">
     <form class="calc-inputs" data-calc-form novalidate autocomplete="off" aria-labelledby="calc-inputs-title">
@@ -583,16 +587,53 @@ export function calculator({ h = 2 } = {}) {
           <p class="calc-text" data-r="settlement-text">Shown as ${pct} of your total outstanding, for illustration only.</p>
           <p class="calc-caution"><i class="fas fa-triangle-exclamation"></i><span>Illustration only — not a lender-approved offer or a guaranteed outcome. Lenders decide each case: an actual settlement, if offered, may be for a different amount.</span></p>
         </div>
-        <div class="calc-card calc-card-fee">
-          <div class="calc-card-head"><span class="calc-card-icon"><i class="fas fa-scale-balanced"></i></span><${HC} class="calc-card-title">Our applicable legal / professional fee</${HC}></div>
-          <dl class="calc-figures">
-            <div><dt>Applicable fee percentage</dt><dd><span class="calc-pill" data-r="fee-percent">—</span></dd></div>
-            <div class="calc-fig-main"><dt>Estimated fee</dt><dd class="calc-big" data-r="fee">—</dd></div>
-          </dl>
-          <p class="calc-text" data-r="fee-calc">The rate depends on your total outstanding amount.</p>
-          <p class="calc-text calc-tier-text" data-r="fee-tier"></p>
-          <ul class="calc-tiers" aria-label="Our fee structure">${tiers}</ul>
-          <p class="calc-fine">The fee is calculated according to the total outstanding amount and our stated fee structure. Applicable taxes, if any, are not included and will be confirmed before engagement. This fee is separate from any amount paid to your lender.</p>
+        <div class="calc-card calc-card-fee" id="calc-fee-estimate">
+          <div class="calc-card-head"><span class="calc-card-icon"><i class="fas fa-scale-balanced"></i></span><${HC} class="calc-card-title">Your Loan Free Service Fee Estimate</${HC}></div>
+          <p class="calc-text calc-fee-intro">Our professional fee for your total outstanding. It is separate from any amount paid to your lender.</p>
+          <div class="calc-fee-grid">
+            <div class="calc-fee-block">
+              <${HB} class="calc-fee-label">Total outstanding loan</${HB}>
+              <p class="calc-mid" data-r="fee-outstanding">—</p>
+              <p class="calc-fine">The amount you entered above.</p>
+            </div>
+            <div class="calc-fee-block">
+              <${HB} class="calc-fee-label">Our monthly professional fee</${HB}>
+              <dl class="calc-figures">
+                <div><dt>Applicable rate</dt><dd><span class="calc-pill" data-r="fee-rate">—</span></dd></div>
+                <div class="calc-fig-main"><dt>Monthly fee</dt><dd class="calc-big" data-r="fee-monthly">—</dd></div>
+              </dl>
+              <p class="calc-text" data-r="fee-calc">The monthly fee depends on your total outstanding amount.</p>
+            </div>
+            <div class="calc-fee-block">
+              <${HB} class="calc-fee-label">Your payment plan</${HB}>
+              <p class="calc-text">Pay the applicable monthly fee for ${P} months.</p>
+              <dl class="calc-figures">
+                <div><dt>Payment plan</dt><dd class="calc-plan" data-r="fee-plan">Monthly fee × ${P} months</dd></div>
+                <div class="calc-fig-main"><dt>Total fee payable</dt><dd class="calc-big" data-r="fee-total">—</dd></div>
+              </dl>
+            </div>
+            <div class="calc-fee-block calc-fee-cover">
+              <${HB} class="calc-fee-label">Service coverage</${HB}>
+              <p class="calc-cover"><strong>${S} months</strong> <span>of service</span></p>
+              <dl class="calc-cover-list">
+                <div><dt>Payment duration</dt><dd>${P} months</dd></div>
+                <div><dt>Service duration</dt><dd>${S} months</dd></div>
+              </dl>
+              <p class="calc-cover-text">Receive service coverage for ${S} months while paying the applicable professional fee for only ${P} months.</p>
+            </div>
+          </div>
+          <p class="calc-note calc-below-note" data-r="below-note" hidden><i class="fas fa-circle-info"></i><span>Your outstanding amount is below our standard ${CALC.formatShortINR(C.MIN_STANDARD_OUTSTANDING)} service threshold. You can still submit an application for consideration. Our fixed professional fee for this category is ${CALC.formatINR(C.BELOW_MINIMUM_MONTHLY_FEE)} per month for ${P} months, with service coverage for ${S} months.</span></p>
+          <div class="calc-fee-foot">
+            <div class="calc-fee-tiers">
+              <p class="calc-text calc-tier-text" data-r="fee-tier"></p>
+              <ul class="calc-tiers" aria-label="Our monthly fee structure">${tiers}</ul>
+            </div>
+            <div class="calc-why">
+              <${HB} class="calc-why-title">Why Do We Charge for ${P} Months and Provide ${S} Months of Service?</${HB}>
+              <p>At Loan Free Financial Services, our service plan is structured to provide support for ${S} months while the applicable professional fee is payable over ${P} months. This gives clients a defined service period and a clear payment schedule.</p>
+            </div>
+          </div>
+          <p class="calc-fine">The monthly fee is worked out from the total outstanding amount you enter and stays the same for each of the ${P} payment months; it is not recalculated on a reducing balance. Fees are rounded to the nearest rupee. Applicable taxes, if any, are not included and will be confirmed before engagement. This fee is separate from any amount paid to your lender.</p>
         </div>
       </div>
       <p class="calc-privacy"><i class="fas fa-lock"></i> Calculated on your device. Nothing you enter is saved, sent to us, or shared with analytics or advertising services.</p>
@@ -601,8 +642,8 @@ export function calculator({ h = 2 } = {}) {
 
   <div class="calc-cta" data-lf-loc="calculator">
     <div class="calc-cta-copy">
-      <${H} class="calc-cta-title">Want to Explore Your Loan Settlement Options?</${H}>
-      <p>Every loan account is different. Speak with our team to understand the available options and the process applicable to your situation.</p>
+      <${H} class="calc-cta-title">Discuss Your Loan Settlement Options</${H}>
+      <p>Speak with our team to understand the service process, applicable fees and options for your loan account.</p>
     </div>
     <div class="calc-cta-actions">
       <a href="#consult" data-lf-consult class="btn btn-primary"><i class="fas fa-comments"></i> Get a Free Consultation</a>
@@ -613,6 +654,7 @@ export function calculator({ h = 2 } = {}) {
 
   <div class="calc-disclaimer" role="note" aria-label="Important disclaimer">
     <p><strong>Important Disclaimer:</strong> This calculator is for educational and illustrative purposes only. The ${pct} figure is a hypothetical calculation and is not a guaranteed settlement offer or an assurance that any lender will accept a particular amount. Actual settlement terms depend on the lender's decision, account status, financial circumstances and applicable rules. Loan settlement may affect credit reporting and future borrowing eligibility. The professional fee shown is based on the fee structure provided by Loan Free Financial Services and is an estimate. Final terms and applicable charges will be communicated before engagement. Do not stop repayments, ignore lender communications or make financial decisions solely on the basis of this calculator. Consider obtaining independent professional advice.</p>
+    <p><strong>Fee Estimate Disclaimer:</strong> The professional fee shown is an estimate based on the total outstanding loan amount and the fee structure provided by Loan Free Financial Services. The applicable monthly fee is payable for ${P} months, while the service period is ${S} months. Final engagement terms, payment arrangements and any applicable taxes or additional charges, if any, will be communicated before engagement. This fee does not guarantee loan settlement, lender acceptance, a particular waiver amount or a specific timeline. Any settlement amount must be approved by the lender and paid directly to the lender.</p>
     <p>Loan Free Financial Services is not a lender and is not approved by the Reserve Bank of India. Neither the RBI nor any lender has reviewed or endorsed this calculator or our fee structure.</p>
   </div>
 </div>`;
@@ -620,34 +662,76 @@ export function calculator({ h = 2 } = {}) {
 
 // Calculator facts used in page copy, generated from the same CONFIG so the text always matches
 // the arithmetic. Expanded when pages are loaded (before FAQ structured data is extracted):
-//   <!-- lf:calc-percent -->               "30%"
-//   <!-- lf:calc-fee-summary -->           "1% (up to and including ₹10,00,000), 0.75% (...) and 0.50% (...)"
-//   <!-- lf:calc-fee-example 2500000 -->   "₹25,00,000 × 0.75% = ₹18,750"
-//   <!-- lf:calc-fee-table -->             fee structure table
-//   <!-- lf:calc-examples 1000000 2500000 --> worked examples table
+//   <!-- lf:calc-percent -->                        "30%"
+//   <!-- lf:calc-fee-summary -->                    "a fixed ₹2,000 per month (below ₹2,00,000), 1% per month (...), ... and 0.50% per month (...)"
+//   <!-- lf:calc-fee-example 2500000 -->            "₹25,00,000 × 0.75% = ₹18,750 per month, and ₹18,750 × 8 months = ₹1,50,000 in total"
+//   <!-- lf:calc-fee-answer -->                     direct answer: how the fee is worked out (fee bands, 8 months, 12 months)
+//   <!-- lf:calc-value payment-months -->           "8"   (also: service-months, min-standard, min-standard-short, below-fee, below-total)
+//   <!-- lf:calc-fee-table -->                      monthly fee structure table
+//   <!-- lf:calc-fee-examples 150000 200000 -->     fee examples table (monthly fee, payment plan, total, service period)
+//   <!-- lf:calc-settlement-examples 1000000 -->    illustrative settlement scenario examples table
 export function expandCalcTokens(html) {
   if (!html.includes('<!-- lf:calc-')) return html;
   const C = CALC.CONFIG;
+  const inr = CALC.formatINR, short = CALC.formatShortINR;
   const rate = (tr) => CALC.formatPercent(tr.bps / 100);
   const lower = (s) => s.charAt(0).toLowerCase() + s.slice(1);
-  const feeExample = (n) => { const f = CALC.legalFee(n); return `${CALC.formatINR(n)} × ${f.percentLabel} = ${CALC.formatINR(f.amount)}`; };
-  const summary = C.FEE_TIERS.map((tr) => `${rate(tr)} (${lower(tr.label)})`);
+  const P = C.PAYMENT_MONTHS, S = C.SERVICE_MONTHS;
+  const est = (n) => CALC.feeEstimate(n);
+  const values = {
+    'payment-months': String(P),
+    'service-months': String(S),
+    'min-standard': inr(C.MIN_STANDARD_OUTSTANDING),
+    'min-standard-short': short(C.MIN_STANDARD_OUTSTANDING),
+    'below-fee': inr(C.BELOW_MINIMUM_MONTHLY_FEE),
+    'below-total': inr(C.BELOW_MINIMUM_MONTHLY_FEE * P),
+  };
+  const feeExample = (n) => {
+    const f = est(n);
+    const first = f.fixed ? `${inr(n)} is below ${inr(C.MIN_STANDARD_OUTSTANDING)}, so the fee is a fixed ${inr(f.monthlyFee)} per month` : `${inr(n)} × ${f.percentLabel} = ${inr(f.monthlyFee)} per month`;
+    return `${first}, and ${inr(f.monthlyFee)} × ${P} months = ${inr(f.totalFee)} in total`;
+  };
+  const tierFee = (tr) => tr.fixed ? `a fixed ${inr(tr.monthlyFee)} per month` : `${rate(tr)} per month`;
+  const summary = CALC.FEE_SCHEDULE.map((tr) => `${tierFee(tr)} (${lower(tr.label)})`);
+  // The direct answer is written for the current shape of the fee schedule (a fixed band, then three
+  // contiguous percentage tiers with only the first upper bound inclusive). Fail the build rather than
+  // publish a wrong sentence if that shape changes.
+  const feeAnswer = () => {
+    const [t1, t2, t3] = C.FEE_TIERS;
+    if (C.FEE_TIERS.length !== 3 || t1.min !== C.MIN_STANDARD_OUTSTANDING || t2.min !== t1.max || t3.min !== t2.max || !t1.maxInclusive || t2.maxInclusive) {
+      throw new Error('lf:calc-fee-answer: the fee tiers in src/js/calculator.js changed shape; update feeAnswer() in src/templates.mjs');
+    }
+    return `Loan Free Financial Services calculates its professional fee using the total outstanding loan amount. For outstanding amounts below ${short(C.MIN_STANDARD_OUTSTANDING)}, the fixed fee is ${inr(C.BELOW_MINIMUM_MONTHLY_FEE)} per month. From ${short(t1.min)} to ${short(t1.max)}, the monthly fee is ${rate(t1)}; above ${short(t2.min)} and below ${short(t2.max)}, it is ${rate(t2)}; and at ${short(t3.min)} or above, it is ${rate(t3)}. The applicable monthly fee is payable for ${P} months, while services are provided for ${S} months.`;
+  };
+  const amounts = (list) => list.trim().split(/\s+/).map(Number);
   return html
     .replace(/<!-- lf:calc-percent -->/g, () => pctLabel())
     .replace(/<!-- lf:calc-fee-summary -->/g, () => summary.slice(0, -1).join(', ') + ' and ' + summary[summary.length - 1])
     .replace(/<!-- lf:calc-fee-example (\d+) -->/g, (_, n) => feeExample(Number(n)))
+    .replace(/<!-- lf:calc-fee-answer -->/g, () => feeAnswer())
+    .replace(/<!-- lf:calc-value ([a-z-]+) -->/g, (_, k) => {
+      if (!(k in values)) throw new Error(`Unknown calculator value token: ${k}`);
+      return values[k];
+    })
     .replace(/<!-- lf:calc-fee-table -->/g, () => `<div class="table-wrap">
             <table class="content-table">
-                <caption class="visually-hidden">Professional fee structure</caption>
-                <thead><tr><th scope="col">Total outstanding loan amount</th><th scope="col">Rate applied to the entire amount</th></tr></thead>
-                <tbody>${C.FEE_TIERS.map((tr) => `<tr><th scope="row">${esc(tr.label)}</th><td>${rate(tr)}</td></tr>`).join('')}</tbody>
+                <caption class="visually-hidden">Monthly professional fee structure</caption>
+                <thead><tr><th scope="col">Total outstanding loan amount</th><th scope="col">Monthly professional fee</th></tr></thead>
+                <tbody>${CALC.FEE_SCHEDULE.map((tr) => `<tr><th scope="row">${esc(tr.label)}</th><td>${tr.fixed ? `Fixed ${inr(tr.monthlyFee)} per month` : `${rate(tr)} of the entire total outstanding, per month`}</td></tr>`).join('')}</tbody>
             </table>
         </div>`)
-    .replace(/<!-- lf:calc-examples ([\d ]+) -->/g, (_, list) => `<div class="table-wrap">
+    .replace(/<!-- lf:calc-fee-examples ([\d ]+) -->/g, (_, list) => `<div class="table-wrap">
             <table class="content-table">
-                <caption class="visually-hidden">Worked examples</caption>
-                <thead><tr><th scope="col">Total outstanding</th><th scope="col">Illustrative settlement scenario (${pctLabel()})</th><th scope="col">Fee rate</th><th scope="col">Estimated professional fee</th></tr></thead>
-                <tbody>${list.trim().split(/\s+/).map(Number).map((n) => { const r = CALC.calculate(n, []).results; return `<tr><th scope="row">${CALC.formatINR(n)}</th><td>${CALC.formatINR(r.settlement.amount)}</td><td>${r.fee.percentLabel}</td><td>${CALC.formatINR(r.fee.amount)}</td></tr>`; }).join('')}</tbody>
+                <caption class="visually-hidden">Professional fee examples</caption>
+                <thead><tr><th scope="col">Total outstanding</th><th scope="col">Fee basis</th><th scope="col">Monthly fee</th><th scope="col">Payment plan</th><th scope="col">Total fee payable</th><th scope="col">Service period</th></tr></thead>
+                <tbody>${amounts(list).map((n) => { const f = est(n); return `<tr><th scope="row">${inr(n)}</th><td>${f.fixed ? 'Fixed fee' : f.percentLabel}</td><td>${inr(f.monthlyFee)}</td><td>${inr(f.monthlyFee)} × ${f.paymentMonths} months</td><td>${inr(f.totalFee)}</td><td>${f.serviceMonths} months</td></tr>`; }).join('')}</tbody>
+            </table>
+        </div>`)
+    .replace(/<!-- lf:calc-settlement-examples ([\d ]+) -->/g, (_, list) => `<div class="table-wrap">
+            <table class="content-table">
+                <caption class="visually-hidden">Illustrative settlement scenario examples</caption>
+                <thead><tr><th scope="col">Total outstanding</th><th scope="col">Illustrative settlement scenario (${pctLabel()})</th></tr></thead>
+                <tbody>${amounts(list).map((n) => `<tr><th scope="row">${inr(n)}</th><td>${inr(CALC.settlementScenario(n).amount)}</td></tr>`).join('')}</tbody>
             </table>
         </div>`);
 }

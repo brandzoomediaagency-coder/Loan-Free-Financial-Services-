@@ -993,8 +993,8 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 .calc-results-head .calc-step-title { margin: 0; }
 .calc-status { margin: 0; font-size: .88rem; color: var(--muted); }
 .calc-cards { display: grid; gap: 1rem; }
-@media (min-width: 640px) and (max-width: 959px) { .calc-cards { grid-template-columns: 1fr 1fr; } .calc-card-fee { grid-column: 1 / -1; } }
-@media (min-width: 960px) { .calc-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Loan details and settlement scenario side by side; the fee estimate gets its own full-width row. */
+@media (min-width: 640px) { .calc-cards { grid-template-columns: 1fr 1fr; } .calc-card-fee { grid-column: 1 / -1; } }
 .calc-card { display: flex; flex-direction: column; gap: .75rem; min-width: 0; padding: 1.15rem 1.15rem 1.25rem; border: 1px solid var(--line); border-top: 4px solid var(--navy-800); border-radius: 14px; background: linear-gradient(180deg, var(--bg-soft), #fff 140px); }
 .calc-card-settle { border-color: #F0DDB0; border-top-color: var(--gold-500); background: linear-gradient(180deg, var(--gold-50), #fff 140px); }
 .calc-card-fee { border-color: #CFE6DF; border-top-color: var(--green-600); background: linear-gradient(180deg, var(--green-50), #fff 140px); }
@@ -1033,6 +1033,35 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 .calc-tiers li.is-active .calc-tier-tag { display: inline-block; }
 .calc-fine { margin: auto 0 0; font-size: .78rem; line-height: 1.5; color: var(--muted); }
 .calc-card-fee .calc-tiers + .calc-fine, .calc-card-loan .calc-figures + .calc-fine { margin-top: auto; }
+
+/* Loan Free service fee estimate: four blocks (outstanding, monthly fee, payment plan, service coverage) */
+.calc-fee-grid { display: grid; gap: .75rem; }
+@media (min-width: 640px) { .calc-fee-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .calc-fee-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.calc-fee-block { display: flex; flex-direction: column; gap: .6rem; min-width: 0; padding: .95rem 1rem 1.05rem; border: 1px solid #CFE6DF; border-radius: 12px; background: #fff; }
+.calc-fee-label { margin: 0; font: 600 .76rem/1.35 var(--font-body); letter-spacing: .05em; text-transform: uppercase; color: var(--green-700); }
+.calc-fee-block .calc-fine { margin: 0; }
+.calc-mid { margin: 0; font: 700 clamp(1.3rem, 1.15rem + .6vw, 1.6rem)/1.2 var(--font-heading); color: var(--navy-900); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calc-results.is-empty .calc-mid { color: var(--line-strong); }
+.calc-plan { font-weight: 700; color: var(--navy-900); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calc-fee-cover { border-color: transparent; background: linear-gradient(150deg, var(--navy-800), var(--navy-950)); color: #C9D6E3; }
+.calc-fee-cover .calc-fee-label { color: #7FD6BF; }
+.calc-cover { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .45rem; margin: 0; color: #fff; }
+.calc-cover strong { color: #fff; font: 700 clamp(1.55rem, 1.25rem + 1vw, 2rem)/1.15 var(--font-heading); letter-spacing: -.01em; }
+.calc-cover span { font-weight: 600; }
+.calc-cover-list { display: grid; gap: .3rem; margin: 0; font-size: .86rem; }
+.calc-cover-list div { display: flex; justify-content: space-between; gap: .75rem; padding-top: .3rem; border-top: 1px solid rgba(255, 255, 255, .14); }
+.calc-cover-list dt { color: #9FB1C3; }
+.calc-cover-list dd { margin: 0; color: #fff; font-weight: 600; white-space: nowrap; }
+.calc-cover-text { margin: auto 0 0; font-size: .82rem; line-height: 1.5; }
+.calc-below-note { margin: 0; border-color: #F0DDB0; background: var(--gold-50); }
+.calc-below-note .i { color: var(--gold-700); }
+.calc-fee-foot { display: grid; gap: .75rem; }
+@media (min-width: 960px) { .calc-fee-foot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+.calc-fee-tiers { display: grid; gap: .6rem; min-width: 0; }
+.calc-why { min-width: 0; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.calc-why-title { margin: 0 0 .35rem; font-size: .95rem; line-height: 1.35; }
+.calc-why p { margin: 0; font-size: .86rem; line-height: 1.55; color: var(--ink); }
 .calc-privacy { display: flex; gap: .5rem; align-items: flex-start; margin: 1rem 0 0; font-size: .82rem; color: var(--muted); }
 .calc-privacy .i { flex: none; margin-top: .15em; color: var(--green-600); }
 
