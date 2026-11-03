@@ -23,8 +23,13 @@ test('fee tiers: 1% / 0.75% / 0.50% in one config object', () => {
   assert.deepEqual(C.CONFIG.FEE_TIERS.map((t) => t.bps), [100, 75, 50]);
   assert.equal(C.FEE_TIERS, C.CONFIG.FEE_TIERS);
 });
-test('eleven loan types in the agreed order', () => {
-  assert.deepEqual(C.LOAN_TYPES.map((t) => t.label), ['Credit Card Outstanding', 'Personal Loan', 'Business Loan', 'Education Loan', 'Consumer Durable Loan', 'Vehicle Loan', 'Home Loan', 'Loan Against Property', 'Gold Loan', 'Overdraft / Cash Credit', 'Other']);
+test('only unsecured loan types are offered, in the agreed order', () => {
+  assert.deepEqual(C.LOAN_TYPES.map((t) => t.label), ['Credit Card Outstanding', 'Personal Loan', 'Business Loan (unsecured)', 'Education Loan (unsecured)', 'Consumer Durable Loan', 'Overdraft / Cash Credit (unsecured)', 'Other unsecured loan']);
+});
+test('no secured loan type is offered (home, vehicle, property, gold)', () => {
+  const labels = C.LOAN_TYPES.map((t) => t.label).join(' | ');
+  assert.ok(!/\b(home|vehicle|car|two-wheeler|property|gold|mortgage)\b/i.test(labels), labels);
+  assert.deepEqual(C.normaliseLoanTypes(['home', 'vehicle', 'property', 'gold']), []);
 });
 test('no maximum of ₹1 crore (limit is a typing-error guard of ₹1,000 crore)', () => assert.equal(C.MAX_AMOUNT, 1e10));
 
@@ -98,7 +103,7 @@ test('zero rejected', () => assert.equal(C.parseAmount('0').error, 'zero'));
 test('too large rejected', () => assert.equal(C.parseAmount('99999999999').error, 'too-large'));
 
 console.log('loan types');
-test('multiple selections kept in list order', () => assert.deepEqual(C.normaliseLoanTypes(['home', 'credit-card', 'personal']), ['credit-card', 'personal', 'home']));
+test('multiple selections kept in list order', () => assert.deepEqual(C.normaliseLoanTypes(['education', 'credit-card', 'personal']), ['credit-card', 'personal', 'education']));
 test('duplicates and unknown ids removed', () => assert.deepEqual(C.normaliseLoanTypes(['personal', 'personal', 'crypto']), ['personal']));
 test('removing a type removes it from the results', () => {
   const before = C.calculate(10 * L, ['personal', 'credit-card']).loanTypes;
@@ -106,12 +111,8 @@ test('removing a type removes it from the results', () => {
   assert.deepEqual(before, ['credit-card', 'personal']); assert.deepEqual(after, ['credit-card']);
 });
 test('no types selected is allowed', () => assert.deepEqual(C.calculate(10 * L, []).loanTypes, []));
-test('labels for display', () => assert.deepEqual(C.loanTypeLabels(['overdraft', 'gold']), ['Gold Loan', 'Overdraft / Cash Credit']));
-test('secured note: home, vehicle, property and gold loans', () => {
-  for (const id of ['home', 'vehicle', 'property', 'gold']) assert.equal(C.hasSecuredLoan([id]), true, id);
-  for (const id of ['credit-card', 'personal', 'business', 'education', 'consumer-durable', 'overdraft', 'other']) assert.equal(C.hasSecuredLoan([id]), false, id);
-  assert.equal(C.calculate(10 * L, ['personal', 'home']).secured, true);
-});
+test('labels for display', () => assert.deepEqual(C.loanTypeLabels(['other', 'business']), ['Business Loan (unsecured)', 'Other unsecured loan']));
+test('a secured id passed directly is ignored', () => assert.deepEqual(C.calculate(10 * L, ['personal', 'home']).loanTypes, ['personal']));
 test('loan type never changes the figures', () => {
   const a = C.calculate(25 * L, []).results, b = C.calculate(25 * L, C.LOAN_TYPES.map((t) => t.id)).results;
   assert.deepEqual(a, b);

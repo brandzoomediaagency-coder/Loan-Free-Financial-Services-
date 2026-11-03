@@ -2,7 +2,17 @@
 
 Date: 3 Nov 2026 · Branch: `claude/serene-newton-af01oj` (from `main` at `753e402`) · URL: `/settlement-calculator.html` (unchanged)
 
-**Status: built and tested on the branch. Not deployed.** No production deployment, merge or Vercel setting change has been made. Business and legal decisions listed in §9 should be settled before launch.
+**Status: merged to `main` on 3 Nov 2026 with the owner's approval** (brandzoomediaagency-coder/Loan-Free-Financial-Services-#4). Vercel builds production from `main`. The live site could not be checked from the build environment, so please confirm it in Vercel and in a browser. The business and legal decisions in §9 are still open.
+
+**Update, 3 Nov 2026 — unsecured loans only.** The business provides settlement services for unsecured loans only. The changes:
+- The loan-type list now offers only unsecured types: Credit Card Outstanding, Personal Loan, Business Loan (unsecured), Education Loan (unsecured), Consumer Durable Loan, Overdraft / Cash Credit (unsecured) and Other unsecured loan.
+- Vehicle Loan, Home Loan, Loan Against Property and Gold Loan were removed, along with the secured-loan note.
+- A permanent note now says "Unsecured loans only. Our settlement services do not cover secured loans such as home loans, vehicle loans, loans against property or gold loans."
+- The amount helper now asks for the combined outstanding across *unsecured* loans.
+- The calculator page, the homepage section and the Services, NBFC, OTS and MSME pages now say plainly that settlement services cover unsecured loans only.
+- Educational guides and the legal-notice page, which explain SARFAESI notices on secured loans, were left as information.
+
+Tests after the update: 63 unit, 227 browser (7 loan types, no secured types, scope note shown), `check.mjs` 0/0, lead test unchanged, site sweep 342 loads clean.
 
 ---
 
@@ -199,7 +209,7 @@ Please decide these before production. Nothing below has been changed on other p
 5. **Fee wording elsewhere on the site** — not changed, to preserve approved text. These pages still say fees "depend on the work involved" or should be requested in writing, which now sits beside a published schedule: `faq.html#fees`, `about.html` (Fees), `services.html#fees`, `terms.html` (Fees), `process.html`, `personal-loan-settlement.html` FAQ, `loan-settlement-delhi.html` FAQ, homepage "Clarity on fees before you decide". Decide whether to align them, for example by pointing to the calculator.
 6. **Banned-claims rule `fixed fees` → "no fees published"** in `tools/check.mjs`. Its reason is now out of date. It is still harmless and was left unchanged.
 7. **Loan types optional.** They are not required to see results and do not change the figures. Confirm, or make them required.
-8. **Secured-loan list.** The note covers home, vehicle, property and gold loans. Overdraft / cash credit and some education loans can also be secured. Confirm the list.
+8. **Secured loans** — *resolved 3 Nov 2026:* only unsecured loan types are offered (see the update at the top). Business, education and overdraft / cash credit, which can be either secured or unsecured, are labelled "(unsecured)". Confirm you want to keep them; cash credit in particular is usually secured. Also decide whether the legal-notice reply service still helps with SARFAESI notices, which only concern secured loans.
 9. **Rounding and limits.** Results are rounded to the nearest rupee. Inputs above ₹1,000 crore are treated as typing errors. Confirm both.
 10. **Navigation labels** still read "Settlement scenario calculator" / "Settlement Calculator". They were kept unchanged as instructed and are still accurate; rename them if you prefer.
 11. **No Hindi version** of the calculator exists (same as before).

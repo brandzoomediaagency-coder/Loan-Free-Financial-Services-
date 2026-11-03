@@ -111,15 +111,16 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   out('chips list the selected types', (await p.locator('[data-r="chips"] .calc-chip').allInnerTexts()).map((s) => s.trim()).join('|') === 'Credit Card Outstanding|Personal Loan');
   out('results card lists the selected types', (await p.locator('[data-r="types"] li').allInnerTexts()).join('|') === 'Credit Card Outstanding|Personal Loan');
   out('loan types do not change the figures', (await text(p, 'fee')) === '₹18,750' && (await text(p, 'settlement')) === '₹7,50,000');
-  out('secured-loan note hidden for unsecured types', !(await p.locator('[data-r="secured"]').isVisible()));
-  await p.locator('.calc-ms-opt', { hasText: 'Home Loan' }).click();
-  out('secured-loan note shown when Home Loan selected', await p.locator('[data-r="secured"]').isVisible());
+  const offered = (await p.locator('.calc-ms-opt').allInnerTexts()).map((s) => s.trim());
+  out('only unsecured loan types are offered (7, no home/vehicle/property/gold)', offered.length === 7 && !offered.some((l) => /\b(home|vehicle|car|property|gold)\b/i.test(l)), offered.join(' | '));
+  out('"unsecured loans only" scope note is shown', /Unsecured loans only/.test(await p.locator('.calc-note').innerText()));
+  await p.locator('.calc-ms-opt', { hasText: 'Business Loan (unsecured)' }).click();
   await p.mouse.click(5, 300);
   out('click outside closes the dropdown', (await toggle.getAttribute('aria-expanded')) === 'false' && !(await panel.isVisible()));
 
   // Chips: remove a selection.
-  await p.locator('[data-r="chips"] button[aria-label="Remove Home Loan"]').click();
-  out('removing a chip unchecks the type and hides the secured note', !(await p.locator('input[value="home"]').isChecked()) && !(await p.locator('[data-r="secured"]').isVisible()));
+  await p.locator('[data-r="chips"] button[aria-label="Remove Business Loan (unsecured)"]').click();
+  out('removing a chip unchecks the type and updates the results card', !(await p.locator('input[value="business"]').isChecked()) && (await p.locator('[data-r="types"] li').count()) === 2);
   out('focus moves to a remaining chip after removal', await p.evaluate(() => /^Remove /.test(document.activeElement.getAttribute('aria-label') || '')));
 
   // Multi-select: keyboard.
@@ -134,7 +135,7 @@ for (const [pagePath, width] of [['/settlement-calculator.html', 1440], ['/settl
   out('Escape closes and returns focus to the button', !(await panel.isVisible()) && await p.evaluate(() => document.activeElement.hasAttribute('data-ms-toggle')));
   await toggle.click();
   await p.locator('[data-ms-all]').click();
-  out('Select all checks every type', (await p.locator('input[data-loan-type]:checked').count()) === 11 && (await p.locator('[data-ms-value]').innerText()) === 'All loan types selected');
+  out('Select all checks every type', (await p.locator('input[data-loan-type]:checked').count()) === 7 && (await p.locator('[data-ms-value]').innerText()) === 'All loan types selected');
   await p.locator('[data-ms-clear]').click();
   out('Clear all unchecks every type', (await p.locator('input[data-loan-type]:checked').count()) === 0 && (await p.locator('[data-ms-value]').innerText()) === 'Select loan types' && await p.locator('[data-r="types-none"]').isVisible());
   await p.locator('[data-ms-done]').click();

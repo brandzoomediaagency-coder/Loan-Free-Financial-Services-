@@ -51,21 +51,18 @@
         // Guard against typing errors only (₹1,000 crore). It is not a business limit.
         MAX_AMOUNT: 1e10,
 
-        // Loan categories offered in the multi-select. `secured` loans show a short note that
-        // settlement and recovery procedures can differ. Selecting a category never implies that an
-        // account qualifies for settlement.
+        // Loan categories offered in the multi-select. Settlement services cover UNSECURED loans only,
+        // so secured loans (home, vehicle, loan against property, gold) are deliberately not offered.
+        // Categories that can be either secured or unsecured are labelled "(unsecured)". Selecting a
+        // category never implies that an account qualifies for settlement.
         LOAN_TYPES: [
             { id: 'credit-card', label: 'Credit Card Outstanding' },
             { id: 'personal', label: 'Personal Loan' },
-            { id: 'business', label: 'Business Loan' },
-            { id: 'education', label: 'Education Loan' },
+            { id: 'business', label: 'Business Loan (unsecured)' },
+            { id: 'education', label: 'Education Loan (unsecured)' },
             { id: 'consumer-durable', label: 'Consumer Durable Loan' },
-            { id: 'vehicle', label: 'Vehicle Loan', secured: true },
-            { id: 'home', label: 'Home Loan', secured: true },
-            { id: 'property', label: 'Loan Against Property', secured: true },
-            { id: 'gold', label: 'Gold Loan', secured: true },
-            { id: 'overdraft', label: 'Overdraft / Cash Credit' },
-            { id: 'other', label: 'Other' }
+            { id: 'overdraft', label: 'Overdraft / Cash Credit (unsecured)' },
+            { id: 'other', label: 'Other unsecured loan' }
         ]
     };
 
@@ -145,9 +142,6 @@
     function loanTypeLabels(ids) {
         return normaliseLoanTypes(ids).map(function (id) { return typeById(id).label; });
     }
-    function hasSecuredLoan(ids) {
-        return normaliseLoanTypes(ids).some(function (id) { return !!typeById(id).secured; });
-    }
     function typeById(id) {
         for (var i = 0; i < CONFIG.LOAN_TYPES.length; i++) if (CONFIG.LOAN_TYPES[i].id === id) return CONFIG.LOAN_TYPES[i];
         return null;
@@ -158,7 +152,7 @@
     function calculate(amount, loanTypes) {
         var types = normaliseLoanTypes(loanTypes);
         var err = validateAmount(amount);
-        var out = { ok: !err, error: err, message: err ? MESSAGES[err] : '', loanTypes: types, secured: hasSecuredLoan(types), results: null };
+        var out = { ok: !err, error: err, message: err ? MESSAGES[err] : '', loanTypes: types, results: null };
         if (!err) out.results = { outstanding: amount, settlement: settlementScenario(amount), fee: legalFee(amount) };
         return out;
     }
@@ -219,7 +213,6 @@
         var boxes = $$('input[type=checkbox][data-loan-type]', ms);
         var chips = $('[data-r="chips"]');
         var chipTpl = $('template[data-chip-template]');
-        var secured = $('[data-r="secured"]');
         var tracked = false;
         var liveTimer;
         var showRequired = false;
@@ -328,7 +321,6 @@
                 });
                 chips.hidden = !types.length;
             }
-            if (secured) secured.hidden = !hasSecuredLoan(types);
             // Results card 1: the selected types (no remove buttons).
             var list = $('[data-r="types"]', out);
             if (list) {
@@ -430,7 +422,6 @@
         calculate: calculate,
         normaliseLoanTypes: normaliseLoanTypes,
         loanTypeLabels: loanTypeLabels,
-        hasSecuredLoan: hasSecuredLoan,
         formatINR: formatINR,
         formatPercent: formatPercent,
         groupIndian: groupIndian,
