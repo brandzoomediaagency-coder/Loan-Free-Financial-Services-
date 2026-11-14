@@ -396,6 +396,32 @@
         });
     });
 
+    /* ------------------------------------------------------------ click-to-play video (home hero) */
+    // The link works on its own (opens YouTube). With JS, a click swaps the poster for the
+    // privacy-enhanced player, so nothing loads from YouTube until the visitor asks for it.
+    $$('a[data-lf-video]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            var id = link.getAttribute('data-lf-video');
+            if (!/^[\w-]{11}$/.test(id)) return;
+            e.preventDefault();
+            var f = document.createElement('iframe');
+            f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+            f.title = 'YouTube video player';
+            f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            f.allowFullscreen = true;
+            f.referrerPolicy = 'strict-origin-when-cross-origin'; // YouTube refuses embeds sent without a referrer
+            var box = document.createElement('div');
+            box.className = link.className;
+            box.appendChild(f);
+            var loc = locationOf(link);
+            link.parentNode.replaceChild(box, link);
+            var fig = box.closest('.hero-visual');
+            if (fig) fig.classList.add('is-playing');
+            f.focus();
+            track('video_play', { link_location: loc });
+        });
+    });
+
     /* ------------------------------------------------------------ resource filters (blog index) */
     var filterBar = $('.filter-bar');
     if (filterBar) {
