@@ -547,7 +547,7 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 }
 .hero-home .container { position: relative; }
 .hero-home-grid { display: grid; gap: clamp(32px, 5vw, 64px); align-items: center; }
-@media (min-width: 1024px) { .hero-home-grid { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: clamp(36px, 4vw, 64px); } }
+@media (min-width: 1024px) { .hero-home-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr); gap: clamp(32px, 3vw, 48px); } }
 .hero-eyebrow { display: inline-flex; align-items: center; gap: .55rem; padding: .4rem .85rem .4rem .5rem; border-radius: 999px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .12); color: #E6EDF4; font-size: .85rem; font-weight: 500; margin-bottom: 1.4rem; }
 .hero-eyebrow .dot { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(214, 174, 88, .18); color: var(--gold-500); }
 .hero-eyebrow .dot .i { width: 13px; height: 13px; }
@@ -834,7 +834,7 @@ a.contact-card:hover { border-color: var(--green-600); color: var(--ink); }
 .hero-float .icon-tile .i { width: 19px; height: 19px; }
 .hero-float-a { left: -22px; bottom: -24px; }
 .hero-float-b { right: -14px; top: -22px; }
-@media (max-width: 1023px) { .hero-visual { max-width: 620px; margin: .5rem auto 0; } .hero-float-a { left: 12px; bottom: -22px; } .hero-float-b { right: 12px; top: -20px; } }
+@media (max-width: 1023px) { .hero-visual { width: 100%; max-width: 760px; margin: .5rem auto 0; } .hero-float-a { left: 12px; bottom: -22px; } .hero-float-b { right: 12px; top: -20px; } }
 @media (max-width: 479px) { .hero-float-b { display: none; } .hero-float-a { position: relative; left: auto; bottom: auto; width: fit-content; margin: -26px 0 0 10px; padding: .55rem .75rem; } }
 
 /* Trust strip overlapping the hero */
