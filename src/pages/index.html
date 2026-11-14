@@ -4,12 +4,12 @@
   "description": "Confidential help with loan and credit card settlement, recovery-agent problems and legal notices. Delhi office, support across India. No false promises.",
   "type": "home",
   "dateModified": "2026-11-03",
-  "preloadPhoto": { "name": "hero-consultation", "sizes": "(max-width: 1023px) 92vw, 560px" },
   "scripts": ["calculator"]
 }
 -->
-<!-- Hero: YouTube video beside the copy. The photo is a click-to-play poster; the
-     privacy-enhanced (youtube-nocookie) player loads only after a click (site.js). -->
+<!-- Hero: YouTube video beside the copy. The video's own thumbnail is a click-to-play poster
+     (maxres, falling back to hq when YouTube has no HD thumbnail); the privacy-enhanced
+     (youtube-nocookie) player loads only after a click (site.js). -->
 <header class="hero-home">
     <div class="container hero-home-grid">
         <div class="hero-copy">
@@ -29,12 +29,11 @@
         </div>
         <figure class="hero-visual">
             <a class="hero-video" href="https://www.youtube.com/watch?v=VMqwG9lVQlU" target="_blank" rel="noopener" data-lf-video="VMqwG9lVQlU" data-lf-loc="hero" aria-label="Play video">
-                <!-- lf:photo name="hero-consultation" alt="" sizes="(max-width: 1023px) 92vw, 560px" class="hero-photo" eager -->
+                <img class="hero-video-thumb" src="https://i.ytimg.com/vi/VMqwG9lVQlU/maxresdefault.jpg" width="1280" height="720" alt="" loading="eager" fetchpriority="high" decoding="async" onload="if(this.naturalWidth&lt;=120)this.src='https://i.ytimg.com/vi/VMqwG9lVQlU/hqdefault.jpg'" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/VMqwG9lVQlU/hqdefault.jpg'">
                 <span class="hero-video-btn" aria-hidden="true"><span class="hero-video-icon"><svg viewBox="0 0 24 24" focusable="false"><path d="M8.5 5.6v12.8a.6.6 0 0 0 .9.5l10.2-6.4a.6.6 0 0 0 0-1L9.4 5.1a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg></span>Watch video</span>
             </a>
             <div class="hero-float hero-float-a"><span class="icon-tile"><i class="fas fa-comments"></i></span><span><strong>Free first consultation</strong>Mon–Sat, 10 a.m.–8 p.m.</span></div>
             <div class="hero-float hero-float-b"><span class="icon-tile"><i class="fas fa-shield-halved"></i></span><span><strong>We never ask for OTPs</strong>or passwords — ever</span></div>
-            <figcaption class="hero-credit">Illustrative image</figcaption>
         </figure>
     </div>
 </header>
